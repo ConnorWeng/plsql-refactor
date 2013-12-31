@@ -573,8 +573,8 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     proc_assert_obj(v_subject_type, v_co_id, v_emp_id);
   
     --根据申请单号校验数据
-    proc_assert_detail_by_appl(1, v_term_one_invest_time, 50, 50);
-    proc_assert_detail_by_appl(3, v_term_one_invest_time, 100, 100);
+    proc_assert_detail_by_appl(1, v_term_one_invest_time, 100, 100);
+    proc_assert_detail_by_appl(3, v_term_one_invest_time, 50, 50);
     proc_assert_detail_by_appl(2, v_term_two_invest_time, 100, 100);
   
   END;
@@ -781,8 +781,8 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     proc_assert_obj(v_subject_type, v_co_id, v_emp_id);
   
     --根据申请单号校验数据
-    proc_assert_detail_by_appl(1, v_term_one_invest_time, 50, 50);
-    proc_assert_detail_by_appl(3, v_term_one_invest_time, 100, 100);
+    proc_assert_detail_by_appl(1, v_term_one_invest_time, 100, 100);
+    proc_assert_detail_by_appl(3, v_term_one_invest_time, 50, 50);
     proc_assert_detail_by_appl(2, v_term_two_invest_time, 100, 100);
   
   END;
