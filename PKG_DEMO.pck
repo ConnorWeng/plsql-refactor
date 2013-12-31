@@ -366,18 +366,18 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       --ROLLBACK;
       O_FLAG := 2;
       O_MSG  := V_MSG;
-      -- PACK_LOG.LOG(V_PROC_NAME,
-      --              V_STEP,
-      --              O_MSG || '|' || V_PARAMS,
-      --              PACK_LOG.WARN_LEVEL);
+      PACK_LOG.LOG(V_PROC_NAME,
+                   V_STEP,
+                   O_MSG || '|' || V_PARAMS,
+                   PACK_LOG.WARN_LEVEL);
     WHEN E_APP_COUNT THEN
       --ROLLBACK;
       O_FLAG := 3;
       O_MSG  := V_MSG;
-      -- PACK_LOG.LOG(V_PROC_NAME,
-      --              V_STEP,
-      --              O_MSG || '|' || V_PARAMS,
-      --              PACK_LOG.WARN_LEVEL);
+      PACK_LOG.LOG(V_PROC_NAME,
+                   V_STEP,
+                   O_MSG || '|' || V_PARAMS,
+                   PACK_LOG.WARN_LEVEL);
     WHEN OTHERS THEN
       --ROLLBACK;
       O_FLAG := 1;
