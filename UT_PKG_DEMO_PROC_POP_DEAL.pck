@@ -9,15 +9,15 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   procedure create_prod_info(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
                              plan_id   in demo_plan_info.plan_id%type,
                              buy_way in demo_invest_basic_info.BUY_WAY%type);
-  procedure assert_obj(subject_type in demo_emp_invest.subject_type%type,
-                       co_id        in demo_co_invest.co_id%type,
-                       emp_id       in demo_emp_invest.emp_id%type);
-  procedure assert_return_success(OUT_FLAG in number,
-                                  OUT_MSG  in VARCHAR2);
-  procedure proc_assert_detail_by_appl(i_yappl_num   in number,
-                                       i_invest_time in varchar2,
-                                       i_quotient    in number,
-                                       i_amt         in number);
+  procedure assert_obj(expected_subject_type in demo_emp_invest.subject_type%type,
+                       expected_co_id        in demo_co_invest.co_id%type,
+                       expected_emp_id       in demo_emp_invest.emp_id%type);
+  procedure assert_return_success(expected_out_flag in number,
+                                  expected_out_msg in VARCHAR2);
+  procedure assert_detail_by_appl(yappl_num   in number,
+                                       expected_invest_time in varchar2,
+                                       expected_quotient    in number,
+                                       expected_amt         in number);
   procedure proc_emp_add_one_term_acct(V_INVEST_ID    in DEMO_INVEST_INFO.INVEST_ID%type,
                                        v_subject_type in demo_emp_invest.subject_type%type,
                                        v_co_id        in demo_co_invest.co_id%type,
@@ -97,56 +97,53 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
       (fpps_invest_id, invest_id, 1, 4, buy_way, 1, 1, 3, 1);
   end create_prod_info;
 
-  procedure assert_obj(subject_type in demo_emp_invest.subject_type%type,
-                       co_id        in demo_co_invest.co_id%type,
-                       emp_id       in demo_emp_invest.emp_id%type) is
+  procedure assert_obj(expected_subject_type in demo_emp_invest.subject_type%type,
+                       expected_co_id        in demo_co_invest.co_id%type,
+                       expected_emp_id       in demo_emp_invest.emp_id%type) is
   begin
     utassert.eqqueryvalue(msg_in           => '校验co_id',
                           CHECK_QUERY_IN   => 'select distinct co_id from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => co_id);
+                          AGAINST_VALUE_IN => expected_co_id);
     utassert.eqqueryvalue(msg_in           => '校验emp_id',
                           CHECK_QUERY_IN   => 'select distinct emp_id from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => emp_id);
+                          AGAINST_VALUE_IN => expected_emp_id);
     utassert.eqqueryvalue(msg_in           => '校验subject_type',
                           CHECK_QUERY_IN   => 'select distinct subject_type from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => subject_type);
+                          AGAINST_VALUE_IN => expected_subject_type);
   end assert_obj;
 
-  procedure assert_return_success(OUT_FLAG in number,
-                                  OUT_MSG  in VARCHAR2) is
+  procedure assert_return_success(expected_out_flag in number,
+                                  expected_out_msg in VARCHAR2) is
   begin
     utassert.eq(msg_in          => '校验程序返回标志',
-                check_this_in   => OUT_FLAG,
+                check_this_in   => expected_out_flag,
                 against_this_in => 0);
     utassert.eq(msg_in          => '校验程序返回信息',
-                check_this_in   => OUT_MSG,
+                check_this_in   => expected_out_msg,
                 against_this_in => '成功');
   end assert_return_success;
-  
-  -- Refactored procedure proc_assert_detail_by_appl 
-  procedure proc_assert_detail_by_appl(i_yappl_num   in number,
-                                       i_invest_time in varchar2,
-                                       i_quotient    in number,
-                                       i_amt         in number) is
+
+  procedure assert_detail_by_appl(yappl_num   in number,
+                                  expected_invest_time in varchar2,
+                                  expected_quotient    in number,
+                                  expected_amt         in number) is
   begin
-    --校验invest_time
-    utassert.eqqueryvalue(msg_in           => 'check invest_time',
+    utassert.eqqueryvalue(msg_in           => '校验invest_time',
                           CHECK_QUERY_IN   => 'select invest_time from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
-                                              i_yappl_num,
-                          AGAINST_VALUE_IN => i_invest_time);
+                                              yappl_num,
+                          AGAINST_VALUE_IN => expected_invest_time);
   
-    --校验quotient
-    utassert.eqqueryvalue(msg_in           => 'check quotient',
+    utassert.eqqueryvalue(msg_in           => '校验quotient',
                           CHECK_QUERY_IN   => 'select quotient from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
-                                              i_yappl_num,
-                          AGAINST_VALUE_IN => i_quotient);
+                                              yappl_num,
+                          AGAINST_VALUE_IN => expected_quotient);
   
-    --校验amt
-    utassert.eqqueryvalue(msg_in           => 'check amt',
+    utassert.eqqueryvalue(msg_in           => '校验amt',
                           CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
-                                              i_yappl_num,
-                          AGAINST_VALUE_IN => i_amt);
-  end proc_assert_detail_by_appl;
+                                              yappl_num,
+                          AGAINST_VALUE_IN => expected_amt);
+  end assert_detail_by_appl;
+  
   -- Refactored procedure proc_add_one_term_acct 
   procedure proc_emp_add_one_term_acct(V_INVEST_ID    in DEMO_INVEST_INFO.INVEST_ID%type,
                                        v_subject_type in demo_emp_invest.subject_type%type,
@@ -339,7 +336,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                           AGAINST_VALUE_IN => 1);
   
     --根据申请单号校验数据
-    proc_assert_detail_by_appl(1, v_term_one_invest_time, 90, 90);
+    assert_detail_by_appl(1, v_term_one_invest_time, 90, 90);
   
   END;
   /*
@@ -434,8 +431,8 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     assert_obj(v_subject_type, v_co_id, v_emp_id);
   
     --根据申请单号校验数据
-    proc_assert_detail_by_appl(1, v_term_one_invest_time, 80, 80);
-    proc_assert_detail_by_appl(2, v_term_two_invest_time, 100, 100);
+    assert_detail_by_appl(1, v_term_one_invest_time, 80, 80);
+    assert_detail_by_appl(2, v_term_two_invest_time, 100, 100);
   
   END;
   /*
@@ -540,9 +537,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     assert_obj(v_subject_type, v_co_id, v_emp_id);
   
     --根据申请单号校验数据
-    proc_assert_detail_by_appl(1, v_term_one_invest_time, 100, 100);
-    proc_assert_detail_by_appl(3, v_term_one_invest_time, 50, 50);
-    proc_assert_detail_by_appl(2, v_term_two_invest_time, 100, 100);
+    assert_detail_by_appl(1, v_term_one_invest_time, 100, 100);
+    assert_detail_by_appl(3, v_term_one_invest_time, 50, 50);
+    assert_detail_by_appl(2, v_term_two_invest_time, 100, 100);
   
   END;
   /*
@@ -748,9 +745,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     assert_obj(v_subject_type, v_co_id, v_emp_id);
   
     --根据申请单号校验数据
-    proc_assert_detail_by_appl(1, v_term_one_invest_time, 100, 100);
-    proc_assert_detail_by_appl(3, v_term_one_invest_time, 50, 50);
-    proc_assert_detail_by_appl(2, v_term_two_invest_time, 100, 100);
+    assert_detail_by_appl(1, v_term_one_invest_time, 100, 100);
+    assert_detail_by_appl(3, v_term_one_invest_time, 50, 50);
+    assert_detail_by_appl(2, v_term_two_invest_time, 100, 100);
   
   END;
   /*
@@ -875,12 +872,12 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                                    '生成申请单超过5条');
   
     --根据申请单号校验数据
-    proc_assert_detail_by_appl(1, v_term_one_invest_time, 100, 100);
-    proc_assert_detail_by_appl(3, v_term_one_invest_time, 100, 100);
-    proc_assert_detail_by_appl(2, v_term_two_invest_time, 100, 100);
-    proc_assert_detail_by_appl(4, v_term_one_invest_time, 100, 100);
-    proc_assert_detail_by_appl(5, v_term_one_invest_time, 100, 100);
-    proc_assert_detail_by_appl(6, v_term_one_invest_time, 100, 100);
+    assert_detail_by_appl(1, v_term_one_invest_time, 100, 100);
+    assert_detail_by_appl(3, v_term_one_invest_time, 100, 100);
+    assert_detail_by_appl(2, v_term_two_invest_time, 100, 100);
+    assert_detail_by_appl(4, v_term_one_invest_time, 100, 100);
+    assert_detail_by_appl(5, v_term_one_invest_time, 100, 100);
+    assert_detail_by_appl(6, v_term_one_invest_time, 100, 100);
   
   END;
   /*
