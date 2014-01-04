@@ -18,19 +18,19 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
                                        expected_invest_time in varchar2,
                                        expected_quotient    in number,
                                        expected_amt         in number);
-  procedure proc_emp_add_one_term_acct(V_INVEST_ID    in DEMO_INVEST_INFO.INVEST_ID%type,
-                                       v_subject_type in demo_emp_invest.subject_type%type,
-                                       v_co_id        in demo_co_invest.co_id%type,
-                                       v_emp_id       in demo_emp_invest.emp_id%type,
-                                       v_appl_num     in demo_appl_num_rel.appl_num%type,
-                                       v_invest_time  in demo_appl_num_rel.INVEST_TIME%type,
-                                       v_amt          in demo_appl_num_rel.AMT%type);
-  procedure proc_co_add_one_term_acct(V_INVEST_ID    in DEMO_INVEST_INFO.INVEST_ID%type,
-                                      v_subject_type in demo_emp_invest.subject_type%type,
-                                      v_co_id        in demo_co_invest.co_id%type,
-                                      v_appl_num     in demo_appl_num_rel.appl_num%type,
-                                      v_invest_time  in demo_appl_num_rel.INVEST_TIME%type,
-                                      v_amt          in demo_appl_num_rel.AMT%type);
+  procedure create_one_term_acct_for_emp(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
+                                       subject_type in demo_emp_invest.subject_type%type,
+                                       co_id        in demo_co_invest.co_id%type,
+                                       emp_id       in demo_emp_invest.emp_id%type,
+                                       appl_num     in demo_appl_num_rel.appl_num%type,
+                                       invest_time  in demo_appl_num_rel.INVEST_TIME%type,
+                                       amt          in demo_appl_num_rel.AMT%type);
+  procedure create_one_term_acct_for_co(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
+                                        subject_type in demo_emp_invest.subject_type%type,
+                                        co_id        in demo_co_invest.co_id%type,
+                                        appl_num     in demo_appl_num_rel.appl_num%type,
+                                        invest_time  in demo_appl_num_rel.INVEST_TIME%type,
+                                        amt          in demo_appl_num_rel.AMT%type);
   -- For each program to test...
   PROCEDURE UT_EX_EMP_ONE_TERM_ONE_APPL;
   PROCEDURE UT_EX_EMP_MULT_TERM_ONE_APPL;
@@ -143,27 +143,26 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                                               yappl_num,
                           AGAINST_VALUE_IN => expected_amt);
   end assert_detail_by_appl;
-  
-  -- Refactored procedure proc_add_one_term_acct 
-  procedure proc_emp_add_one_term_acct(V_INVEST_ID    in DEMO_INVEST_INFO.INVEST_ID%type,
-                                       v_subject_type in demo_emp_invest.subject_type%type,
-                                       v_co_id        in demo_co_invest.co_id%type,
-                                       v_emp_id       in demo_emp_invest.emp_id%type,
-                                       v_appl_num     in demo_appl_num_rel.appl_num%type,
-                                       v_invest_time  in demo_appl_num_rel.INVEST_TIME%type,
-                                       v_amt          in demo_appl_num_rel.AMT%type) is
+
+  procedure create_one_term_acct_for_emp(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
+                                       subject_type in demo_emp_invest.subject_type%type,
+                                       co_id        in demo_co_invest.co_id%type,
+                                       emp_id       in demo_emp_invest.emp_id%type,
+                                       appl_num     in demo_appl_num_rel.appl_num%type,
+                                       invest_time  in demo_appl_num_rel.INVEST_TIME%type,
+                                       amt          in demo_appl_num_rel.AMT%type) is
   begin
     insert into demo_appl_num_rel
       (CO_ID, INVEST_ID, APPL_NUM, INVEST_TIME, AMT, RED_AMT)
     values
-      (v_co_id, v_invest_id, v_appl_num, v_invest_time, v_amt, 0.00);
+      (co_id, invest_id, appl_num, invest_time, amt, 0.00);
   
     merge into demo_emp_invest a
-    using (select v_emp_id       emp_id,
-                  v_co_id        co_id,
-                  v_subject_type subject_type,
-                  v_invest_id    invest_id,
-                  v_amt          amt
+    using (select emp_id       emp_id,
+                  co_id        co_id,
+                  subject_type subject_type,
+                  invest_id    invest_id,
+                  amt          amt
              from dual) b
     on (a.emp_id = b.emp_id and a.co_id = b.co_id and a.subject_type = b.subject_type and a.invest_id = b.invest_id)
     WHEN MATCHED THEN
@@ -184,12 +183,12 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
          b.amt);
   
     merge into demo_emp_invest_term a
-    using (select v_emp_id       emp_id,
-                  v_co_id        co_id,
-                  v_subject_type subject_type,
-                  v_invest_id    invest_id,
-                  v_invest_time  invest_time,
-                  v_amt          amt
+    using (select emp_id       emp_id,
+                  co_id        co_id,
+                  subject_type subject_type,
+                  invest_id    invest_id,
+                  invest_time  invest_time,
+                  amt          amt
              from dual) b
     on (a.emp_id = b.emp_id and a.co_id = b.co_id and a.subject_type = b.subject_type and a.invest_id = b.invest_id and a.invest_time = b.invest_time)
     WHEN MATCHED THEN
@@ -205,25 +204,25 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
          b.invest_time,
          b.amt);
   
-  end proc_emp_add_one_term_acct;
-  -- Refactored procedure proc_add_one_term_acct 
-  procedure proc_co_add_one_term_acct(V_INVEST_ID    in DEMO_INVEST_INFO.INVEST_ID%type,
-                                      v_subject_type in demo_emp_invest.subject_type%type,
-                                      v_co_id        in demo_co_invest.co_id%type,
-                                      v_appl_num     in demo_appl_num_rel.appl_num%type,
-                                      v_invest_time  in demo_appl_num_rel.INVEST_TIME%type,
-                                      v_amt          in demo_appl_num_rel.AMT%type) is
+  end create_one_term_acct_for_emp;
+
+  procedure create_one_term_acct_for_co(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
+                                        subject_type in demo_emp_invest.subject_type%type,
+                                        co_id        in demo_co_invest.co_id%type,
+                                        appl_num     in demo_appl_num_rel.appl_num%type,
+                                        invest_time  in demo_appl_num_rel.INVEST_TIME%type,
+                                        amt          in demo_appl_num_rel.AMT%type) is
   begin
     insert into demo_appl_num_rel
       (CO_ID, INVEST_ID, APPL_NUM, INVEST_TIME, AMT, RED_AMT)
     values
-      (v_co_id, v_invest_id, v_appl_num, v_invest_time, v_amt, 0.00);
+      (co_id, invest_id, appl_num, invest_time, amt, 0.00);
   
     merge into demo_co_invest a
-    using (select v_co_id        co_id,
-                  v_subject_type subject_type,
-                  v_invest_id    invest_id,
-                  v_amt          amt
+    using (select co_id        co_id,
+                  subject_type subject_type,
+                  invest_id    invest_id,
+                  amt          amt
              from dual) b
     on (a.co_id = b.co_id and a.subject_type = b.subject_type and a.invest_id = b.invest_id)
     WHEN MATCHED THEN
@@ -238,11 +237,11 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
         (b.co_id, b.subject_type, b.invest_id, b.amt, b.amt, b.amt);
   
     merge into demo_co_invest_term a
-    using (select v_co_id        co_id,
-                  v_subject_type subject_type,
-                  v_invest_id    invest_id,
-                  v_invest_time  invest_time,
-                  v_amt          amt
+    using (select co_id        co_id,
+                  subject_type subject_type,
+                  invest_id    invest_id,
+                  invest_time  invest_time,
+                  amt          amt
              from dual) b
     on (a.co_id = b.co_id and a.subject_type = b.subject_type and a.invest_id = b.invest_id and a.invest_time = b.invest_time)
     WHEN MATCHED THEN
@@ -253,7 +252,8 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
       values
         (b.co_id, b.subject_type, b.invest_id, b.invest_time, b.amt);
   
-  end proc_co_add_one_term_acct;
+  end create_one_term_acct_for_co;
+  
   /*
   涉及一期，且一期只有一张申请单，一期资产够（个人）
   */
@@ -275,7 +275,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --准备数据
     create_plan_info(v_plan_id);
     --账务数据
-    proc_emp_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_emp(V_INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
@@ -360,14 +360,14 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --计划数据
     create_plan_info(v_plan_id);
     --账务数据
-    proc_emp_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_emp(V_INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
                                1,
                                v_term_one_invest_time,
                                100);
-    proc_emp_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_emp(V_INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
@@ -457,21 +457,21 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --计划数据
     create_plan_info(v_plan_id);
     --账务数据
-    proc_emp_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_emp(V_INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
                                1,
                                v_term_one_invest_time,
                                100);
-    proc_emp_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_emp(V_INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
                                2,
                                v_term_two_invest_time,
                                100);
-    proc_emp_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_emp(V_INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
@@ -564,21 +564,21 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --计划数据
     create_plan_info(v_plan_id);
     --账务数据
-    proc_emp_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_emp(V_INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
                                1,
                                v_term_one_invest_time,
                                100);
-    proc_emp_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_emp(V_INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
                                2,
                                v_term_two_invest_time,
                                100);
-    proc_emp_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_emp(V_INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
@@ -668,19 +668,19 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --计划数据
     create_plan_info(v_plan_id);
     --账务数据
-    proc_co_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_co(V_INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               1,
                               v_term_one_invest_time,
                               100);
-    proc_co_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_co(V_INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               2,
                               v_term_two_invest_time,
                               100);
-    proc_co_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_co(V_INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               3,
@@ -772,37 +772,37 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --计划数据
     create_plan_info(v_plan_id);
     --账务数据
-    proc_co_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_co(V_INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               1,
                               v_term_one_invest_time,
                               100);
-    proc_co_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_co(V_INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               2,
                               v_term_two_invest_time,
                               100);
-    proc_co_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_co(V_INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               3,
                               v_term_one_invest_time,
                               100);
-    proc_co_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_co(V_INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               4,
                               v_term_one_invest_time,
                               100);
-    proc_co_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_co(V_INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               5,
                               v_term_one_invest_time,
                               100);
-    proc_co_add_one_term_acct(V_INVEST_ID,
+    create_one_term_acct_for_co(V_INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               6,
