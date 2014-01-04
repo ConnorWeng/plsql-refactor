@@ -12,8 +12,8 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   procedure assert_obj(subject_type in demo_emp_invest.subject_type%type,
                        co_id        in demo_co_invest.co_id%type,
                        emp_id       in demo_emp_invest.emp_id%type);
-  procedure proc_assert_return_success(OUT_FLAG in number,
-                                       OUT_MSG  in VARCHAR2);
+  procedure assert_return_success(OUT_FLAG in number,
+                                  OUT_MSG  in VARCHAR2);
   procedure proc_assert_detail_by_appl(i_yappl_num   in number,
                                        i_invest_time in varchar2,
                                        i_quotient    in number,
@@ -112,19 +112,17 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                           AGAINST_VALUE_IN => subject_type);
   end assert_obj;
 
-  -- Refactored procedure proc_return_msg_assert 
-  procedure proc_assert_return_success(OUT_FLAG in number,
-                                       OUT_MSG  in VARCHAR2) is
+  procedure assert_return_success(OUT_FLAG in number,
+                                  OUT_MSG  in VARCHAR2) is
   begin
-    --校验程序返回标志
-    utassert.eq(msg_in          => 'check OUT_FLAG',
+    utassert.eq(msg_in          => '校验程序返回标志',
                 check_this_in   => OUT_FLAG,
                 against_this_in => 0);
-    --校验程序返回信息
-    utassert.eq(msg_in          => 'check OUT_MSG',
+    utassert.eq(msg_in          => '校验程序返回信息',
                 check_this_in   => OUT_MSG,
                 against_this_in => '成功');
-  end proc_assert_return_success;
+  end assert_return_success;
+  
   -- Refactored procedure proc_assert_detail_by_appl 
   procedure proc_assert_detail_by_appl(i_yappl_num   in number,
                                        i_invest_time in varchar2,
@@ -331,7 +329,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   
     --执行asserts
     --校验返回信息
-    proc_assert_return_success(OUT_FLAG, OUT_MSG);
+    assert_return_success(OUT_FLAG, OUT_MSG);
     --校验拆分对象
     assert_obj(v_subject_type, v_co_id, v_emp_id);
   
@@ -431,7 +429,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   
     --执行asserts
     --校验返回信息
-    proc_assert_return_success(OUT_FLAG, OUT_MSG);
+    assert_return_success(OUT_FLAG, OUT_MSG);
     --校验拆分对象
     assert_obj(v_subject_type, v_co_id, v_emp_id);
   
@@ -537,7 +535,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --执行asserts
     --校验程序返回标志
     --校验返回信息
-    proc_assert_return_success(OUT_FLAG, OUT_MSG);
+    assert_return_success(OUT_FLAG, OUT_MSG);
     --校验拆分对象
     assert_obj(v_subject_type, v_co_id, v_emp_id);
   
@@ -745,7 +743,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --执行asserts
     --校验程序返回标志
     --校验返回信息
-    proc_assert_return_success(OUT_FLAG, OUT_MSG);
+    assert_return_success(OUT_FLAG, OUT_MSG);
     --校验拆分对象
     assert_obj(v_subject_type, v_co_id, v_emp_id);
   
@@ -953,7 +951,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                            O_MSG       => OUT_MSG);
     --执行asserts
     --校验程序返回标志
-    proc_assert_return_success(OUT_FLAG, OUT_MSG);
+    assert_return_success(OUT_FLAG, OUT_MSG);
   
     --校验拆分对象
     assert_obj(v_subject_type, v_co_id, v_emp_id);
@@ -1041,7 +1039,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                            O_MSG       => OUT_MSG);
     --执行asserts
     --校验程序返回标志
-    proc_assert_return_success(OUT_FLAG, OUT_MSG);
+    assert_return_success(OUT_FLAG, OUT_MSG);
   
     --校验拆分对象
     assert_obj(v_subject_type, v_co_id, v_emp_id);
