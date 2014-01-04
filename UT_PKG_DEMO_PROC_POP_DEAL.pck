@@ -1,7 +1,7 @@
 CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   PROCEDURE UT_SETUP;
   PROCEDURE UT_TEARDOWN;
-  procedure proc_plan_info_prepare(v_plan_id in demo_plan_info.plan_id%type);
+  procedure create_plan_info(plan_id in demo_plan_info.plan_id%type);
   procedure proc_ex_prod_info_prepare(V_INVEST_ID in DEMO_INVEST_INFO.INVEST_ID%type,
                                       v_plan_id   in demo_plan_info.plan_id%type);
   procedure proc_unex_prod_info_prepare(V_INVEST_ID in DEMO_INVEST_INFO.INVEST_ID%type,
@@ -43,42 +43,22 @@ END UT_PKG_DEMO_PROC_POP_DEAL;
 CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   PROCEDURE UT_SETUP IS
   BEGIN
-    /* --计划数据
-    execute immediate 'truncate table demo_plan_info';
-    
-    --产品数据
-    execute immediate 'truncate table demo_invest_info';
-    execute immediate 'truncate table demo_invest_basic_info';
-    execute immediate 'truncate table demo_invest_op_control';
-    execute immediate 'truncate table demo_invest_unit_value';
-    
-    --账务数据
-    execute immediate 'truncate table demo_appl_num_rel';
-    execute immediate 'truncate table demo_emp_invest';
-    execute immediate 'truncate table demo_emp_invest_term';
-    execute immediate 'truncate table demo_co_invest';
-    execute immediate 'truncate table demo_co_invest_term';
-    
-    --传入数据
-    execute immediate 'truncate table demo_invest_pop_tmp';
-    
-    --传出数据
-    execute immediate 'truncate table demo_invest_pop_result_tmp';*/
     null;
   END;
   PROCEDURE UT_TEARDOWN IS
   BEGIN
     rollback;
   END;
-  -- Refactored procedure proc_plan_info_prepare 
-  procedure proc_plan_info_prepare(v_plan_id in demo_plan_info.plan_id%type) is
+  
+  procedure create_plan_info(plan_id in demo_plan_info.plan_id%type) is
   begin
     --计划数据
     insert into demo_plan_info
       (PLAN_ID, PLAN_NAME, PLAN_TIME)
     values
-      (v_plan_id, '计划名称', '2013-12-01');
-  end proc_plan_info_prepare;
+      (plan_id, '计划名称', '2013-12-01');
+  end create_plan_info;
+
   -- Refactored procedure proc_ex_prod_info_prepare 
   procedure proc_ex_prod_info_prepare(V_INVEST_ID in DEMO_INVEST_INFO.INVEST_ID%type,
                                       v_plan_id   in demo_plan_info.plan_id%type) is
@@ -309,7 +289,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   
   BEGIN
     --准备数据
-    proc_plan_info_prepare(v_plan_id);
+    create_plan_info(v_plan_id);
     --账务数据
     proc_emp_add_one_term_acct(V_INVEST_ID,
                                v_subject_type,
@@ -394,7 +374,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    proc_plan_info_prepare(v_plan_id);
+    create_plan_info(v_plan_id);
     --账务数据
     proc_emp_add_one_term_acct(V_INVEST_ID,
                                v_subject_type,
@@ -491,7 +471,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    proc_plan_info_prepare(v_plan_id);
+    create_plan_info(v_plan_id);
     --账务数据
     proc_emp_add_one_term_acct(V_INVEST_ID,
                                v_subject_type,
@@ -598,7 +578,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    proc_plan_info_prepare(v_plan_id);
+    create_plan_info(v_plan_id);
     --账务数据
     proc_emp_add_one_term_acct(V_INVEST_ID,
                                v_subject_type,
@@ -702,7 +682,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    proc_plan_info_prepare(v_plan_id);
+    create_plan_info(v_plan_id);
     --账务数据
     proc_co_add_one_term_acct(V_INVEST_ID,
                               v_subject_type,
@@ -806,7 +786,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    proc_plan_info_prepare(v_plan_id);
+    create_plan_info(v_plan_id);
     --账务数据
     proc_co_add_one_term_acct(V_INVEST_ID,
                               v_subject_type,
@@ -936,7 +916,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    proc_plan_info_prepare(v_plan_id);
+    create_plan_info(v_plan_id);
     --预期收益产品准备
     proc_unex_prod_info_prepare(V_INVEST_ID, v_plan_id);
     --账务数据
@@ -1024,7 +1004,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    proc_plan_info_prepare(v_plan_id);
+    create_plan_info(v_plan_id);
     --预期收益产品准备
     proc_unex_prod_info_prepare(V_INVEST_ID, v_plan_id);
     --账务数据
@@ -1112,7 +1092,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    proc_plan_info_prepare(v_plan_id);
+    create_plan_info(v_plan_id);
     --预期收益产品准备
     proc_unex_prod_info_prepare(V_INVEST_ID, v_plan_id);
     --账务数据
