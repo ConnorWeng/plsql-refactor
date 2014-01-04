@@ -2,10 +2,13 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   PROCEDURE UT_SETUP;
   PROCEDURE UT_TEARDOWN;
   procedure create_plan_info(plan_id in demo_plan_info.plan_id%type);
-  procedure create_ex_prod_info(INVEST_ID in DEMO_INVEST_INFO.INVEST_ID%type,
+  procedure create_ex_prod_info(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
                                 plan_id   in demo_plan_info.plan_id%type);
-  procedure proc_unex_prod_info_prepare(V_INVEST_ID in DEMO_INVEST_INFO.INVEST_ID%type,
-                                        v_plan_id   in demo_plan_info.plan_id%type);
+  procedure create_unex_prod_info(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
+                                  plan_id   in demo_plan_info.plan_id%type);
+  procedure create_prod_info(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
+                             plan_id   in demo_plan_info.plan_id%type,
+                             buy_way in demo_invest_basic_info.BUY_WAY%type);
   procedure proc_assert_obj(v_subject_type in demo_emp_invest.subject_type%type,
                             v_co_id        in demo_co_invest.co_id%type,
                             v_emp_id       in demo_emp_invest.emp_id%type);
@@ -60,6 +63,19 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
 
   procedure create_ex_prod_info(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
                                 plan_id   in demo_plan_info.plan_id%type) is
+  begin
+    create_prod_info(invest_id, plan_id, 0);
+  end create_ex_prod_info;
+
+  procedure create_unex_prod_info(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
+                                  plan_id   in demo_plan_info.plan_id%type) is
+  begin
+    create_prod_info(invest_id, plan_id, 1);
+  end create_unex_prod_info;
+
+  procedure create_prod_info(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
+                             plan_id   in demo_plan_info.plan_id%type,
+                             buy_way in demo_invest_basic_info.BUY_WAY%type) is
     fpps_invest_id demo_invest_basic_info.fpps_invest_id%type := '00000001';
   begin
     insert into demo_invest_info
@@ -78,31 +94,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
        sell_order,
        SELL_VALUE)
     values
-      (fpps_invest_id, invest_id, 1, 4, 0, 1, 1, 3, 1);
-  end create_ex_prod_info;
-  
-  procedure proc_unex_prod_info_prepare(V_INVEST_ID in DEMO_INVEST_INFO.INVEST_ID%type,
-                                        v_plan_id   in demo_plan_info.plan_id%type) is
-    v_fpps_invest_id demo_invest_basic_info.fpps_invest_id%type := '00000001';
-  begin
-    --产品数据
-    insert into demo_invest_info
-      (PLAN_ID, INVEST_ID, INVEST_NAME)
-    values
-      (v_plan_id, v_invest_id, '组合名称');
-    insert into demo_invest_basic_info
-      (FPPS_INVEST_ID,
-       INVEST_ID,
-       INVEST_STATE,
-       ISSUE_WAY,
-       BUY_WAY,
-       SELL_MIN_TERM,
-       OPEN_SELL_TERM,
-       sell_order,
-       SELL_VALUE)
-    values
-      (v_fpps_invest_id, v_invest_id, 1, 4, 1, 1, 1, 3, 1);
-  end proc_unex_prod_info_prepare;
+      (fpps_invest_id, invest_id, 1, 4, buy_way, 1, 1, 3, 1);
+  end create_prod_info;
+
   -- Refactored procedure proc_obj_assert 
   procedure proc_assert_obj(v_subject_type in demo_emp_invest.subject_type%type,
                             v_co_id        in demo_co_invest.co_id%type,
@@ -917,7 +911,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --计划数据
     create_plan_info(v_plan_id);
     --预期收益产品准备
-    proc_unex_prod_info_prepare(V_INVEST_ID, v_plan_id);
+    create_unex_prod_info(V_INVEST_ID, v_plan_id);
     --账务数据
     insert into demo_emp_invest
       (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
@@ -1005,7 +999,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --计划数据
     create_plan_info(v_plan_id);
     --预期收益产品准备
-    proc_unex_prod_info_prepare(V_INVEST_ID, v_plan_id);
+    create_unex_prod_info(V_INVEST_ID, v_plan_id);
     --账务数据
     insert into demo_co_invest
       (CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
@@ -1093,7 +1087,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --计划数据
     create_plan_info(v_plan_id);
     --预期收益产品准备
-    proc_unex_prod_info_prepare(V_INVEST_ID, v_plan_id);
+    create_unex_prod_info(V_INVEST_ID, v_plan_id);
     --账务数据
     insert into demo_co_invest
       (CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
