@@ -27,7 +27,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
                                         amt          in demo_appl_num_rel.AMT%type);
   function one_day_before(day VARCHAR2) return VARCHAR2;
   procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
-                                         co_id demo_co_invest.co_id%type,
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type);
   
@@ -104,7 +103,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     values
       (invest_id, red_term_invest_time, plan_id, 1, 3);
    
-    create_invest_pop_parameters(emp_id, co_id, subject_type, red_amt);
+    create_invest_pop_parameters(emp_id, subject_type, red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -123,7 +122,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   end;
 
   procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
-                                         co_id demo_co_invest.co_id%type,
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type) is
   begin
