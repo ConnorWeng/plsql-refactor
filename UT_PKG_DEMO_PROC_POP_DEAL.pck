@@ -48,6 +48,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
                                   expected_invest_time in varchar2,
                                   expected_quotient    in number,
                                   expected_amt         in number);
+  procedure assert_result_count;
 END UT_PKG_DEMO_PROC_POP_DEAL;
 /
 
@@ -75,7 +76,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     term_one_invest_time VARCHAR2(10) := '2013-01-01';
     red_term_invest_time VARCHAR2(10) := '2013-12-16';
     red_amt              demo_invest_pop_tmp.amt%type := 90;
-    
   
   BEGIN
     create_plan_info(plan_id);
@@ -118,16 +118,16 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   
     assert_return_success(OUT_FLAG, OUT_MSG);
     assert_redemption_obj(subject_type, co_id, emp_id);
-  
-    --校验tablecount
-    utassert.eqqueryvalue(msg_in           => 'check tablecount',
+    assert_result_count;
+    assert_detail_by_appl(1, term_one_invest_time, 90, 90);
+  END;
+
+  procedure assert_result_count is
+  begin
+    utassert.eqqueryvalue(msg_in           => '校验tablecount',
                           CHECK_QUERY_IN   => 'select count(1) from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => 1);
-  
-    --根据申请单号校验数据
-    assert_detail_by_appl(1, term_one_invest_time, 90, 90);
-  
-  END;
+  end;
 
   procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
                                          co_id demo_co_invest.co_id%type,
