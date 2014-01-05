@@ -13,10 +13,8 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   PROCEDURE UT_UNEX_CO_NOTENOUGH;
 
   procedure create_plan_info;
-  procedure create_ex_prod_info(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
-                                plan_id   in demo_plan_info.plan_id%type);
-  procedure create_unex_prod_info(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
-                                  plan_id   in demo_plan_info.plan_id%type);
+  procedure create_ex_prod_info;
+  procedure create_unex_prod_info;
   procedure create_prod_info(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
                              plan_id   in demo_plan_info.plan_id%type,
                              buy_way in demo_invest_basic_info.BUY_WAY%type);
@@ -50,8 +48,8 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
                                   expected_amt         in number);
   procedure assert_result_count;
 
-  invest_id            DEMO_INVEST_INFO.INVEST_ID%type := '990001';
-  plan_id              demo_plan_info.plan_id%type := '000001';
+  invest_id   constant DEMO_INVEST_INFO.INVEST_ID%type := '990001';
+  plan_id     constant demo_plan_info.plan_id%type := '000001';
 END UT_PKG_DEMO_PROC_POP_DEAL;
 /
 
@@ -79,7 +77,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     red_amt              demo_invest_pop_tmp.amt%type := 90;
   
   BEGIN
-    create_ex_prod_info(invest_id, plan_id);
+    create_ex_prod_info;
     create_one_term_acct_for_emp(invest_id,
                                subject_type,
                                co_id,
@@ -173,7 +171,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                                100);
   
     --预期收益产品准备
-    create_ex_prod_info(INVEST_ID, plan_id);
+    create_ex_prod_info;
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
@@ -273,7 +271,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                                100);
   
     --预期收益产品准备
-    create_ex_prod_info(INVEST_ID, plan_id);
+    create_ex_prod_info;
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
@@ -376,7 +374,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                                100);
   
     --预期收益产品准备
-    create_ex_prod_info(INVEST_ID, plan_id);
+    create_ex_prod_info;
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
@@ -473,7 +471,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                               100);
   
     --预期收益产品准备
-    create_ex_prod_info(INVEST_ID, plan_id);
+    create_ex_prod_info;
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
@@ -591,7 +589,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                               100);
   
     --预期收益产品准备
-    create_ex_prod_info(INVEST_ID, plan_id);
+    create_ex_prod_info;
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
@@ -679,7 +677,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --预期收益产品准备
-    create_unex_prod_info(INVEST_ID, plan_id);
+    create_unex_prod_info;
     --账务数据
     insert into demo_emp_invest
       (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
@@ -763,7 +761,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --预期收益产品准备
-    create_unex_prod_info(INVEST_ID, plan_id);
+    create_unex_prod_info;
     --账务数据
     insert into demo_co_invest
       (CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
@@ -847,7 +845,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --预期收益产品准备
-    create_unex_prod_info(INVEST_ID, plan_id);
+    create_unex_prod_info;
     --账务数据
     insert into demo_co_invest
       (CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
@@ -911,15 +909,13 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
       (plan_id, '计划名称', '2013-12-01');
   end create_plan_info;
 
-  procedure create_ex_prod_info(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
-                                plan_id   in demo_plan_info.plan_id%type) is
+  procedure create_ex_prod_info is
   True constant number := 0;
   begin
     create_prod_info(invest_id, plan_id, True);
   end create_ex_prod_info;
 
-  procedure create_unex_prod_info(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
-                                  plan_id   in demo_plan_info.plan_id%type) is
+  procedure create_unex_prod_info is
   False constant number := 1;
   begin
     create_prod_info(invest_id, plan_id, False);
