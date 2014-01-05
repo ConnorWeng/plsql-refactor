@@ -29,6 +29,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type);
   procedure assert_return_success;
+  procedure assert_out_flag_and_out_msg(expected_out_flag number, expected_out_msg VARCHAR2);
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,
                                   expected_quotient    in number,
@@ -367,15 +368,8 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
-    --执行asserts
-    --校验程序返回标志
-    utassert.eq(msg_in          => 'check OUT_FLAG',
-                check_this_in   => OUT_FLAG,
-                against_this_in => 2);
-    --校验程序返回信息
-    utassert.eq(msg_in          => 'check OUT_MSG',
-                check_this_in   => OUT_MSG,
-                against_this_in => '进行后进先出处理时，资产不足');
+
+    assert_out_flag_and_out_msg(2, '进行后进先出处理时，资产不足');
   
   END;
   /*
@@ -546,15 +540,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
-    --执行asserts
-    --校验程序返回标志
-    utassert.eq(msg_in          => 'check OUT_FLAG',
-                check_this_in   => OUT_FLAG,
-                against_this_in => 3);
-    --校验程序返回信息
-    utassert.eq(msg_in          => 'check OUT_MSG',
-                check_this_in   => OUT_MSG,
-                against_this_in => '企业：' ||
+    assert_out_flag_and_out_msg(3, '企业：' ||
                                    PKG_DEMO_COMMON.FUNC_GET_COFNAMEBYID(co_id) ||
                                    '生成申请单超过5条');
   
@@ -782,15 +768,8 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
-    --执行asserts
-    --校验程序返回标志
-    utassert.eq(msg_in          => 'check OUT_FLAG',
-                check_this_in   => OUT_FLAG,
-                against_this_in => 2);
-    --校验程序返回信息
-    utassert.eq(msg_in          => 'check OUT_MSG',
-                check_this_in   => OUT_MSG,
-                against_this_in => '赎回份额分配出错');
+
+    assert_out_flag_and_out_msg(2, '赎回份额分配出错');
   
   END;
 
@@ -850,13 +829,18 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
 
   procedure assert_return_success is
   begin
+    assert_out_flag_and_out_msg(0, '成功');
+  end assert_return_success;
+
+  procedure assert_out_flag_and_out_msg(expected_out_flag number, expected_out_msg VARCHAR2) is
+  begin
     utassert.eq(msg_in          => '校验程序返回标志',
                 check_this_in   => out_flag,
-                against_this_in => 0);
+                against_this_in => expected_out_flag);
     utassert.eq(msg_in          => '校验程序返回信息',
                 check_this_in   => out_msg,
-                against_this_in => '成功');
-  end assert_return_success;
+                against_this_in => expected_out_msg);
+  end assert_out_flag_and_out_msg;
 
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,
