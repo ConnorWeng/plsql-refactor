@@ -49,6 +49,9 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
                                   expected_quotient    in number,
                                   expected_amt         in number);
   procedure assert_result_count;
+
+  invest_id            DEMO_INVEST_INFO.INVEST_ID%type := '990001';
+  plan_id              demo_plan_info.plan_id%type := '000001';
 END UT_PKG_DEMO_PROC_POP_DEAL;
 /
 
@@ -68,8 +71,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   PROCEDURE UT_EX_EMP_ONE_TERM_ONE_APPL IS
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    invest_id            DEMO_INVEST_INFO.INVEST_ID%type := '990001';
-    plan_id              demo_plan_info.plan_id%type := '000001';
     subject_type         demo_emp_invest.subject_type%type := '301001';
     co_id                demo_co_invest.co_id%type := '0000001000000';
     emp_id               demo_emp_invest.emp_id%type := '0000000001';
@@ -147,8 +148,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --out arguements definition
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    V_INVEST_ID            DEMO_INVEST_INFO.INVEST_ID%type := '990001';
-    v_plan_id              demo_plan_info.plan_id%type := '000001';
     v_subject_type         demo_emp_invest.subject_type%type := '301001';
     v_co_id                demo_co_invest.co_id%type := '0000001000000';
     v_emp_id               demo_emp_invest.emp_id%type := '0000000001';
@@ -159,16 +158,16 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    create_plan_info(v_plan_id);
+    create_plan_info(plan_id);
     --账务数据
-    create_one_term_acct_for_emp(V_INVEST_ID,
+    create_one_term_acct_for_emp(INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
                                1,
                                v_term_one_invest_time,
                                100);
-    create_one_term_acct_for_emp(V_INVEST_ID,
+    create_one_term_acct_for_emp(INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
@@ -177,20 +176,20 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                                100);
   
     --预期收益产品准备
-    create_ex_prod_info(V_INVEST_ID, v_plan_id);
+    create_ex_prod_info(INVEST_ID, plan_id);
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 1, v_term_one_invest_time);
+      (invest_id, 2, 1, v_term_one_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 2, v_term_two_invest_time);
+      (invest_id, 2, 2, v_term_two_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id,
+      (invest_id,
        3,
        1,
        to_char(to_date(v_red_term_invest_time, 'yyyy-mm-dd') - 1,
@@ -198,21 +197,21 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 3, v_red_term_invest_time);
+      (invest_id, 2, 3, v_red_term_invest_time);
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_term_one_invest_time, v_plan_id, 1, 1);
+      (invest_id, v_term_one_invest_time, plan_id, 1, 1);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_term_two_invest_time, v_plan_id, 1, 2);
+      (invest_id, v_term_two_invest_time, plan_id, 1, 2);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_red_term_invest_time, v_plan_id, 1, 3);
+      (invest_id, v_red_term_invest_time, plan_id, 1, 3);
   
     --传入数据
     insert into demo_invest_pop_tmp
@@ -221,7 +220,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
       (v_emp_id, v_co_id, v_subject_type, v_red_amt);
   
     --执行被测代码
-    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => V_INVEST_ID,
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
@@ -243,8 +242,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --out arguements definition
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    V_INVEST_ID            DEMO_INVEST_INFO.INVEST_ID%type := '990001';
-    v_plan_id              demo_plan_info.plan_id%type := '000001';
     v_subject_type         demo_emp_invest.subject_type%type := '301001';
     v_co_id                demo_co_invest.co_id%type := '0000001000000';
     v_emp_id               demo_emp_invest.emp_id%type := '0000000001';
@@ -256,23 +253,23 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    create_plan_info(v_plan_id);
+    create_plan_info(plan_id);
     --账务数据
-    create_one_term_acct_for_emp(V_INVEST_ID,
+    create_one_term_acct_for_emp(INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
                                1,
                                v_term_one_invest_time,
                                100);
-    create_one_term_acct_for_emp(V_INVEST_ID,
+    create_one_term_acct_for_emp(INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
                                2,
                                v_term_two_invest_time,
                                100);
-    create_one_term_acct_for_emp(V_INVEST_ID,
+    create_one_term_acct_for_emp(INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
@@ -281,20 +278,20 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                                100);
   
     --预期收益产品准备
-    create_ex_prod_info(V_INVEST_ID, v_plan_id);
+    create_ex_prod_info(INVEST_ID, plan_id);
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 1, v_term_one_invest_time);
+      (invest_id, 2, 1, v_term_one_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 2, v_term_two_invest_time);
+      (invest_id, 2, 2, v_term_two_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id,
+      (invest_id,
        3,
        1,
        to_char(to_date(v_red_term_invest_time, 'yyyy-mm-dd') - 1,
@@ -302,22 +299,22 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 12, v_red_term_invest_time);
+      (invest_id, 2, 12, v_red_term_invest_time);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_term_one_invest_time, v_plan_id, 1, 1);
+      (invest_id, v_term_one_invest_time, plan_id, 1, 1);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_term_two_invest_time, v_plan_id, 1, 2);
+      (invest_id, v_term_two_invest_time, plan_id, 1, 2);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_red_term_invest_time, v_plan_id, 1, 3);
+      (invest_id, v_red_term_invest_time, plan_id, 1, 3);
   
     --传入数据
     insert into demo_invest_pop_tmp
@@ -326,7 +323,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
       (v_emp_id, v_co_id, v_subject_type, v_red_amt);
   
     --执行被测代码
-    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => V_INVEST_ID,
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
@@ -350,8 +347,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --out arguements definition
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    V_INVEST_ID            DEMO_INVEST_INFO.INVEST_ID%type := '990001';
-    v_plan_id              demo_plan_info.plan_id%type := '000001';
     v_subject_type         demo_emp_invest.subject_type%type := '301001';
     v_co_id                demo_co_invest.co_id%type := '0000001000000';
     v_emp_id               demo_emp_invest.emp_id%type := '0000000001';
@@ -363,23 +358,23 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    create_plan_info(v_plan_id);
+    create_plan_info(plan_id);
     --账务数据
-    create_one_term_acct_for_emp(V_INVEST_ID,
+    create_one_term_acct_for_emp(INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
                                1,
                                v_term_one_invest_time,
                                100);
-    create_one_term_acct_for_emp(V_INVEST_ID,
+    create_one_term_acct_for_emp(INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
                                2,
                                v_term_two_invest_time,
                                100);
-    create_one_term_acct_for_emp(V_INVEST_ID,
+    create_one_term_acct_for_emp(INVEST_ID,
                                v_subject_type,
                                v_co_id,
                                v_emp_id,
@@ -388,20 +383,20 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                                100);
   
     --预期收益产品准备
-    create_ex_prod_info(V_INVEST_ID, v_plan_id);
+    create_ex_prod_info(INVEST_ID, plan_id);
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 1, v_term_one_invest_time);
+      (invest_id, 2, 1, v_term_one_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 2, v_term_two_invest_time);
+      (invest_id, 2, 2, v_term_two_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id,
+      (invest_id,
        3,
        1,
        to_char(to_date(v_red_term_invest_time, 'yyyy-mm-dd') - 1,
@@ -409,22 +404,22 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 12, v_red_term_invest_time);
+      (invest_id, 2, 12, v_red_term_invest_time);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_term_one_invest_time, v_plan_id, 1, 1);
+      (invest_id, v_term_one_invest_time, plan_id, 1, 1);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_term_two_invest_time, v_plan_id, 1, 2);
+      (invest_id, v_term_two_invest_time, plan_id, 1, 2);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_red_term_invest_time, v_plan_id, 1, 3);
+      (invest_id, v_red_term_invest_time, plan_id, 1, 3);
   
     --传入数据
     insert into demo_invest_pop_tmp
@@ -433,7 +428,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
       (v_emp_id, v_co_id, v_subject_type, v_red_amt);
   
     --执行被测代码
-    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => V_INVEST_ID,
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
     --执行asserts
@@ -454,8 +449,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --out arguements definition
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    V_INVEST_ID            DEMO_INVEST_INFO.INVEST_ID%type := '990001';
-    v_plan_id              demo_plan_info.plan_id%type := '000001';
     v_subject_type         demo_emp_invest.subject_type%type := '302101';
     v_co_id                demo_co_invest.co_id%type := '0000001000000';
     v_emp_id               demo_emp_invest.emp_id%type := 'FFFFFFFFFF';
@@ -467,21 +460,21 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    create_plan_info(v_plan_id);
+    create_plan_info(plan_id);
     --账务数据
-    create_one_term_acct_for_co(V_INVEST_ID,
+    create_one_term_acct_for_co(INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               1,
                               v_term_one_invest_time,
                               100);
-    create_one_term_acct_for_co(V_INVEST_ID,
+    create_one_term_acct_for_co(INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               2,
                               v_term_two_invest_time,
                               100);
-    create_one_term_acct_for_co(V_INVEST_ID,
+    create_one_term_acct_for_co(INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               3,
@@ -489,20 +482,20 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                               100);
   
     --预期收益产品准备
-    create_ex_prod_info(V_INVEST_ID, v_plan_id);
+    create_ex_prod_info(INVEST_ID, plan_id);
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 1, v_term_one_invest_time);
+      (invest_id, 2, 1, v_term_one_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 2, v_term_two_invest_time);
+      (invest_id, 2, 2, v_term_two_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id,
+      (invest_id,
        3,
        1,
        to_char(to_date(v_red_term_invest_time, 'yyyy-mm-dd') - 1,
@@ -510,22 +503,22 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 12, v_red_term_invest_time);
+      (invest_id, 2, 12, v_red_term_invest_time);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_term_one_invest_time, v_plan_id, 1, 1);
+      (invest_id, v_term_one_invest_time, plan_id, 1, 1);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_term_two_invest_time, v_plan_id, 1, 2);
+      (invest_id, v_term_two_invest_time, plan_id, 1, 2);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_red_term_invest_time, v_plan_id, 1, 3);
+      (invest_id, v_red_term_invest_time, plan_id, 1, 3);
   
     --传入数据
     insert into demo_invest_pop_tmp
@@ -534,7 +527,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
       (v_emp_id, v_co_id, v_subject_type, v_red_amt);
   
     --执行被测代码
-    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => V_INVEST_ID,
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
@@ -558,8 +551,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --out arguements definition
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    V_INVEST_ID            DEMO_INVEST_INFO.INVEST_ID%type := '990001';
-    v_plan_id              demo_plan_info.plan_id%type := '000001';
     v_subject_type         demo_emp_invest.subject_type%type := '302101';
     v_co_id                demo_co_invest.co_id%type := '0000001000000';
     v_emp_id               demo_emp_invest.emp_id%type := 'FFFFFFFFFF';
@@ -571,39 +562,39 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    create_plan_info(v_plan_id);
+    create_plan_info(plan_id);
     --账务数据
-    create_one_term_acct_for_co(V_INVEST_ID,
+    create_one_term_acct_for_co(INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               1,
                               v_term_one_invest_time,
                               100);
-    create_one_term_acct_for_co(V_INVEST_ID,
+    create_one_term_acct_for_co(INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               2,
                               v_term_two_invest_time,
                               100);
-    create_one_term_acct_for_co(V_INVEST_ID,
+    create_one_term_acct_for_co(INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               3,
                               v_term_one_invest_time,
                               100);
-    create_one_term_acct_for_co(V_INVEST_ID,
+    create_one_term_acct_for_co(INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               4,
                               v_term_one_invest_time,
                               100);
-    create_one_term_acct_for_co(V_INVEST_ID,
+    create_one_term_acct_for_co(INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               5,
                               v_term_one_invest_time,
                               100);
-    create_one_term_acct_for_co(V_INVEST_ID,
+    create_one_term_acct_for_co(INVEST_ID,
                               v_subject_type,
                               v_co_id,
                               6,
@@ -611,20 +602,20 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                               100);
   
     --预期收益产品准备
-    create_ex_prod_info(V_INVEST_ID, v_plan_id);
+    create_ex_prod_info(INVEST_ID, plan_id);
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 1, v_term_one_invest_time);
+      (invest_id, 2, 1, v_term_one_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 2, v_term_two_invest_time);
+      (invest_id, 2, 2, v_term_two_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id,
+      (invest_id,
        3,
        1,
        to_char(to_date(v_red_term_invest_time, 'yyyy-mm-dd') - 1,
@@ -632,22 +623,22 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 12, v_red_term_invest_time);
+      (invest_id, 2, 12, v_red_term_invest_time);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_term_one_invest_time, v_plan_id, 1, 1);
+      (invest_id, v_term_one_invest_time, plan_id, 1, 1);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_term_two_invest_time, v_plan_id, 1, 2);
+      (invest_id, v_term_two_invest_time, plan_id, 1, 2);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_red_term_invest_time, v_plan_id, 1, 3);
+      (invest_id, v_red_term_invest_time, plan_id, 1, 3);
   
     --传入数据
     insert into demo_invest_pop_tmp
@@ -656,7 +647,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
       (v_emp_id, v_co_id, v_subject_type, v_red_amt);
   
     --执行被测代码
-    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => V_INVEST_ID,
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
@@ -688,8 +679,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --out arguements definition
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    V_INVEST_ID            DEMO_INVEST_INFO.INVEST_ID%type := '990001';
-    v_plan_id              demo_plan_info.plan_id%type := '000001';
     v_subject_type         demo_emp_invest.subject_type%type := '301001';
     v_co_id                demo_co_invest.co_id%type := '0000001000000';
     v_emp_id               demo_emp_invest.emp_id%type := '0000000001';
@@ -701,23 +690,23 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    create_plan_info(v_plan_id);
+    create_plan_info(plan_id);
     --预期收益产品准备
-    create_unex_prod_info(V_INVEST_ID, v_plan_id);
+    create_unex_prod_info(INVEST_ID, plan_id);
     --账务数据
     insert into demo_emp_invest
       (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
     values
-      (v_emp_id, v_co_id, v_subject_type, V_INVEST_ID, 50, 50, 100);
+      (v_emp_id, v_co_id, v_subject_type, INVEST_ID, 50, 50, 100);
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 1, v_term_one_invest_time);
+      (invest_id, 2, 1, v_term_one_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id,
+      (invest_id,
        3,
        1,
        to_char(to_date(v_red_term_invest_time, 'yyyy-mm-dd') - 1,
@@ -725,17 +714,17 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 12, v_red_term_invest_time);
+      (invest_id, 2, 12, v_red_term_invest_time);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_term_one_invest_time, v_plan_id, 1, 2);
+      (invest_id, v_term_one_invest_time, plan_id, 1, 2);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_red_term_invest_time, v_plan_id, 1, 3);
+      (invest_id, v_red_term_invest_time, plan_id, 1, 3);
   
     --传入数据
     insert into demo_invest_pop_tmp
@@ -744,7 +733,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
       (v_emp_id, v_co_id, v_subject_type, v_red_amt);
   
     --执行被测代码
-    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => V_INVEST_ID,
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
     --执行asserts
@@ -777,8 +766,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --out arguements definition
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    V_INVEST_ID            DEMO_INVEST_INFO.INVEST_ID%type := '990001';
-    v_plan_id              demo_plan_info.plan_id%type := '000001';
     v_subject_type         demo_emp_invest.subject_type%type := '301001';
     v_co_id                demo_co_invest.co_id%type := '0000001000000';
     v_emp_id               demo_emp_invest.emp_id%type := 'FFFFFFFFFF';
@@ -789,23 +776,23 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    create_plan_info(v_plan_id);
+    create_plan_info(plan_id);
     --预期收益产品准备
-    create_unex_prod_info(V_INVEST_ID, v_plan_id);
+    create_unex_prod_info(INVEST_ID, plan_id);
     --账务数据
     insert into demo_co_invest
       (CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
     values
-      (v_co_id, v_subject_type, V_INVEST_ID, 50, 50, 100);
+      (v_co_id, v_subject_type, INVEST_ID, 50, 50, 100);
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 1, v_term_one_invest_time);
+      (invest_id, 2, 1, v_term_one_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id,
+      (invest_id,
        3,
        1,
        to_char(to_date(v_red_term_invest_time, 'yyyy-mm-dd') - 1,
@@ -813,17 +800,17 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 12, v_red_term_invest_time);
+      (invest_id, 2, 12, v_red_term_invest_time);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_term_one_invest_time, v_plan_id, 1, 2);
+      (invest_id, v_term_one_invest_time, plan_id, 1, 2);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_red_term_invest_time, v_plan_id, 1, 3);
+      (invest_id, v_red_term_invest_time, plan_id, 1, 3);
   
     --传入数据
     insert into demo_invest_pop_tmp
@@ -832,7 +819,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
       (v_emp_id, v_co_id, v_subject_type, v_red_amt);
   
     --执行被测代码
-    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => V_INVEST_ID,
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
     --执行asserts
@@ -865,8 +852,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --out arguements definition
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    V_INVEST_ID            DEMO_INVEST_INFO.INVEST_ID%type := '990001';
-    v_plan_id              demo_plan_info.plan_id%type := '000001';
     v_subject_type         demo_emp_invest.subject_type%type := '301001';
     v_co_id                demo_co_invest.co_id%type := '0000001000000';
     v_emp_id               demo_emp_invest.emp_id%type := 'FFFFFFFFFF';
@@ -877,23 +862,23 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --计划数据
-    create_plan_info(v_plan_id);
+    create_plan_info(plan_id);
     --预期收益产品准备
-    create_unex_prod_info(V_INVEST_ID, v_plan_id);
+    create_unex_prod_info(INVEST_ID, plan_id);
     --账务数据
     insert into demo_co_invest
       (CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
     values
-      (v_co_id, v_subject_type, V_INVEST_ID, 50, 50, 100);
+      (v_co_id, v_subject_type, INVEST_ID, 50, 50, 100);
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 1, v_term_one_invest_time);
+      (invest_id, 2, 1, v_term_one_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id,
+      (invest_id,
        3,
        1,
        to_char(to_date(v_red_term_invest_time, 'yyyy-mm-dd') - 1,
@@ -901,17 +886,17 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (v_invest_id, 2, 12, v_red_term_invest_time);
+      (invest_id, 2, 12, v_red_term_invest_time);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_term_one_invest_time, v_plan_id, 1, 2);
+      (invest_id, v_term_one_invest_time, plan_id, 1, 2);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (v_invest_id, v_red_term_invest_time, v_plan_id, 1, 3);
+      (invest_id, v_red_term_invest_time, plan_id, 1, 3);
   
     --传入数据
     insert into demo_invest_pop_tmp
@@ -920,7 +905,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
       (v_emp_id, v_co_id, v_subject_type, v_red_amt);
   
     --执行被测代码
-    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => V_INVEST_ID,
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
     --执行asserts
