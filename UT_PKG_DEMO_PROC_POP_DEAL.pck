@@ -22,7 +22,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
                                          invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                          amt          in demo_appl_num_rel.AMT%type);
   procedure create_one_term_acct_for_co(subject_type in demo_emp_invest.subject_type%type,
-                                        co_id        in demo_co_invest.co_id%type,
                                         appl_num     in demo_appl_num_rel.appl_num%type,
                                         invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                         amt          in demo_appl_num_rel.AMT%type);
@@ -428,17 +427,14 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --准备数据
     --账务数据
     create_one_term_acct_for_co(v_subject_type,
-                              co_id,
                               1,
                               v_term_one_invest_time,
                               100);
     create_one_term_acct_for_co(v_subject_type,
-                              co_id,
                               2,
                               v_term_two_invest_time,
                               100);
     create_one_term_acct_for_co(v_subject_type,
-                              co_id,
                               3,
                               v_term_one_invest_time,
                               100);
@@ -524,32 +520,26 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --准备数据
     --账务数据
     create_one_term_acct_for_co(v_subject_type,
-                              co_id,
                               1,
                               v_term_one_invest_time,
                               100);
     create_one_term_acct_for_co(v_subject_type,
-                              co_id,
                               2,
                               v_term_two_invest_time,
                               100);
     create_one_term_acct_for_co(v_subject_type,
-                              co_id,
                               3,
                               v_term_one_invest_time,
                               100);
     create_one_term_acct_for_co(v_subject_type,
-                              co_id,
                               4,
                               v_term_one_invest_time,
                               100);
     create_one_term_acct_for_co(v_subject_type,
-                              co_id,
                               5,
                               v_term_one_invest_time,
                               100);
     create_one_term_acct_for_co(v_subject_type,
-                              co_id,
                               6,
                               v_term_one_invest_time,
                               100);
@@ -1012,7 +1002,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   end create_one_term_acct_for_emp;
 
   procedure create_one_term_acct_for_co(subject_type in demo_emp_invest.subject_type%type,
-                                        co_id        in demo_co_invest.co_id%type,
                                         appl_num     in demo_appl_num_rel.appl_num%type,
                                         invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                         amt          in demo_appl_num_rel.AMT%type) is
