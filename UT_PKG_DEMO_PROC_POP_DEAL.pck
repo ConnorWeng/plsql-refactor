@@ -15,9 +15,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   procedure create_plan_info;
   procedure create_ex_prod_info;
   procedure create_unex_prod_info;
-  procedure create_prod_info(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
-                             plan_id   in demo_plan_info.plan_id%type,
-                             buy_way in demo_invest_basic_info.BUY_WAY%type);
+  procedure create_prod_info(buy_way in demo_invest_basic_info.BUY_WAY%type);
   procedure create_one_term_acct_for_emp(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
                                          subject_type in demo_emp_invest.subject_type%type,
                                          co_id        in demo_co_invest.co_id%type,
@@ -48,6 +46,9 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
                                   expected_amt         in number);
   procedure assert_result_count;
 
+  True constant number := 0;
+  False constant number := 1;
+  Dummy constant number := 1;
   invest_id   constant DEMO_INVEST_INFO.INVEST_ID%type := '990001';
   plan_id     constant demo_plan_info.plan_id%type := '000001';
 END UT_PKG_DEMO_PROC_POP_DEAL;
@@ -910,22 +911,17 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   end create_plan_info;
 
   procedure create_ex_prod_info is
-  True constant number := 0;
   begin
-    create_prod_info(invest_id, plan_id, True);
+    create_prod_info(True);
   end create_ex_prod_info;
 
   procedure create_unex_prod_info is
-  False constant number := 1;
   begin
-    create_prod_info(invest_id, plan_id, False);
+    create_prod_info(False);
   end create_unex_prod_info;
 
-  procedure create_prod_info(invest_id in DEMO_INVEST_INFO.INVEST_ID%type,
-                             plan_id   in demo_plan_info.plan_id%type,
-                             buy_way in demo_invest_basic_info.BUY_WAY%type) is
+  procedure create_prod_info(buy_way in demo_invest_basic_info.BUY_WAY%type) is
     fpps_invest_id demo_invest_basic_info.fpps_invest_id%type := '00000001';
-    Dummy constant number := 1;
   begin
     insert into demo_invest_info
       (PLAN_ID, INVEST_ID, INVEST_NAME)
