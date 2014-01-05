@@ -31,7 +31,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
                                          red_amt demo_invest_pop_tmp.amt%type);
   
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
-                                  expected_co_id        in demo_co_invest.co_id%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type);
   procedure assert_return_success(expected_out_flag in number,
                                   expected_out_msg in VARCHAR2);
@@ -109,7 +108,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                            O_MSG       => OUT_MSG);
   
     assert_return_success(OUT_FLAG, OUT_MSG);
-    assert_redemption_obj(subject_type, co_id, emp_id);
+    assert_redemption_obj(subject_type, emp_id);
     assert_result_count;
     assert_detail_by_appl(1, term_one_invest_time, 90, 90);
   END;
@@ -211,7 +210,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --校验返回信息
     assert_return_success(OUT_FLAG, OUT_MSG);
     --校验拆分对象
-    assert_redemption_obj(v_subject_type, co_id, v_emp_id);
+    assert_redemption_obj(v_subject_type, v_emp_id);
   
     --根据申请单号校验数据
     assert_detail_by_appl(1, v_term_one_invest_time, 80, 80);
@@ -306,7 +305,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --校验返回信息
     assert_return_success(OUT_FLAG, OUT_MSG);
     --校验拆分对象
-    assert_redemption_obj(v_subject_type, co_id, v_emp_id);
+    assert_redemption_obj(v_subject_type, v_emp_id);
   
     --根据申请单号校验数据
     assert_detail_by_appl(1, v_term_one_invest_time, 100, 100);
@@ -492,7 +491,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --校验返回信息
     assert_return_success(OUT_FLAG, OUT_MSG);
     --校验拆分对象
-    assert_redemption_obj(v_subject_type, co_id, v_emp_id);
+    assert_redemption_obj(v_subject_type, v_emp_id);
   
     --根据申请单号校验数据
     assert_detail_by_appl(1, v_term_one_invest_time, 100, 100);
@@ -679,7 +678,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     assert_return_success(OUT_FLAG, OUT_MSG);
   
     --校验拆分对象
-    assert_redemption_obj(v_subject_type, co_id, v_emp_id);
+    assert_redemption_obj(v_subject_type, v_emp_id);
   
     --校验tablecount
     utassert.eqqueryvalue(msg_in           => 'check tablecount',
@@ -762,7 +761,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     assert_return_success(OUT_FLAG, OUT_MSG);
   
     --校验拆分对象
-    assert_redemption_obj(v_subject_type, co_id, v_emp_id);
+    assert_redemption_obj(v_subject_type, v_emp_id);
   
     --校验tablecount
     utassert.eqqueryvalue(msg_in           => 'check tablecount',
@@ -893,12 +892,11 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   end create_prod_info;
 
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
-                       expected_co_id        in demo_co_invest.co_id%type,
                        expected_emp_id       in demo_emp_invest.emp_id%type) is
   begin
     utassert.eqqueryvalue(msg_in           => '校验co_id',
                           CHECK_QUERY_IN   => 'select distinct co_id from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => expected_co_id);
+                          AGAINST_VALUE_IN => co_id);
     utassert.eqqueryvalue(msg_in           => '校验emp_id',
                           CHECK_QUERY_IN   => 'select distinct emp_id from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => expected_emp_id);
