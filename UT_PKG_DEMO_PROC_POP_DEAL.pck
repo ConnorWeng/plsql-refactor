@@ -22,20 +22,20 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   procedure create_one_term_acct_for_co(appl_num     in demo_appl_num_rel.appl_num%type,
                                         invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                         amt          in demo_appl_num_rel.AMT%type);
-  function one_day_before(day VARCHAR2) return VARCHAR2;
   procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type);
   
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type);
-  procedure assert_return_success(expected_out_flag in number,
-                                  expected_out_msg in VARCHAR2);
+  procedure assert_return_success(out_msg in VARCHAR2);
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,
                                   expected_quotient    in number,
                                   expected_amt         in number);
   procedure assert_result_count;
+
+  function one_day_before(day VARCHAR2) return VARCHAR2;
 
   True                constant number := 0;
   False               constant number := 1;
@@ -47,6 +47,8 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   invalid_emp_id      constant demo_emp_invest.emp_id%type := 'FFFFFFFFFF';
   subject_type_emp    constant demo_emp_invest.subject_type%type := '301001';
   subject_type_co     constant demo_emp_invest.subject_type%type := '302101';
+  
+  OUT_FLAG    number;
 END UT_PKG_DEMO_PROC_POP_DEAL;
 /
 
@@ -57,6 +59,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   END;
   PROCEDURE UT_TEARDOWN IS
   BEGIN
+    OUT_FLAG := -1;
     rollback;
   END;
   
@@ -64,7 +67,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   涉及一期，且一期只有一张申请单，一期资产够（个人）
   */
   PROCEDURE UT_EX_EMP_ONE_TERM_ONE_APPL IS
-    OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
     term_one_invest_time VARCHAR2(10) := '2013-01-01';
     red_term_invest_time VARCHAR2(10) := '2013-12-16';
@@ -104,7 +106,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
-    assert_return_success(OUT_FLAG, OUT_MSG);
+    assert_return_success(OUT_MSG);
     assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count;
     assert_detail_by_appl(1, term_one_invest_time, 90, 90);
@@ -132,7 +134,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_ONE_APPL IS
     --out arguements definition
-    OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_term_two_invest_time VARCHAR2(10) := '2013-02-01';
@@ -199,7 +200,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   
     --执行asserts
     --校验返回信息
-    assert_return_success(OUT_FLAG, OUT_MSG);
+    assert_return_success(OUT_MSG);
     --校验拆分对象
     assert_redemption_obj(subject_type_emp, emp_id);
   
@@ -213,7 +214,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_MULT_APPL IS
     --out arguements definition
-    OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_term_two_invest_time VARCHAR2(10) := '2013-02-01';
@@ -286,7 +286,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --执行asserts
     --校验程序返回标志
     --校验返回信息
-    assert_return_success(OUT_FLAG, OUT_MSG);
+    assert_return_success(OUT_MSG);
     --校验拆分对象
     assert_redemption_obj(subject_type_emp, emp_id);
   
@@ -301,7 +301,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_NOTENOUGH IS
     --out arguements definition
-    OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_term_two_invest_time VARCHAR2(10) := '2013-02-01';
@@ -386,7 +385,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   */
   PROCEDURE UT_EX_CO_MULT_TERM IS
     --out arguements definition
-    OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_term_two_invest_time VARCHAR2(10) := '2013-02-01';
@@ -459,7 +457,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --执行asserts
     --校验程序返回标志
     --校验返回信息
-    assert_return_success(OUT_FLAG, OUT_MSG);
+    assert_return_success(OUT_MSG);
     --校验拆分对象
     assert_redemption_obj(subject_type_co, invalid_emp_id);
   
@@ -579,7 +577,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   */
   PROCEDURE UT_UNEX_EMP_ENOUGH IS
     --out arguements definition
-    OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_red_term_invest_time VARCHAR2(10) := '2013-12-16';
@@ -635,7 +632,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                            O_MSG       => OUT_MSG);
     --执行asserts
     --校验程序返回标志
-    assert_return_success(OUT_FLAG, OUT_MSG);
+    assert_return_success(OUT_MSG);
   
     --校验拆分对象
     assert_redemption_obj(subject_type_emp, emp_id);
@@ -661,7 +658,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   */
   PROCEDURE UT_UNEX_CO_ENOUGH IS
     --out arguements definition
-    OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_red_term_invest_time VARCHAR2(10) := '2013-12-16';
@@ -716,7 +712,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                            O_MSG       => OUT_MSG);
     --执行asserts
     --校验程序返回标志
-    assert_return_success(OUT_FLAG, OUT_MSG);
+    assert_return_success(OUT_MSG);
   
     --校验拆分对象
     assert_redemption_obj(subject_type_emp, invalid_emp_id);
@@ -742,7 +738,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   */
   PROCEDURE UT_UNEX_CO_NOTENOUGH IS
     --out arguements definition
-    OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_red_term_invest_time VARCHAR2(10) := '2013-12-16';
@@ -861,14 +856,13 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                           AGAINST_VALUE_IN => expected_subject_type);
   end assert_redemption_obj;
 
-  procedure assert_return_success(expected_out_flag in number,
-                                  expected_out_msg in VARCHAR2) is
+  procedure assert_return_success(out_msg in VARCHAR2) is
   begin
     utassert.eq(msg_in          => '校验程序返回标志',
-                check_this_in   => expected_out_flag,
+                check_this_in   => out_flag,
                 against_this_in => 0);
     utassert.eq(msg_in          => '校验程序返回信息',
-                check_this_in   => expected_out_msg,
+                check_this_in   => out_msg,
                 against_this_in => '成功');
   end assert_return_success;
 
