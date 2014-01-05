@@ -25,6 +25,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type);
+  procedure create_one_purchase_for_op_ctl(term_no number, invest_time VARCHAR2);
   
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type);
@@ -41,6 +42,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   True                constant number := 0;
   False               constant number := 1;
   Dummy               constant number := 1;
+
   invest_id           constant DEMO_INVEST_INFO.INVEST_ID%type := '990001';
   plan_id             constant demo_plan_info.plan_id%type := '000001';
   co_id               constant demo_co_invest.co_id%type := '0000001000000';
@@ -48,6 +50,8 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   invalid_emp_id      constant demo_emp_invest.emp_id%type := 'FFFFFFFFFF';
   subject_type_emp    constant demo_emp_invest.subject_type%type := '301001';
   subject_type_co     constant demo_emp_invest.subject_type%type := '302101';
+  op_type_purchase    constant demo_invest_op_control.OP_TYPE%type := 2;
+  op_type_redemption  constant demo_invest_op_control.OP_TYPE%type := 3;
   
   OUT_FLAG    number;
   OUT_MSG     VARCHAR2(2000);
@@ -76,22 +80,17 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   
   BEGIN
     create_ex_prod_info;
-    create_one_term_acct_for_emp(1,
-                               term_one_invest_time,
-                               100);
+    create_one_term_acct_for_emp(1, term_one_invest_time, 100);
   
+    create_one_purchase_for_op_ctl(1, term_one_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (invest_id, 2, 1, term_one_invest_time);
+      (invest_id, op_type_redemption, 1, one_day_before(red_term_invest_time));
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (invest_id, 3, 1, one_day_before(red_term_invest_time));
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, 2, 2, red_term_invest_time);
+      (invest_id, op_type_purchase, 2, red_term_invest_time);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
@@ -111,25 +110,16 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     assert_return_success;
     assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count;
-    assert_detail_by_appl(1, term_one_invest_time, 90, 90);
+    assert_detail_by_appl(1, term_one_invest_time, red_amt, red_amt);
   END;
 
-  procedure assert_result_count is
+  procedure create_one_purchase_for_op_ctl(term_no number, invest_time VARCHAR2) is
   begin
-    utassert.eqqueryvalue(msg_in           => '校验tablecount',
-                          CHECK_QUERY_IN   => 'select count(1) from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => 1);
-  end;
-
-  procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
-                                         subject_type demo_emp_invest.subject_type%type,
-                                         red_amt demo_invest_pop_tmp.amt%type) is
-  begin
-    insert into demo_invest_pop_tmp
-      (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
+    insert into demo_invest_op_control
+      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (emp_id, co_id, subject_type, red_amt);
-  end;
+      (invest_id, op_type_purchase, term_no, invest_time);
+  end create_one_purchase_for_op_ctl;
 
   /*
   涉及一期，且一期只有一张申请单，一期资产够（个人）
@@ -863,6 +853,13 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                           AGAINST_VALUE_IN => expected_amt);
   end assert_detail_by_appl;
 
+  procedure assert_result_count is
+  begin
+    utassert.eqqueryvalue(msg_in           => '校验tablecount',
+                          CHECK_QUERY_IN   => 'select count(1) from demo_invest_pop_result_tmp',
+                          AGAINST_VALUE_IN => 1);
+  end;
+
   procedure create_one_term_acct_for_emp(appl_num     in demo_appl_num_rel.appl_num%type,
                                        invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                        amt          in demo_appl_num_rel.AMT%type) is
@@ -965,6 +962,16 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
         (b.co_id, b.subject_type, b.invest_id, b.invest_time, b.amt);
   
   end create_one_term_acct_for_co;
+
+  procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
+                                         subject_type demo_emp_invest.subject_type%type,
+                                         red_amt demo_invest_pop_tmp.amt%type) is
+  begin
+    insert into demo_invest_pop_tmp
+      (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
+    values
+      (emp_id, co_id, subject_type, red_amt);
+  end;
 
   function one_day_before(day VARCHAR2) return VARCHAR2 is
   begin
