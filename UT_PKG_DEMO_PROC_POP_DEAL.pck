@@ -16,8 +16,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   procedure create_ex_prod_info;
   procedure create_unex_prod_info;
   procedure create_prod_info(buy_way in demo_invest_basic_info.BUY_WAY%type);
-  procedure create_one_term_acct_for_emp(subject_type in demo_emp_invest.subject_type%type,
-                                         emp_id       in demo_emp_invest.emp_id%type,
+  procedure create_one_term_acct_for_emp(emp_id       in demo_emp_invest.emp_id%type,
                                          appl_num     in demo_appl_num_rel.appl_num%type,
                                          invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                          amt          in demo_appl_num_rel.AMT%type);
@@ -40,12 +39,13 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
                                   expected_amt         in number);
   procedure assert_result_count;
 
-  True constant number := 0;
-  False constant number := 1;
-  Dummy constant number := 1;
-  invest_id   constant DEMO_INVEST_INFO.INVEST_ID%type := '990001';
-  plan_id     constant demo_plan_info.plan_id%type := '000001';
-  co_id       constant demo_co_invest.co_id%type := '0000001000000';
+  True                constant number := 0;
+  False               constant number := 1;
+  Dummy               constant number := 1;
+  invest_id           constant DEMO_INVEST_INFO.INVEST_ID%type := '990001';
+  plan_id             constant demo_plan_info.plan_id%type := '000001';
+  co_id               constant demo_co_invest.co_id%type := '0000001000000';
+  subject_type_emp    constant demo_emp_invest.subject_type%type := '301001';
 END UT_PKG_DEMO_PROC_POP_DEAL;
 /
 
@@ -65,7 +65,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   PROCEDURE UT_EX_EMP_ONE_TERM_ONE_APPL IS
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    subject_type         demo_emp_invest.subject_type%type := '301001';
     emp_id               demo_emp_invest.emp_id%type := '0000000001';
     term_one_invest_time VARCHAR2(10) := '2013-01-01';
     red_term_invest_time VARCHAR2(10) := '2013-12-16';
@@ -73,8 +72,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   
   BEGIN
     create_ex_prod_info;
-    create_one_term_acct_for_emp(subject_type,
-                               emp_id,
+    create_one_term_acct_for_emp(emp_id,
                                1,
                                term_one_invest_time,
                                100);
@@ -102,13 +100,13 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     values
       (invest_id, red_term_invest_time, plan_id, 1, 3);
    
-    create_invest_pop_parameters(emp_id, subject_type, red_amt);
+    create_invest_pop_parameters(emp_id, subject_type_emp, red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
     assert_return_success(OUT_FLAG, OUT_MSG);
-    assert_redemption_obj(subject_type, emp_id);
+    assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count;
     assert_detail_by_appl(1, term_one_invest_time, 90, 90);
   END;
@@ -137,7 +135,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --out arguements definition
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    v_subject_type         demo_emp_invest.subject_type%type := '301001';
     v_emp_id               demo_emp_invest.emp_id%type := '0000000001';
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_term_two_invest_time VARCHAR2(10) := '2013-02-01';
@@ -146,13 +143,11 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --账务数据
-    create_one_term_acct_for_emp(v_subject_type,
-                               v_emp_id,
+    create_one_term_acct_for_emp(v_emp_id,
                                1,
                                v_term_one_invest_time,
                                100);
-    create_one_term_acct_for_emp(v_subject_type,
-                               v_emp_id,
+    create_one_term_acct_for_emp(v_emp_id,
                                2,
                                v_term_two_invest_time,
                                100);
@@ -199,7 +194,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_pop_tmp
       (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
     values
-      (v_emp_id, co_id, v_subject_type, v_red_amt);
+      (v_emp_id, co_id, subject_type_emp, v_red_amt);
   
     --执行被测代码
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -210,7 +205,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --校验返回信息
     assert_return_success(OUT_FLAG, OUT_MSG);
     --校验拆分对象
-    assert_redemption_obj(v_subject_type, v_emp_id);
+    assert_redemption_obj(subject_type_emp, v_emp_id);
   
     --根据申请单号校验数据
     assert_detail_by_appl(1, v_term_one_invest_time, 80, 80);
@@ -224,7 +219,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --out arguements definition
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    v_subject_type         demo_emp_invest.subject_type%type := '301001';
     v_emp_id               demo_emp_invest.emp_id%type := '0000000001';
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_term_two_invest_time VARCHAR2(10) := '2013-02-01';
@@ -234,18 +228,15 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --账务数据
-    create_one_term_acct_for_emp(v_subject_type,
-                               v_emp_id,
+    create_one_term_acct_for_emp(v_emp_id,
                                1,
                                v_term_one_invest_time,
                                100);
-    create_one_term_acct_for_emp(v_subject_type,
-                               v_emp_id,
+    create_one_term_acct_for_emp(v_emp_id,
                                2,
                                v_term_two_invest_time,
                                100);
-    create_one_term_acct_for_emp(v_subject_type,
-                               v_emp_id,
+    create_one_term_acct_for_emp(v_emp_id,
                                3,
                                v_term_one_invest_time,
                                100);
@@ -293,7 +284,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_pop_tmp
       (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
     values
-      (v_emp_id, co_id, v_subject_type, v_red_amt);
+      (v_emp_id, co_id, subject_type_emp, v_red_amt);
   
     --执行被测代码
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -305,7 +296,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --校验返回信息
     assert_return_success(OUT_FLAG, OUT_MSG);
     --校验拆分对象
-    assert_redemption_obj(v_subject_type, v_emp_id);
+    assert_redemption_obj(subject_type_emp, v_emp_id);
   
     --根据申请单号校验数据
     assert_detail_by_appl(1, v_term_one_invest_time, 100, 100);
@@ -320,7 +311,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --out arguements definition
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    v_subject_type         demo_emp_invest.subject_type%type := '301001';
     v_emp_id               demo_emp_invest.emp_id%type := '0000000001';
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_term_two_invest_time VARCHAR2(10) := '2013-02-01';
@@ -330,18 +320,15 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     --准备数据
     --账务数据
-    create_one_term_acct_for_emp(v_subject_type,
-                               v_emp_id,
+    create_one_term_acct_for_emp(v_emp_id,
                                1,
                                v_term_one_invest_time,
                                100);
-    create_one_term_acct_for_emp(v_subject_type,
-                               v_emp_id,
+    create_one_term_acct_for_emp(v_emp_id,
                                2,
                                v_term_two_invest_time,
                                100);
-    create_one_term_acct_for_emp(v_subject_type,
-                               v_emp_id,
+    create_one_term_acct_for_emp(v_emp_id,
                                3,
                                v_term_one_invest_time,
                                100);
@@ -389,7 +376,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_pop_tmp
       (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
     values
-      (v_emp_id, co_id, v_subject_type, v_red_amt);
+      (v_emp_id, co_id, subject_type_emp, v_red_amt);
   
     --执行被测代码
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -619,7 +606,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --out arguements definition
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    v_subject_type         demo_emp_invest.subject_type%type := '301001';
     v_emp_id               demo_emp_invest.emp_id%type := '0000000001';
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_red_term_invest_time VARCHAR2(10) := '2013-12-16';
@@ -634,7 +620,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_emp_invest
       (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
     values
-      (v_emp_id, co_id, v_subject_type, INVEST_ID, 50, 50, 100);
+      (v_emp_id, co_id, subject_type_emp, INVEST_ID, 50, 50, 100);
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
@@ -667,7 +653,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_pop_tmp
       (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
     values
-      (v_emp_id, co_id, v_subject_type, v_red_amt);
+      (v_emp_id, co_id, subject_type_emp, v_red_amt);
   
     --执行被测代码
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -678,7 +664,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     assert_return_success(OUT_FLAG, OUT_MSG);
   
     --校验拆分对象
-    assert_redemption_obj(v_subject_type, v_emp_id);
+    assert_redemption_obj(subject_type_emp, v_emp_id);
   
     --校验tablecount
     utassert.eqqueryvalue(msg_in           => 'check tablecount',
@@ -703,7 +689,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --out arguements definition
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    v_subject_type         demo_emp_invest.subject_type%type := '301001';
     v_emp_id               demo_emp_invest.emp_id%type := 'FFFFFFFFFF';
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_red_term_invest_time VARCHAR2(10) := '2013-12-16';
@@ -717,7 +702,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_co_invest
       (CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
     values
-      (co_id, v_subject_type, INVEST_ID, 50, 50, 100);
+      (co_id, subject_type_emp, INVEST_ID, 50, 50, 100);
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
@@ -750,7 +735,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_pop_tmp
       (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
     values
-      (v_emp_id, co_id, v_subject_type, v_red_amt);
+      (v_emp_id, co_id, subject_type_emp, v_red_amt);
   
     --执行被测代码
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -761,7 +746,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     assert_return_success(OUT_FLAG, OUT_MSG);
   
     --校验拆分对象
-    assert_redemption_obj(v_subject_type, v_emp_id);
+    assert_redemption_obj(subject_type_emp, v_emp_id);
   
     --校验tablecount
     utassert.eqqueryvalue(msg_in           => 'check tablecount',
@@ -786,7 +771,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --out arguements definition
     OUT_FLAG               number;
     OUT_MSG                VARCHAR2(2000);
-    v_subject_type         demo_emp_invest.subject_type%type := '301001';
     v_emp_id               demo_emp_invest.emp_id%type := 'FFFFFFFFFF';
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_red_term_invest_time VARCHAR2(10) := '2013-12-16';
@@ -800,7 +784,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_co_invest
       (CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
     values
-      (co_id, v_subject_type, INVEST_ID, 50, 50, 100);
+      (co_id, subject_type_emp, INVEST_ID, 50, 50, 100);
   
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
@@ -833,7 +817,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_pop_tmp
       (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
     values
-      (v_emp_id, co_id, v_subject_type, v_red_amt);
+      (v_emp_id, co_id, subject_type_emp, v_red_amt);
   
     --执行被测代码
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -937,8 +921,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
                           AGAINST_VALUE_IN => expected_amt);
   end assert_detail_by_appl;
 
-  procedure create_one_term_acct_for_emp(subject_type in demo_emp_invest.subject_type%type,
-                                       emp_id       in demo_emp_invest.emp_id%type,
+  procedure create_one_term_acct_for_emp(emp_id       in demo_emp_invest.emp_id%type,
                                        appl_num     in demo_appl_num_rel.appl_num%type,
                                        invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                        amt          in demo_appl_num_rel.AMT%type) is
@@ -951,7 +934,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     merge into demo_emp_invest a
     using (select emp_id       emp_id,
                   co_id        co_id,
-                  subject_type subject_type,
+                  subject_type_emp subject_type,
                   invest_id    invest_id,
                   amt          amt
              from dual) b
@@ -976,7 +959,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     merge into demo_emp_invest_term a
     using (select emp_id       emp_id,
                   co_id        co_id,
-                  subject_type subject_type,
+                  subject_type_emp subject_type,
                   invest_id    invest_id,
                   invest_time  invest_time,
                   amt          amt
