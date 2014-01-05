@@ -17,7 +17,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   procedure create_unex_prod_info;
   procedure create_prod_info(buy_way in demo_invest_basic_info.BUY_WAY%type);
   procedure create_one_term_acct_for_emp(subject_type in demo_emp_invest.subject_type%type,
-                                         co_id        in demo_co_invest.co_id%type,
                                          emp_id       in demo_emp_invest.emp_id%type,
                                          appl_num     in demo_appl_num_rel.appl_num%type,
                                          invest_time  in demo_appl_num_rel.INVEST_TIME%type,
@@ -78,7 +77,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   BEGIN
     create_ex_prod_info;
     create_one_term_acct_for_emp(subject_type,
-                               co_id,
                                emp_id,
                                1,
                                term_one_invest_time,
@@ -153,13 +151,11 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --准备数据
     --账务数据
     create_one_term_acct_for_emp(v_subject_type,
-                               co_id,
                                v_emp_id,
                                1,
                                v_term_one_invest_time,
                                100);
     create_one_term_acct_for_emp(v_subject_type,
-                               co_id,
                                v_emp_id,
                                2,
                                v_term_two_invest_time,
@@ -243,19 +239,16 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --准备数据
     --账务数据
     create_one_term_acct_for_emp(v_subject_type,
-                               co_id,
                                v_emp_id,
                                1,
                                v_term_one_invest_time,
                                100);
     create_one_term_acct_for_emp(v_subject_type,
-                               co_id,
                                v_emp_id,
                                2,
                                v_term_two_invest_time,
                                100);
     create_one_term_acct_for_emp(v_subject_type,
-                               co_id,
                                v_emp_id,
                                3,
                                v_term_one_invest_time,
@@ -342,19 +335,16 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     --准备数据
     --账务数据
     create_one_term_acct_for_emp(v_subject_type,
-                               co_id,
                                v_emp_id,
                                1,
                                v_term_one_invest_time,
                                100);
     create_one_term_acct_for_emp(v_subject_type,
-                               co_id,
                                v_emp_id,
                                2,
                                v_term_two_invest_time,
                                100);
     create_one_term_acct_for_emp(v_subject_type,
-                               co_id,
                                v_emp_id,
                                3,
                                v_term_one_invest_time,
@@ -962,7 +952,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   end assert_detail_by_appl;
 
   procedure create_one_term_acct_for_emp(subject_type in demo_emp_invest.subject_type%type,
-                                       co_id        in demo_co_invest.co_id%type,
                                        emp_id       in demo_emp_invest.emp_id%type,
                                        appl_num     in demo_appl_num_rel.appl_num%type,
                                        invest_time  in demo_appl_num_rel.INVEST_TIME%type,
