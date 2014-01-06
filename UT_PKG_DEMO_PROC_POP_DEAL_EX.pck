@@ -27,6 +27,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   procedure create_red_pur_for_op_ctl(red_term_invest_time VARCHAR2);
   procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
                                            eval_state_flag demo_invest_unit_value.EVAL_STATE_FLAG%type);
+  procedure create_items_for_unit_value;
   
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type);
@@ -126,13 +127,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   PROCEDURE UT_EX_EMP_MULT_TERM_ONE_APPL IS
     v_red_amt              demo_invest_pop_tmp.amt%type := 180;
   BEGIN
+    create_items_for_unit_value;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
-  
-
-    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
-    create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
-    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
  
     create_invest_pop_parameters(emp_id, subject_type_emp, v_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -146,20 +143,23 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   
   END;
 
+  procedure create_items_for_unit_value is
+  begin
+    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
+    create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
+    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
+  end;
+
   /*
   涉及多期，且多期只有多张申请单，多期资产够（个人）
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_MULT_APPL IS
     v_red_amt              demo_invest_pop_tmp.amt%type := 250;
   BEGIN
+    create_items_for_unit_value;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
- 
- 
-    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
-    create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
-    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
 
     create_invest_pop_parameters(emp_id, subject_type_emp, v_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -181,14 +181,10 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     v_red_amt              demo_invest_pop_tmp.amt%type := 310;
   
   BEGIN
+    create_items_for_unit_value;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
- 
- 
-    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded); 
-    create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
-    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
   
     create_invest_pop_parameters(emp_id, subject_type_emp, v_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -205,14 +201,10 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     v_red_amt              demo_invest_pop_tmp.amt%type := 250;
   
   BEGIN
+    create_items_for_unit_value;
     create_one_term_acct_for_co(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_three, term_one_invest_time, default_amount);
- 
- 
-    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
-    create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
-    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted); 
   
     create_invest_pop_parameters(emp_id_for_co, subject_type_co, v_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -234,17 +226,13 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     v_red_amt              demo_invest_pop_tmp.amt%type := 600;
   
   BEGIN
+    create_items_for_unit_value;
     create_one_term_acct_for_co(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_three, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_four, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_five, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_six, term_one_invest_time, default_amount);
-    
- 
-    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
-    create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
-    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted); 
   
     create_invest_pop_parameters(emp_id_for_co, subject_type_co, v_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
