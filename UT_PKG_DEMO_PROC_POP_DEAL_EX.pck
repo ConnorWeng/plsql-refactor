@@ -84,8 +84,13 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     OUT_FLAG := -1;
     OUT_MSG := '';
     op_control_purchase_term_no := 1;
+
     create_plan_info;
     create_ex_prod_info;
+
+    create_one_purchase_for_op_ctl(term_one_invest_time);
+    create_one_purchase_for_op_ctl(term_two_invest_time);
+    create_red_pur_for_op_ctl(red_term_invest_time);
   END;
   PROCEDURE UT_TEARDOWN IS
   BEGIN
@@ -100,9 +105,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   
   BEGIN
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, red_amt);
-  
-    create_one_purchase_for_op_ctl(term_one_invest_time);
-    create_red_pur_for_op_ctl(red_term_invest_time);
   
     create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_recent_traded);
     create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
@@ -127,9 +129,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
   
-    create_one_purchase_for_op_ctl(term_one_invest_time);
-    create_one_purchase_for_op_ctl(term_two_invest_time);
-    create_red_pur_for_op_ctl(red_term_invest_time);
 
     create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
     create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
@@ -157,9 +156,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
  
-    create_one_purchase_for_op_ctl(term_one_invest_time); 
-    create_one_purchase_for_op_ctl(term_two_invest_time);
-    create_red_pur_for_op_ctl(red_term_invest_time);
  
     create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
     create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
@@ -189,9 +185,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
  
-    create_one_purchase_for_op_ctl(term_one_invest_time); 
-    create_one_purchase_for_op_ctl(term_two_invest_time);
-    create_red_pur_for_op_ctl(red_term_invest_time);
  
     create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded); 
     create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
@@ -216,9 +209,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_term_acct_for_co(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_three, term_one_invest_time, default_amount);
  
-    create_one_purchase_for_op_ctl(term_one_invest_time); 
-    create_one_purchase_for_op_ctl(term_two_invest_time);
-    create_red_pur_for_op_ctl(red_term_invest_time);
  
     create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
     create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
@@ -251,9 +241,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_term_acct_for_co(appl_num_five, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_six, term_one_invest_time, default_amount);
     
-    create_one_purchase_for_op_ctl(term_one_invest_time);
-    create_one_purchase_for_op_ctl(term_two_invest_time);
-    create_red_pur_for_op_ctl(red_term_invest_time);
  
     create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
     create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
