@@ -9,9 +9,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   PROCEDURE UT_EX_CO_MULT_TERM;
   PROCEDURE UT_EX_CO_MAX_FIVE_APPL;
 
-  procedure create_plan_info;
   procedure create_ex_prod_info;
-  procedure create_prod_info(buy_way in demo_invest_basic_info.BUY_WAY%type);
   procedure create_one_term_acct_for_emp(appl_num     in demo_appl_num_rel.appl_num%type,
                                          invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                          amt          in demo_appl_num_rel.AMT%type);
@@ -92,7 +90,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     OUT_MSG := '';
     op_control_purchase_term_no := 1;
 
-    create_plan_info;
+    UT_PKG_DEMO_COMMON.create_plan_info;
     create_ex_prod_info;
 
     create_one_purchase_for_op_ctl(term_one_invest_time);
@@ -240,41 +238,10 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     assert_detail_by_appl(appl_num_six, term_one_invest_time, default_amount);
   END;
 
-  procedure create_plan_info is
-  begin
-    insert into demo_plan_info
-      (PLAN_ID, PLAN_NAME, PLAN_TIME)
-    values
-      (plan_id, '计划名称', '2013-12-01');
-  end create_plan_info;
-
   procedure create_ex_prod_info is
   begin
-    create_prod_info(True);
+    UT_PKG_DEMO_COMMON.create_prod_info(True);
   end create_ex_prod_info;
-
-  procedure create_prod_info(buy_way in demo_invest_basic_info.BUY_WAY%type) is
-    fpps_invest_id    demo_invest_basic_info.fpps_invest_id%type := '00000001';
-    issue_way_prod    demo_invest_basic_info.ISSUE_WAY%type := 4;
-  begin
-    insert into demo_invest_info
-      (PLAN_ID, INVEST_ID, INVEST_NAME)
-    values
-      (plan_id, invest_id, '组合名称');
-
-    insert into demo_invest_basic_info
-      (FPPS_INVEST_ID,
-       INVEST_ID,
-       INVEST_STATE,
-       ISSUE_WAY,
-       BUY_WAY,
-       SELL_MIN_TERM,
-       OPEN_SELL_TERM,
-       sell_order,
-       SELL_VALUE)
-    values
-      (fpps_invest_id, invest_id, Dummy, issue_way_prod, buy_way, sell_min_term, 1, Dummy, Dummy);
-  end create_prod_info;
 
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type) is

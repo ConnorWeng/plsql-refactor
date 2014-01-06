@@ -1,27 +1,25 @@
-CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
-  PROCEDURE UT_SETUP;
-  PROCEDURE UT_TEARDOWN;
-
-  PROCEDURE UT_UNEX_EMP_ENOUGH;
-  PROCEDURE UT_UNEX_CO_ENOUGH;
-  PROCEDURE UT_UNEX_CO_NOTENOUGH;
-
-  procedure create_unex_prod_info;
+CREATE OR REPLACE PACKAGE UT_PKG_DEMO_COMMON IS
+  procedure create_plan_info;
+  procedure create_ex_prod_info;
+  procedure create_prod_info(buy_way in demo_invest_basic_info.BUY_WAY%type);
   procedure create_one_term_acct_for_emp(appl_num     in demo_appl_num_rel.appl_num%type,
                                          invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                          amt          in demo_appl_num_rel.AMT%type);
   procedure create_one_term_acct_for_co(appl_num     in demo_appl_num_rel.appl_num%type,
                                         invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                         amt          in demo_appl_num_rel.AMT%type);
+  procedure create_one_appl_num_rel(appl_num     in demo_appl_num_rel.appl_num%type,
+                                    invest_time  in demo_appl_num_rel.INVEST_TIME%type,
+                                    amt          in demo_appl_num_rel.AMT%type);
   procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type);
   procedure create_one_purchase_for_op_ctl(invest_time VARCHAR2);
-  procedure create_one_red_for_op_ctl(term_no number, invest_time VARCHAR2);
   procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2);
   procedure create_red_pur_for_op_ctl(red_term_invest_time VARCHAR2);
   procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
                                            eval_state_flag demo_invest_unit_value.EVAL_STATE_FLAG%type);
+  procedure create_items_for_unit_value;
   
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type);
@@ -29,9 +27,8 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   procedure assert_out_flag_and_out_msg(expected_out_flag number, expected_out_msg VARCHAR2);
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,
-                                  expected_quotient    in number,
                                   expected_amt         in number);
-  procedure assert_result_count;
+  procedure assert_result_count(expected_count number);
 
   function one_day_before(day VARCHAR2) return VARCHAR2;
 
@@ -64,254 +61,59 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   appl_num_six                      constant demo_appl_num_rel.appl_num%type := 6;
   
   default_amount                    constant number(17, 2) := 100;
+  one_term_one_appl_red_amt         constant demo_invest_pop_tmp.amt%type := 90;
+  mult_term_one_appl_red_amt        constant demo_invest_pop_tmp.amt%type := 180;
+  mult_term_mult_appl_red_amt       constant demo_invest_pop_tmp.amt%type := 250;
+  not_enough_red_amt                constant demo_invest_pop_tmp.amt%type := 310;
+  enough_red_amt_for_over_five      constant demo_invest_pop_tmp.amt%type := 600;
 
   sell_min_term                     constant number := 1;
   op_control_purchase_term_no       number;
 
   OUT_FLAG                          number;
   OUT_MSG                           VARCHAR2(2000);
-END UT_PKG_DEMO_PROC_POP_DEAL_UNEX;
+END UT_PKG_DEMO_COMMON;
 /
 
-CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
-  PROCEDURE UT_SETUP IS
-  BEGIN
-    OUT_FLAG := -1;
-    OUT_MSG := '';
-    op_control_purchase_term_no := 1;
-
-    UT_PKG_DEMO_COMMON.create_plan_info;
-    create_unex_prod_info;
-  END;
-  PROCEDURE UT_TEARDOWN IS
-  BEGIN
-    rollback;
-  END;
-  
-  /*
-  净值报价型，个人赎回
-  */
-  PROCEDURE UT_UNEX_EMP_ENOUGH IS
-    --out arguements definition
-    v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
-    v_red_term_invest_time VARCHAR2(10) := '2013-12-16';
-    v_red_amt              demo_invest_pop_tmp.amt%type := 50;
-    
-  
-  BEGIN
-    --准备数据
-    --预期收益产品准备
-    --账务数据
-    insert into demo_emp_invest
-      (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
-    values
-      (emp_id, co_id, subject_type_emp, INVEST_ID, 50, 50, 100);
-  
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, 2, 1, v_term_one_invest_time);
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id,
-       3,
-       1,
-       to_char(to_date(v_red_term_invest_time, 'yyyy-mm-dd') - 1,
-               'yyyy-mm-dd'));
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, 2, 12, v_red_term_invest_time);
-  
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, v_term_one_invest_time, plan_id, 1, 2);
-  
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, v_red_term_invest_time, plan_id, 1, 3);
-  
-    --传入数据
-    insert into demo_invest_pop_tmp
-      (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
-    values
-      (emp_id, co_id, subject_type_emp, v_red_amt);
-  
-    --执行被测代码
-    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
-                           O_FLAG      => OUT_FLAG,
-                           O_MSG       => OUT_MSG);
-    --执行asserts
-    --校验程序返回标志
-    assert_return_success;
-  
-    --校验拆分对象
-    assert_redemption_obj(subject_type_emp, emp_id);
-  
-    --校验tablecount
-    utassert.eqqueryvalue(msg_in           => 'check tablecount',
-                          CHECK_QUERY_IN   => 'select count(1) from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => 1);
-  
-    --校验quotient
-    utassert.eqqueryvalue(msg_in           => 'check quotient',
-                          CHECK_QUERY_IN   => 'select quotient from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => 50);
-  
-    --校验amt
-    utassert.eqqueryvalue(msg_in           => 'check amt',
-                          CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => 50);
-  
-  END;
-  /*
-  净值报价型，企业赎回
-  */
-  PROCEDURE UT_UNEX_CO_ENOUGH IS
-    --out arguements definition
-    v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
-    v_red_term_invest_time VARCHAR2(10) := '2013-12-16';
-    v_red_amt              demo_invest_pop_tmp.amt%type := 50;
-  
-  BEGIN
-    --准备数据
-    --预期收益产品准备
-    --账务数据
-    insert into demo_co_invest
-      (CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
-    values
-      (co_id, subject_type_co, INVEST_ID, 50, 50, 100);
-  
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, 2, 1, v_term_one_invest_time);
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id,
-       3,
-       1,
-       to_char(to_date(v_red_term_invest_time, 'yyyy-mm-dd') - 1,
-               'yyyy-mm-dd'));
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, 2, 12, v_red_term_invest_time);
-  
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, v_term_one_invest_time, plan_id, 1, 2);
-  
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, v_red_term_invest_time, plan_id, 1, 3);
-  
-    --传入数据
-    insert into demo_invest_pop_tmp
-      (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
-    values
-      (emp_id_for_co, co_id, subject_type_co, v_red_amt);
-  
-    --执行被测代码
-    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
-                           O_FLAG      => OUT_FLAG,
-                           O_MSG       => OUT_MSG);
-    --执行asserts
-    --校验程序返回标志
-    assert_return_success;
-  
-    --校验拆分对象
-    assert_redemption_obj(subject_type_co, emp_id_for_co );
-  
-    --校验tablecount
-    utassert.eqqueryvalue(msg_in           => 'check tablecount',
-                          CHECK_QUERY_IN   => 'select count(1) from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => 1);
-  
-    --校验quotient
-    utassert.eqqueryvalue(msg_in           => 'check quotient',
-                          CHECK_QUERY_IN   => 'select quotient from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => 50);
-  
-    --校验amt
-    utassert.eqqueryvalue(msg_in           => 'check amt',
-                          CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => 50);
-  
-  END;
-  /*
-  净值报价型，企业赎回,不够
-  */
-  PROCEDURE UT_UNEX_CO_NOTENOUGH IS
-    --out arguements definition
-    v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
-    v_red_term_invest_time VARCHAR2(10) := '2013-12-16';
-    v_red_amt              demo_invest_pop_tmp.amt%type := 100;
-  
-  BEGIN
-    --准备数据
-    --预期收益产品准备
-    --账务数据
-    insert into demo_co_invest
-      (CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
-    values
-      (co_id, subject_type_co, INVEST_ID, 50, 50, 100);
-  
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, 2, 1, v_term_one_invest_time);
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id,
-       3,
-       1,
-       to_char(to_date(v_red_term_invest_time, 'yyyy-mm-dd') - 1,
-               'yyyy-mm-dd'));
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, 2, 12, v_red_term_invest_time);
-  
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, v_term_one_invest_time, plan_id, 1, 2);
-  
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, v_red_term_invest_time, plan_id, 1, 3);
-  
-    --传入数据
-    insert into demo_invest_pop_tmp
-      (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
-    values
-      (emp_id_for_co, co_id, subject_type_co, v_red_amt);
-  
-    --执行被测代码
-    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
-                           O_FLAG      => OUT_FLAG,
-                           O_MSG       => OUT_MSG);
-
-    assert_out_flag_and_out_msg(2, '赎回份额分配出错');
-  
-  END;
-
-  procedure create_unex_prod_info is
+CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_COMMON IS
+  procedure create_plan_info is
   begin
-    UT_PKG_DEMO_COMMON.create_prod_info(False);
-  end create_unex_prod_info;
+    insert into demo_plan_info
+      (PLAN_ID, PLAN_NAME, PLAN_TIME)
+    values
+      (plan_id, '计划名称', '2013-12-01');
+  end create_plan_info;
+
+  procedure create_ex_prod_info is
+  begin
+    create_prod_info(True);
+  end create_ex_prod_info;
+
+  procedure create_prod_info(buy_way in demo_invest_basic_info.BUY_WAY%type) is
+    fpps_invest_id    demo_invest_basic_info.fpps_invest_id%type := '00000001';
+    issue_way_prod    demo_invest_basic_info.ISSUE_WAY%type := 4;
+  begin
+    insert into demo_invest_info
+      (PLAN_ID, INVEST_ID, INVEST_NAME)
+    values
+      (plan_id, invest_id, '组合名称');
+
+    insert into demo_invest_basic_info
+      (FPPS_INVEST_ID,
+       INVEST_ID,
+       INVEST_STATE,
+       ISSUE_WAY,
+       BUY_WAY,
+       SELL_MIN_TERM,
+       OPEN_SELL_TERM,
+       sell_order,
+       SELL_VALUE)
+    values
+      (fpps_invest_id, invest_id, Dummy, issue_way_prod, buy_way, sell_min_term, 1, Dummy, Dummy);
+  end create_prod_info;
 
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
-                       expected_emp_id       in demo_emp_invest.emp_id%type) is
+                                  expected_emp_id       in demo_emp_invest.emp_id%type) is
   begin
     utassert.eqqueryvalue(msg_in           => '校验co_id',
                           CHECK_QUERY_IN   => 'select distinct co_id from demo_invest_pop_result_tmp',
@@ -341,7 +143,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
 
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,
-                                  expected_quotient    in number,
                                   expected_amt         in number) is
   begin
     utassert.eqqueryvalue(msg_in           => '校验invest_time',
@@ -352,7 +153,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     utassert.eqqueryvalue(msg_in           => '校验quotient',
                           CHECK_QUERY_IN   => 'select quotient from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
                                               yappl_num,
-                          AGAINST_VALUE_IN => expected_quotient);
+                          AGAINST_VALUE_IN => expected_amt);
   
     utassert.eqqueryvalue(msg_in           => '校验amt',
                           CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
@@ -360,21 +161,18 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
                           AGAINST_VALUE_IN => expected_amt);
   end assert_detail_by_appl;
 
-  procedure assert_result_count is
+  procedure assert_result_count(expected_count number) is
   begin
     utassert.eqqueryvalue(msg_in           => '校验tablecount',
                           CHECK_QUERY_IN   => 'select count(1) from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => 1);
+                          AGAINST_VALUE_IN => expected_count);
   end;
 
   procedure create_one_term_acct_for_emp(appl_num     in demo_appl_num_rel.appl_num%type,
                                        invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                        amt          in demo_appl_num_rel.AMT%type) is
   begin
-    insert into demo_appl_num_rel
-      (CO_ID, INVEST_ID, APPL_NUM, INVEST_TIME, AMT, RED_AMT)
-    values
-      (co_id, invest_id, appl_num, invest_time, amt, 0.00);
+    create_one_appl_num_rel(appl_num, invest_time, amt);
   
     merge into demo_emp_invest a
     using (select emp_id       emp_id,
@@ -425,14 +223,21 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   
   end create_one_term_acct_for_emp;
 
-  procedure create_one_term_acct_for_co(appl_num     in demo_appl_num_rel.appl_num%type,
-                                        invest_time  in demo_appl_num_rel.INVEST_TIME%type,
-                                        amt          in demo_appl_num_rel.AMT%type) is
+  procedure create_one_appl_num_rel(appl_num     in demo_appl_num_rel.appl_num%type,
+                                    invest_time  in demo_appl_num_rel.INVEST_TIME%type,
+                                    amt          in demo_appl_num_rel.AMT%type) is
   begin
     insert into demo_appl_num_rel
       (CO_ID, INVEST_ID, APPL_NUM, INVEST_TIME, AMT, RED_AMT)
     values
       (co_id, invest_id, appl_num, invest_time, amt, 0.00);
+  end;
+
+  procedure create_one_term_acct_for_co(appl_num     in demo_appl_num_rel.appl_num%type,
+                                        invest_time  in demo_appl_num_rel.INVEST_TIME%type,
+                                        amt          in demo_appl_num_rel.AMT%type) is
+  begin
+    create_one_appl_num_rel(appl_num, invest_time, amt);
   
     merge into demo_co_invest a
     using (select co_id        co_id,
@@ -486,11 +291,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     op_control_purchase_term_no := op_control_purchase_term_no + sell_min_term;
   end create_one_purchase_for_op_ctl;
 
-  procedure create_one_red_for_op_ctl(term_no number, invest_time VARCHAR2) is
-  begin
-    create_one_item_for_op_ctl(op_type_redemption, term_no, invest_time);
-  end create_one_red_for_op_ctl;
-
   procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2) is
   begin
     insert into demo_invest_op_control
@@ -510,19 +310,20 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
 
   procedure create_red_pur_for_op_ctl(red_term_invest_time VARCHAR2) is
   begin
-    create_one_red_for_op_ctl(1, one_day_before(red_term_invest_time));
+    create_one_item_for_op_ctl(op_type_redemption, 1, one_day_before(red_term_invest_time));
     create_one_purchase_for_op_ctl(red_term_invest_time);
+  end;
+
+  procedure create_items_for_unit_value is
+  begin
+    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
+    create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
+    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
   end;
 
   function one_day_before(day VARCHAR2) return VARCHAR2 is
   begin
     return to_char(to_date(day, 'yyyy-mm-dd') - 1, 'yyyy-mm-dd');
   end;
-END UT_PKG_DEMO_PROC_POP_DEAL_UNEX;
-/
-
-set serveroutput on
-/
-
-exec utplsql.run ('UT_PKG_DEMO_PROC_POP_DEAL_UNEX', per_method_setup_in => TRUE)
+END UT_PKG_DEMO_COMMON;
 /
