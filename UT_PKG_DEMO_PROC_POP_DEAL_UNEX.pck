@@ -10,8 +10,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type);
-  procedure create_one_purchase_for_op_ctl(invest_time VARCHAR2);
-  procedure create_one_red_for_op_ctl(term_no number, invest_time VARCHAR2);
   procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2);
   procedure create_red_pur_for_op_ctl(red_term_invest_time VARCHAR2);
   procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
@@ -94,8 +92,8 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     values
       (emp_id, co_id, subject_type_emp, INVEST_ID, 50, 50, 100);
  
-    create_one_purchase_for_op_ctl(term_one_invest_time); 
-    create_red_pur_for_op_ctl(red_term_invest_time);
+    UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_one_invest_time, op_control_purchase_term_no); 
+    UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
  
     create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_recent_traded); 
     create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
@@ -319,7 +317,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
                           CHECK_QUERY_IN   => 'select count(1) from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => expected_count);
   end;
-  
+
   procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type) is
@@ -329,17 +327,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     values
       (emp_id, co_id, subject_type, red_amt);
   end;
-
-  procedure create_one_purchase_for_op_ctl(invest_time VARCHAR2) is
-  begin
-    create_one_item_for_op_ctl(op_type_purchase, op_control_purchase_term_no, invest_time);
-    op_control_purchase_term_no := op_control_purchase_term_no + sell_min_term;
-  end create_one_purchase_for_op_ctl;
-
-  procedure create_one_red_for_op_ctl(term_no number, invest_time VARCHAR2) is
-  begin
-    create_one_item_for_op_ctl(op_type_redemption, term_no, invest_time);
-  end create_one_red_for_op_ctl;
 
   procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2) is
   begin
@@ -360,8 +347,8 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
 
   procedure create_red_pur_for_op_ctl(red_term_invest_time VARCHAR2) is
   begin
-    create_one_red_for_op_ctl(1, one_day_before(red_term_invest_time));
-    create_one_purchase_for_op_ctl(red_term_invest_time);
+    UT_PKG_DEMO_COMMON.create_one_item_for_op_ctl(op_type_redemption, 1, one_day_before(red_term_invest_time));
+    UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
   end;
 
   function one_day_before(day VARCHAR2) return VARCHAR2 is

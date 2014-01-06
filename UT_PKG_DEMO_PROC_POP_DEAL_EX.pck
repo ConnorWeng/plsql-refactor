@@ -57,9 +57,9 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   eval_state_flag_recent_traded     constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
   eval_state_flag_not_excuted       constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 3;
   
-  term_one_invest_time              constant VARCHAR2(10) := '2013-01-01';
+  term_one_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.term_one_invest_time;
   term_two_invest_time              constant VARCHAR2(10) := '2013-02-01';
-  red_term_invest_time              constant VARCHAR2(10) := '2013-12-16';
+  red_term_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.red_term_invest_time;
 
   appl_num_one                      constant demo_appl_num_rel.appl_num%type := 1;
   appl_num_two                      constant demo_appl_num_rel.appl_num%type := 2;
