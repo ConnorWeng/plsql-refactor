@@ -75,13 +75,15 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   净值报价型，个人赎回
   */
   PROCEDURE UT_UNEX_EMP_ENOUGH IS
-    v_red_amt              demo_invest_pop_tmp.amt%type := 50;
+    v_red_quotient              demo_invest_pop_tmp.amt%type := 40;
+    original_quotient           demo_emp_invest.QUOTIENT%type := 50;
+    original_amt                demo_emp_invest.AMT%type := 100;
   BEGIN
     --账务数据
     insert into demo_emp_invest
       (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
     values
-      (emp_id, co_id, subject_type_emp, INVEST_ID, 50, 50, 100);
+      (emp_id, co_id, subject_type_emp, INVEST_ID, original_amt, original_quotient, Dummy);
  
     UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_one_invest_time, op_control_purchase_term_no); 
     UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
@@ -89,7 +91,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_recent_traded); 
     UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
   
-    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, v_red_amt);
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, v_red_quotient);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -101,12 +103,12 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     --校验quotient
     utassert.eqqueryvalue(msg_in           => 'check quotient',
                           CHECK_QUERY_IN   => 'select quotient from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => 50);
+                          AGAINST_VALUE_IN => v_red_quotient);
   
     --校验amt
     utassert.eqqueryvalue(msg_in           => 'check amt',
                           CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => 50);
+                          AGAINST_VALUE_IN => v_red_quotient / original_quotient * original_amt);
   
   END;
   /*
@@ -116,7 +118,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     --out arguements definition
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_red_term_invest_time VARCHAR2(10) := '2013-12-16';
-    v_red_amt              demo_invest_pop_tmp.amt%type := 50;
+    v_red_quotient              demo_invest_pop_tmp.amt%type := 50;
   
   BEGIN
     --准备数据
@@ -158,7 +160,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     insert into demo_invest_pop_tmp
       (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
     values
-      (emp_id_for_co, co_id, subject_type_co, v_red_amt);
+      (emp_id_for_co, co_id, subject_type_co, v_red_quotient);
   
     --执行被测代码
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -194,7 +196,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     --out arguements definition
     v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
     v_red_term_invest_time VARCHAR2(10) := '2013-12-16';
-    v_red_amt              demo_invest_pop_tmp.amt%type := 100;
+    v_red_quotient              demo_invest_pop_tmp.amt%type := 100;
   
   BEGIN
     --准备数据
@@ -236,7 +238,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     insert into demo_invest_pop_tmp
       (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
     values
-      (emp_id_for_co, co_id, subject_type_co, v_red_amt);
+      (emp_id_for_co, co_id, subject_type_co, v_red_quotient);
   
     --执行被测代码
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
