@@ -28,6 +28,8 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   procedure create_one_purchase_for_op_ctl(term_no number, invest_time VARCHAR2);
   procedure create_one_red_for_op_ctl(term_no number, invest_time VARCHAR2);
   procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2);
+  procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
+                                           eval_state_flag demo_invest_unit_value.EVAL_STATE_FLAG%type);
   
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type);
@@ -45,15 +47,17 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   False               constant number := 1;
   Dummy               constant number := 99;
 
-  invest_id           constant DEMO_INVEST_INFO.INVEST_ID%type := '990001';
-  plan_id             constant demo_plan_info.plan_id%type := '000001';
-  co_id               constant demo_co_invest.co_id%type := '0000001000000';
-  emp_id              constant demo_emp_invest.emp_id%type := '0000000001';
-  emp_id_for_co       constant demo_emp_invest.emp_id%type := 'FFFFFFFFFF';
-  subject_type_emp    constant demo_emp_invest.subject_type%type := '301001';
-  subject_type_co     constant demo_emp_invest.subject_type%type := '302101';
-  op_type_purchase    constant demo_invest_op_control.OP_TYPE%type := 2;
-  op_type_redemption  constant demo_invest_op_control.OP_TYPE%type := 3;
+  invest_id                         constant DEMO_INVEST_INFO.INVEST_ID%type := '990001';
+  plan_id                           constant demo_plan_info.plan_id%type := '000001';
+  co_id                             constant demo_co_invest.co_id%type := '0000001000000';
+  emp_id                            constant demo_emp_invest.emp_id%type := '0000000001';
+  emp_id_for_co                     constant demo_emp_invest.emp_id%type := 'FFFFFFFFFF';
+  subject_type_emp                  constant demo_emp_invest.subject_type%type := '301001';
+  subject_type_co                   constant demo_emp_invest.subject_type%type := '302101';
+  op_type_purchase                  constant demo_invest_op_control.OP_TYPE%type := 2;
+  op_type_redemption                constant demo_invest_op_control.OP_TYPE%type := 3;
+  eval_state_flag_purchase          constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
+  eval_state_flag_redemption        constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 3;
   
   OUT_FLAG    number;
   OUT_MSG     VARCHAR2(2000);
@@ -89,16 +93,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     create_one_red_for_op_ctl(1, one_day_before(red_term_invest_time));
     create_one_purchase_for_op_ctl(2, red_term_invest_time);
   
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, term_one_invest_time, plan_id, Dummy, 2);
+    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_purchase);
+    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_redemption);
   
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, red_term_invest_time, plan_id, Dummy, 3);
-   
     create_invest_pop_parameters(emp_id, subject_type_emp, red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
                            O_FLAG      => OUT_FLAG,
@@ -127,6 +124,16 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     values
       (invest_id, op_type, term_no, invest_time);
   end create_one_item_for_op_ctl;
+
+  procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
+                                           eval_state_flag demo_invest_unit_value.EVAL_STATE_FLAG%type) is
+  begin
+    insert into demo_invest_unit_value
+      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
+    values
+      (invest_id, evaluate_date, plan_id, Dummy, eval_state_flag);
+  end create_one_item_for_unit_value;
+
   /*
   涉及一期，且一期只有一张申请单，一期资产够（个人）
   */
