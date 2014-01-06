@@ -35,7 +35,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   procedure assert_out_flag_and_out_msg(expected_out_flag number, expected_out_msg VARCHAR2);
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,
-                                  expected_quotient    in number,
                                   expected_amt         in number);
   procedure assert_result_count(expected_count number);
 
@@ -93,6 +92,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_purchase_for_op_ctl(term_two_invest_time);
     create_red_pur_for_op_ctl(red_term_invest_time);
   END;
+
   PROCEDURE UT_TEARDOWN IS
   BEGIN
     rollback;
@@ -117,7 +117,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     assert_return_success;
     assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count(1);
-    assert_detail_by_appl(appl_num_one, term_one_invest_time, red_amt, red_amt);
+    assert_detail_by_appl(appl_num_one, term_one_invest_time, red_amt);
   END;
 
   /*
@@ -138,8 +138,8 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     assert_return_success;
     assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count(2);
-    assert_detail_by_appl(appl_num_one, term_one_invest_time, v_red_amt - default_amount, v_red_amt - default_amount);
-    assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount, default_amount);
+    assert_detail_by_appl(appl_num_one, term_one_invest_time, v_red_amt - default_amount);
+    assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
   
   END;
 
@@ -162,9 +162,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     assert_return_success;
     assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count(3);
-    assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount, default_amount);
-    assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount, default_amount);
-    assert_detail_by_appl(appl_num_three, term_one_invest_time, v_red_amt - default_amount * 2, v_red_amt - default_amount * 2);
+    assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
+    assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
+    assert_detail_by_appl(appl_num_three, term_one_invest_time, v_red_amt - default_amount * 2);
   
   END;
 
@@ -208,9 +208,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     assert_return_success;
     assert_redemption_obj(subject_type_co, emp_id_for_co);
     assert_result_count(3);
-    assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount, default_amount);
-    assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount, default_amount);
-    assert_detail_by_appl(appl_num_three, term_one_invest_time, v_red_amt - default_amount * 2, v_red_amt - default_amount * 2);
+    assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
+    assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
+    assert_detail_by_appl(appl_num_three, term_one_invest_time, v_red_amt - default_amount * 2);
   END;
 
   /*
@@ -237,12 +237,12 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                    PKG_DEMO_COMMON.FUNC_GET_COFNAMEBYID(co_id) ||
                                    '生成申请单超过5条');
     assert_result_count(6);
-    assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount, default_amount);
-    assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount, default_amount);
-    assert_detail_by_appl(appl_num_three, term_one_invest_time, default_amount, default_amount);
-    assert_detail_by_appl(appl_num_four, term_one_invest_time, default_amount, default_amount);
-    assert_detail_by_appl(appl_num_five, term_one_invest_time, default_amount, default_amount);
-    assert_detail_by_appl(appl_num_six, term_one_invest_time, default_amount, default_amount);
+    assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
+    assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
+    assert_detail_by_appl(appl_num_three, term_one_invest_time, default_amount);
+    assert_detail_by_appl(appl_num_four, term_one_invest_time, default_amount);
+    assert_detail_by_appl(appl_num_five, term_one_invest_time, default_amount);
+    assert_detail_by_appl(appl_num_six, term_one_invest_time, default_amount);
   END;
 
   procedure create_plan_info is
@@ -312,7 +312,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
 
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,
-                                  expected_quotient    in number,
                                   expected_amt         in number) is
   begin
     utassert.eqqueryvalue(msg_in           => '校验invest_time',
@@ -323,7 +322,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     utassert.eqqueryvalue(msg_in           => '校验quotient',
                           CHECK_QUERY_IN   => 'select quotient from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
                                               yappl_num,
-                          AGAINST_VALUE_IN => expected_quotient);
+                          AGAINST_VALUE_IN => expected_amt);
   
     utassert.eqqueryvalue(msg_in           => '校验amt',
                           CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
