@@ -10,8 +10,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type);
-  procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2);
-  procedure create_red_pur_for_op_ctl(red_term_invest_time VARCHAR2);
   procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
                                            eval_state_flag demo_invest_unit_value.EVAL_STATE_FLAG%type);
   
@@ -24,8 +22,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
                                   expected_quotient    in number,
                                   expected_amt         in number);
   procedure assert_result_count(expected_count number);
-
-  function one_day_before(day VARCHAR2) return VARCHAR2;
 
   True                constant number := 0;
   False               constant number := 1;
@@ -328,14 +324,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
       (emp_id, co_id, subject_type, red_amt);
   end;
 
-  procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2) is
-  begin
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, op_type, term_no, invest_time);
-  end create_one_item_for_op_ctl;
-
   procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
                                            eval_state_flag demo_invest_unit_value.EVAL_STATE_FLAG%type) is
   begin
@@ -345,16 +333,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
       (invest_id, evaluate_date, plan_id, Dummy, eval_state_flag);
   end create_one_item_for_unit_value;
 
-  procedure create_red_pur_for_op_ctl(red_term_invest_time VARCHAR2) is
-  begin
-    UT_PKG_DEMO_COMMON.create_one_item_for_op_ctl(op_type_redemption, 1, one_day_before(red_term_invest_time));
-    UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
-  end;
-
-  function one_day_before(day VARCHAR2) return VARCHAR2 is
-  begin
-    return to_char(to_date(day, 'yyyy-mm-dd') - 1, 'yyyy-mm-dd');
-  end;
 END UT_PKG_DEMO_PROC_POP_DEAL_UNEX;
 /
 
