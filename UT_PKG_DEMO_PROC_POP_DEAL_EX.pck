@@ -18,6 +18,9 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   procedure create_one_term_acct_for_co(appl_num     in demo_appl_num_rel.appl_num%type,
                                         invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                         amt          in demo_appl_num_rel.AMT%type);
+  procedure create_one_appl_num_rel(appl_num     in demo_appl_num_rel.appl_num%type,
+                                    invest_time  in demo_appl_num_rel.INVEST_TIME%type,
+                                    amt          in demo_appl_num_rel.AMT%type);
   procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type);
@@ -333,10 +336,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                        invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                        amt          in demo_appl_num_rel.AMT%type) is
   begin
-    insert into demo_appl_num_rel
-      (CO_ID, INVEST_ID, APPL_NUM, INVEST_TIME, AMT, RED_AMT)
-    values
-      (co_id, invest_id, appl_num, invest_time, amt, 0.00);
+    create_one_appl_num_rel(appl_num, invest_time, amt);
   
     merge into demo_emp_invest a
     using (select emp_id       emp_id,
@@ -387,14 +387,21 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   
   end create_one_term_acct_for_emp;
 
-  procedure create_one_term_acct_for_co(appl_num     in demo_appl_num_rel.appl_num%type,
-                                        invest_time  in demo_appl_num_rel.INVEST_TIME%type,
-                                        amt          in demo_appl_num_rel.AMT%type) is
+  procedure create_one_appl_num_rel(appl_num     in demo_appl_num_rel.appl_num%type,
+                                    invest_time  in demo_appl_num_rel.INVEST_TIME%type,
+                                    amt          in demo_appl_num_rel.AMT%type) is
   begin
     insert into demo_appl_num_rel
       (CO_ID, INVEST_ID, APPL_NUM, INVEST_TIME, AMT, RED_AMT)
     values
       (co_id, invest_id, appl_num, invest_time, amt, 0.00);
+  end;
+
+  procedure create_one_term_acct_for_co(appl_num     in demo_appl_num_rel.appl_num%type,
+                                        invest_time  in demo_appl_num_rel.INVEST_TIME%type,
+                                        amt          in demo_appl_num_rel.AMT%type) is
+  begin
+    create_one_appl_num_rel(appl_num, invest_time, amt);
   
     merge into demo_co_invest a
     using (select co_id        co_id,
