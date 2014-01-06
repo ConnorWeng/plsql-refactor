@@ -19,9 +19,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   procedure create_one_appl_num_rel(appl_num     in demo_appl_num_rel.appl_num%type,
                                     invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                     amt          in demo_appl_num_rel.AMT%type);
-  procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
-                                         subject_type demo_emp_invest.subject_type%type,
-                                         red_amt demo_invest_pop_tmp.amt%type);
   procedure create_items_for_unit_value;
   
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
@@ -107,7 +104,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
 
-    create_invest_pop_parameters(emp_id, subject_type_emp, one_term_one_appl_red_amt);
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, one_term_one_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -127,7 +124,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
  
-    create_invest_pop_parameters(emp_id, subject_type_emp, mult_term_one_appl_red_amt);
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, mult_term_one_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -149,7 +146,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
 
-    create_invest_pop_parameters(emp_id, subject_type_emp, mult_term_mult_appl_red_amt);
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, mult_term_mult_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -172,7 +169,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
   
-    create_invest_pop_parameters(emp_id, subject_type_emp, not_enough_red_amt);
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, not_enough_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -190,7 +187,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_term_acct_for_co(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_three, term_one_invest_time, default_amount);
   
-    create_invest_pop_parameters(emp_id_for_co, subject_type_co, mult_term_mult_appl_red_amt);
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, mult_term_mult_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -216,7 +213,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_term_acct_for_co(appl_num_five, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_six, term_one_invest_time, default_amount);
   
-    create_invest_pop_parameters(emp_id_for_co, subject_type_co, enough_red_amt_for_over_five);
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, enough_red_amt_for_over_five);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -400,16 +397,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
         (b.co_id, b.subject_type, b.invest_id, b.invest_time, b.amt);
   
   end create_one_term_acct_for_co;
-
-  procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
-                                         subject_type demo_emp_invest.subject_type%type,
-                                         red_amt demo_invest_pop_tmp.amt%type) is
-  begin
-    insert into demo_invest_pop_tmp
-      (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
-    values
-      (emp_id, co_id, subject_type, red_amt);
-  end;
 
   procedure create_items_for_unit_value is
   begin
