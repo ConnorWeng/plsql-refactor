@@ -22,7 +22,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type);
   procedure create_one_purchase_for_op_ctl(invest_time VARCHAR2);
-  procedure create_one_red_for_op_ctl(term_no number, invest_time VARCHAR2);
   procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2);
   procedure create_red_pur_for_op_ctl(red_term_invest_time VARCHAR2);
   procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
@@ -275,7 +274,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   end create_prod_info;
 
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
-                       expected_emp_id       in demo_emp_invest.emp_id%type) is
+                                  expected_emp_id       in demo_emp_invest.emp_id%type) is
   begin
     utassert.eqqueryvalue(msg_in           => '校验co_id',
                           CHECK_QUERY_IN   => 'select distinct co_id from demo_invest_pop_result_tmp',
@@ -449,11 +448,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     op_control_purchase_term_no := op_control_purchase_term_no + sell_min_term;
   end create_one_purchase_for_op_ctl;
 
-  procedure create_one_red_for_op_ctl(term_no number, invest_time VARCHAR2) is
-  begin
-    create_one_item_for_op_ctl(op_type_redemption, term_no, invest_time);
-  end create_one_red_for_op_ctl;
-
   procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2) is
   begin
     insert into demo_invest_op_control
@@ -473,7 +467,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
 
   procedure create_red_pur_for_op_ctl(red_term_invest_time VARCHAR2) is
   begin
-    create_one_red_for_op_ctl(1, one_day_before(red_term_invest_time));
+    create_one_item_for_op_ctl(op_type_redemption, 1, one_day_before(red_term_invest_time));
     create_one_purchase_for_op_ctl(red_term_invest_time);
   end;
 
