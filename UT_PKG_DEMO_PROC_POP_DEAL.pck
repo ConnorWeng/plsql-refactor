@@ -25,7 +25,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type);
-  procedure create_one_purchase_for_op_ctl(term_no number, invest_time VARCHAR2);
+  procedure create_one_purchase_for_op_ctl(invest_time VARCHAR2);
   procedure create_one_red_for_op_ctl(term_no number, invest_time VARCHAR2);
   procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2);
   procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
@@ -69,20 +69,24 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   
   default_amount                    constant number(17, 2) := 100;
 
-  OUT_FLAG    number;
-  OUT_MSG     VARCHAR2(2000);
+  sell_min_term                     constant number := 1;
+  op_control_purchase_term_no       number;
+
+  OUT_FLAG                          number;
+  OUT_MSG                           VARCHAR2(2000);
 END UT_PKG_DEMO_PROC_POP_DEAL;
 /
 
 CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   PROCEDURE UT_SETUP IS
   BEGIN
+    OUT_FLAG := -1;
+    OUT_MSG := '';
+    op_control_purchase_term_no := 1;
     create_plan_info;
   END;
   PROCEDURE UT_TEARDOWN IS
   BEGIN
-    OUT_FLAG := -1;
-    OUT_MSG := '';
     rollback;
   END;
   
@@ -96,9 +100,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     create_ex_prod_info;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, red_amt);
   
-    create_one_purchase_for_op_ctl(1, term_one_invest_time);
+    create_one_purchase_for_op_ctl(term_one_invest_time);
     create_one_red_for_op_ctl(1, one_day_before(red_term_invest_time));
-    create_one_purchase_for_op_ctl(2, red_term_invest_time);
+    create_one_purchase_for_op_ctl(red_term_invest_time);
   
     create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_purchase);
     create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_redemption);
@@ -114,9 +118,10 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     assert_detail_by_appl(appl_num_one, term_one_invest_time, red_amt, red_amt);
   END;
 
-  procedure create_one_purchase_for_op_ctl(term_no number, invest_time VARCHAR2) is
+  procedure create_one_purchase_for_op_ctl(invest_time VARCHAR2) is
   begin
-    create_one_item_for_op_ctl(op_type_purchase, term_no, invest_time);
+    create_one_item_for_op_ctl(op_type_purchase, op_control_purchase_term_no, invest_time);
+    op_control_purchase_term_no := op_control_purchase_term_no + sell_min_term;
   end create_one_purchase_for_op_ctl;
 
   procedure create_one_red_for_op_ctl(term_no number, invest_time VARCHAR2) is
@@ -151,10 +156,10 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
   
-    create_one_purchase_for_op_ctl(1, term_one_invest_time);
-    create_one_purchase_for_op_ctl(2, term_two_invest_time);
+    create_one_purchase_for_op_ctl(term_one_invest_time);
+    create_one_purchase_for_op_ctl(term_two_invest_time);
     create_one_red_for_op_ctl(1, one_day_before(red_term_invest_time));
-    create_one_purchase_for_op_ctl(3, red_term_invest_time);
+    create_one_purchase_for_op_ctl(red_term_invest_time);
 
     create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_tbd);
     create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_purchase);
@@ -772,7 +777,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
        sell_order,
        SELL_VALUE)
     values
-      (fpps_invest_id, invest_id, Dummy, issue_way_prod, buy_way, 1, 1, Dummy, Dummy);
+      (fpps_invest_id, invest_id, Dummy, issue_way_prod, buy_way, sell_min_term, 1, Dummy, Dummy);
   end create_prod_info;
 
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
