@@ -26,6 +26,8 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type);
   procedure create_one_purchase_for_op_ctl(term_no number, invest_time VARCHAR2);
+  procedure create_one_red_for_op_ctl(term_no number, invest_time VARCHAR2);
+  procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2);
   
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type);
@@ -77,20 +79,15 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     term_one_invest_time VARCHAR2(10) := '2013-01-01';
     red_term_invest_time VARCHAR2(10) := '2013-12-16';
     red_amt              demo_invest_pop_tmp.amt%type := 90;
+    appl_num_one         demo_appl_num_rel.appl_num%type := 1;
   
   BEGIN
     create_ex_prod_info;
-    create_one_term_acct_for_emp(1, term_one_invest_time, red_amt);
+    create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, red_amt);
   
     create_one_purchase_for_op_ctl(1, term_one_invest_time);
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, op_type_redemption, 1, one_day_before(red_term_invest_time));
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, op_type_purchase, 2, red_term_invest_time);
+    create_one_red_for_op_ctl(1, one_day_before(red_term_invest_time));
+    create_one_purchase_for_op_ctl(2, red_term_invest_time);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
@@ -100,7 +97,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (invest_id, red_term_invest_time, plan_id, 1, 3);
+      (invest_id, red_term_invest_time, plan_id, Dummy, 3);
    
     create_invest_pop_parameters(emp_id, subject_type_emp, red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
@@ -115,12 +112,21 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
 
   procedure create_one_purchase_for_op_ctl(term_no number, invest_time VARCHAR2) is
   begin
+    create_one_item_for_op_ctl(op_type_purchase, term_no, invest_time);
+  end create_one_purchase_for_op_ctl;
+
+  procedure create_one_red_for_op_ctl(term_no number, invest_time VARCHAR2) is
+  begin
+    create_one_item_for_op_ctl(op_type_redemption, term_no, invest_time);
+  end create_one_red_for_op_ctl;
+
+  procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2) is
+  begin
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (invest_id, op_type_purchase, term_no, invest_time);
-  end create_one_purchase_for_op_ctl;
-
+      (invest_id, op_type, term_no, invest_time);
+  end create_one_item_for_op_ctl;
   /*
   涉及一期，且一期只有一张申请单，一期资产够（个人）
   */
