@@ -52,9 +52,9 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   eval_state_flag_recent_traded     constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
   eval_state_flag_not_excuted       constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 3;
   
-  term_one_invest_time              constant VARCHAR2(10) := '2013-01-01';
+  term_one_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.term_one_invest_time;
   term_two_invest_time              constant VARCHAR2(10) := '2013-02-01';
-  red_term_invest_time              constant VARCHAR2(10) := '2013-12-16';
+  red_term_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.red_term_invest_time;
 
   appl_num_one                      constant demo_appl_num_rel.appl_num%type := 1;
   appl_num_two                      constant demo_appl_num_rel.appl_num%type := 2;
@@ -92,15 +92,10 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   净值报价型，个人赎回
   */
   PROCEDURE UT_UNEX_EMP_ENOUGH IS
-    --out arguements definition
-    v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
-    v_red_term_invest_time VARCHAR2(10) := '2013-12-16';
     v_red_amt              demo_invest_pop_tmp.amt%type := 50;
     
   
   BEGIN
-    --准备数据
-    --预期收益产品准备
     --账务数据
     insert into demo_emp_invest
       (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
@@ -110,29 +105,29 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (invest_id, 2, 1, v_term_one_invest_time);
+      (invest_id, 2, 1, term_one_invest_time);
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
       (invest_id,
        3,
        1,
-       to_char(to_date(v_red_term_invest_time, 'yyyy-mm-dd') - 1,
+       to_char(to_date(red_term_invest_time, 'yyyy-mm-dd') - 1,
                'yyyy-mm-dd'));
     insert into demo_invest_op_control
       (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
     values
-      (invest_id, 2, 12, v_red_term_invest_time);
+      (invest_id, 2, 12, red_term_invest_time);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (invest_id, v_term_one_invest_time, plan_id, 1, 2);
+      (invest_id, term_one_invest_time, plan_id, 1, 2);
   
     insert into demo_invest_unit_value
       (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
     values
-      (invest_id, v_red_term_invest_time, plan_id, 1, 3);
+      (invest_id, red_term_invest_time, plan_id, 1, 3);
   
     --传入数据
     insert into demo_invest_pop_tmp
