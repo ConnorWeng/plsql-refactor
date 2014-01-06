@@ -56,9 +56,19 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   subject_type_co                   constant demo_emp_invest.subject_type%type := '302101';
   op_type_purchase                  constant demo_invest_op_control.OP_TYPE%type := 2;
   op_type_redemption                constant demo_invest_op_control.OP_TYPE%type := 3;
+  eval_state_flag_tbd               constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 1;
   eval_state_flag_purchase          constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
   eval_state_flag_redemption        constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 3;
   
+  term_one_invest_time              constant VARCHAR2(10) := '2013-01-01';
+  term_two_invest_time              constant VARCHAR2(10) := '2013-02-01';
+  red_term_invest_time              constant VARCHAR2(10) := '2013-12-16';
+
+  appl_num_one                      constant demo_appl_num_rel.appl_num%type := 1;
+  appl_num_two                      constant demo_appl_num_rel.appl_num%type := 2;
+  
+  default_amount                    constant number(17, 2) := 100;
+
   OUT_FLAG    number;
   OUT_MSG     VARCHAR2(2000);
 END UT_PKG_DEMO_PROC_POP_DEAL;
@@ -80,10 +90,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   涉及一期，且一期只有一张申请单，一期资产够（个人）
   */
   PROCEDURE UT_EX_EMP_ONE_TERM_ONE_APPL IS
-    term_one_invest_time VARCHAR2(10) := '2013-01-01';
-    red_term_invest_time VARCHAR2(10) := '2013-12-16';
     red_amt              demo_invest_pop_tmp.amt%type := 90;
-    appl_num_one         demo_appl_num_rel.appl_num%type := 1;
   
   BEGIN
     create_ex_prod_info;
@@ -104,7 +111,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     assert_return_success;
     assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count;
-    assert_detail_by_appl(1, term_one_invest_time, red_amt, red_amt);
+    assert_detail_by_appl(appl_num_one, term_one_invest_time, red_amt, red_amt);
   END;
 
   procedure create_one_purchase_for_op_ctl(term_no number, invest_time VARCHAR2) is
@@ -138,80 +145,30 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   涉及一期，且一期只有一张申请单，一期资产够（个人）
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_ONE_APPL IS
-    --out arguements definition
-    v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
-    v_term_two_invest_time VARCHAR2(10) := '2013-02-01';
-    v_red_term_invest_time VARCHAR2(10) := '2013-12-16';
     v_red_amt              demo_invest_pop_tmp.amt%type := 180;
-    default_amount         number(17, 2) := 100;
   BEGIN
-    --准备数据
-    --账务数据
-    create_one_term_acct_for_emp(1,
-                               v_term_one_invest_time,
-                               default_amount);
-    create_one_term_acct_for_emp(2,
-                               v_term_two_invest_time,
-                               default_amount);
-  
-    --预期收益产品准备
     create_ex_prod_info;
+    create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
+    create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
   
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, 2, 1, v_term_one_invest_time);
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, 2, 2, v_term_two_invest_time);
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id,
-       3,
-       1,
-       to_char(to_date(v_red_term_invest_time, 'yyyy-mm-dd') - 1,
-               'yyyy-mm-dd'));
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, 2, 3, v_red_term_invest_time);
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, v_term_one_invest_time, plan_id, 1, 1);
-  
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, v_term_two_invest_time, plan_id, 1, 2);
-  
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, v_red_term_invest_time, plan_id, 1, 3);
-  
-    --传入数据
-    insert into demo_invest_pop_tmp
-      (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
-    values
-      (emp_id, co_id, subject_type_emp, v_red_amt);
-  
-    --执行被测代码
+    create_one_purchase_for_op_ctl(1, term_one_invest_time);
+    create_one_purchase_for_op_ctl(2, term_two_invest_time);
+    create_one_red_for_op_ctl(1, one_day_before(red_term_invest_time));
+    create_one_purchase_for_op_ctl(3, red_term_invest_time);
+
+    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_tbd);
+    create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_purchase);
+    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_redemption);
+ 
+    create_invest_pop_parameters(emp_id, subject_type_emp, v_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
-    --执行asserts
-    --校验返回信息
     assert_return_success;
-    --校验拆分对象
     assert_redemption_obj(subject_type_emp, emp_id);
-  
-    --根据申请单号校验数据
-    assert_detail_by_appl(1, v_term_one_invest_time, v_red_amt - default_amount, v_red_amt - default_amount);
-    assert_detail_by_appl(2, v_term_two_invest_time, default_amount, default_amount);
+    assert_detail_by_appl(appl_num_one, term_one_invest_time, v_red_amt - default_amount, v_red_amt - default_amount);
+    assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount, default_amount);
   
   END;
   /*
