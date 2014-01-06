@@ -22,8 +22,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type);
-  procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
-                                           eval_state_flag demo_invest_unit_value.EVAL_STATE_FLAG%type);
   procedure create_items_for_unit_value;
   
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
@@ -105,8 +103,8 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   */
   PROCEDURE UT_EX_EMP_ONE_TERM_ONE_APPL IS
   BEGIN
-    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_recent_traded);
-    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
+    UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_recent_traded);
+    UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
 
     create_invest_pop_parameters(emp_id, subject_type_emp, one_term_one_appl_red_amt);
@@ -413,20 +411,11 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
       (emp_id, co_id, subject_type, red_amt);
   end;
 
-  procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
-                                           eval_state_flag demo_invest_unit_value.EVAL_STATE_FLAG%type) is
-  begin
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, evaluate_date, plan_id, Dummy, eval_state_flag);
-  end create_one_item_for_unit_value;
-
   procedure create_items_for_unit_value is
   begin
-    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
-    create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
-    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
+    UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
+    UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
+    UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
   end;
 
   function one_day_before(day VARCHAR2) return VARCHAR2 is
