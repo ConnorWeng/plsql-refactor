@@ -37,7 +37,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                   expected_invest_time in varchar2,
                                   expected_quotient    in number,
                                   expected_amt         in number);
-  procedure assert_result_count;
+  procedure assert_result_count(expected_count number);
 
   function one_day_before(day VARCHAR2) return VARCHAR2;
 
@@ -105,10 +105,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     red_amt              demo_invest_pop_tmp.amt%type := 90;
   
   BEGIN
-    create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, red_amt);
-  
     create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_recent_traded);
     create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
+    create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, red_amt);
   
     create_invest_pop_parameters(emp_id, subject_type_emp, red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
@@ -117,7 +116,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   
     assert_return_success;
     assert_redemption_obj(subject_type_emp, emp_id);
-    assert_result_count;
+    assert_result_count(1);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, red_amt, red_amt);
   END;
 
@@ -138,17 +137,11 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   
     assert_return_success;
     assert_redemption_obj(subject_type_emp, emp_id);
+    assert_result_count(2);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, v_red_amt - default_amount, v_red_amt - default_amount);
     assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount, default_amount);
   
   END;
-
-  procedure create_items_for_unit_value is
-  begin
-    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
-    create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
-    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
-  end;
 
   /*
   涉及多期，且多期只有多张申请单，多期资产够（个人）
@@ -168,6 +161,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   
     assert_return_success;
     assert_redemption_obj(subject_type_emp, emp_id);
+    assert_result_count(3);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount, default_amount);
     assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount, default_amount);
     assert_detail_by_appl(appl_num_three, term_one_invest_time, v_red_amt - default_amount * 2, v_red_amt - default_amount * 2);
@@ -213,10 +207,10 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   
     assert_return_success;
     assert_redemption_obj(subject_type_co, emp_id_for_co);
+    assert_result_count(3);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount, default_amount);
     assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount, default_amount);
     assert_detail_by_appl(appl_num_three, term_one_invest_time, v_red_amt - default_amount * 2, v_red_amt - default_amount * 2);
-  
   END;
 
   /*
@@ -242,13 +236,13 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     assert_out_flag_and_out_msg(3, '企业：' ||
                                    PKG_DEMO_COMMON.FUNC_GET_COFNAMEBYID(co_id) ||
                                    '生成申请单超过5条');
+    assert_result_count(6);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount, default_amount);
     assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount, default_amount);
     assert_detail_by_appl(appl_num_three, term_one_invest_time, default_amount, default_amount);
     assert_detail_by_appl(appl_num_four, term_one_invest_time, default_amount, default_amount);
     assert_detail_by_appl(appl_num_five, term_one_invest_time, default_amount, default_amount);
     assert_detail_by_appl(appl_num_six, term_one_invest_time, default_amount, default_amount);
-  
   END;
 
   procedure create_plan_info is
@@ -337,11 +331,11 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                           AGAINST_VALUE_IN => expected_amt);
   end assert_detail_by_appl;
 
-  procedure assert_result_count is
+  procedure assert_result_count(expected_count number) is
   begin
     utassert.eqqueryvalue(msg_in           => '校验tablecount',
                           CHECK_QUERY_IN   => 'select count(1) from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => 1);
+                          AGAINST_VALUE_IN => expected_count);
   end;
 
   procedure create_one_term_acct_for_emp(appl_num     in demo_appl_num_rel.appl_num%type,
@@ -489,6 +483,13 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   begin
     create_one_red_for_op_ctl(1, one_day_before(red_term_invest_time));
     create_one_purchase_for_op_ctl(red_term_invest_time);
+  end;
+
+  procedure create_items_for_unit_value is
+  begin
+    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
+    create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
+    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
   end;
 
   function one_day_before(day VARCHAR2) return VARCHAR2 is
