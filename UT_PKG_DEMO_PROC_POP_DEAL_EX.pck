@@ -85,6 +85,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     OUT_MSG := '';
     op_control_purchase_term_no := 1;
     create_plan_info;
+    create_ex_prod_info;
   END;
   PROCEDURE UT_TEARDOWN IS
   BEGIN
@@ -98,7 +99,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     red_amt              demo_invest_pop_tmp.amt%type := 90;
   
   BEGIN
-    create_ex_prod_info;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, red_amt);
   
     create_one_purchase_for_op_ctl(term_one_invest_time);
@@ -124,7 +124,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   PROCEDURE UT_EX_EMP_MULT_TERM_ONE_APPL IS
     v_red_amt              demo_invest_pop_tmp.amt%type := 180;
   BEGIN
-    create_ex_prod_info;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
   
@@ -154,7 +153,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   PROCEDURE UT_EX_EMP_MULT_TERM_MULT_APPL IS
     v_red_amt              demo_invest_pop_tmp.amt%type := 250;
   BEGIN
-    create_ex_prod_info;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
@@ -187,7 +185,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     v_red_amt              demo_invest_pop_tmp.amt%type := 310;
   
   BEGIN
-    create_ex_prod_info;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
@@ -215,7 +212,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     v_red_amt              demo_invest_pop_tmp.amt%type := 250;
   
   BEGIN
-    create_ex_prod_info;
     create_one_term_acct_for_co(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_three, term_one_invest_time, default_amount);
@@ -248,7 +244,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     v_red_amt              demo_invest_pop_tmp.amt%type := 600;
   
   BEGIN
-    create_ex_prod_info;
     create_one_term_acct_for_co(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_three, term_one_invest_time, default_amount);
