@@ -69,6 +69,11 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   appl_num_six                      constant demo_appl_num_rel.appl_num%type := 6;
   
   default_amount                    constant number(17, 2) := 100;
+  one_term_one_appl_red_amt         constant demo_invest_pop_tmp.amt%type := 90;
+  mult_term_one_appl_red_amt        constant demo_invest_pop_tmp.amt%type := 180;
+  mult_term_mult_appl_red_amt       constant demo_invest_pop_tmp.amt%type := 250;
+  not_enough_red_amt                constant demo_invest_pop_tmp.amt%type := 310;
+  enough_red_amt_for_over_five      constant demo_invest_pop_tmp.amt%type := 600;
 
   sell_min_term                     constant number := 1;
   op_control_purchase_term_no       number;
@@ -102,14 +107,12 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   涉及一期，且一期只有一张申请单，一期资产够（个人）
   */
   PROCEDURE UT_EX_EMP_ONE_TERM_ONE_APPL IS
-    red_amt              demo_invest_pop_tmp.amt%type := 90;
-  
   BEGIN
     create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_recent_traded);
     create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
-    create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, red_amt);
+    create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
   
-    create_invest_pop_parameters(emp_id, subject_type_emp, red_amt);
+    create_invest_pop_parameters(emp_id, subject_type_emp, one_term_one_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -117,20 +120,19 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     assert_return_success;
     assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count(1);
-    assert_detail_by_appl(appl_num_one, term_one_invest_time, red_amt);
+    assert_detail_by_appl(appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
   END;
 
   /*
   涉及一期，且一期只有一张申请单，一期资产够（个人）
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_ONE_APPL IS
-    v_red_amt              demo_invest_pop_tmp.amt%type := 180;
   BEGIN
     create_items_for_unit_value;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
  
-    create_invest_pop_parameters(emp_id, subject_type_emp, v_red_amt);
+    create_invest_pop_parameters(emp_id, subject_type_emp, mult_term_one_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -138,23 +140,21 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     assert_return_success;
     assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count(2);
-    assert_detail_by_appl(appl_num_one, term_one_invest_time, v_red_amt - default_amount);
+    assert_detail_by_appl(appl_num_one, term_one_invest_time, mult_term_one_appl_red_amt - default_amount);
     assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
-  
   END;
 
   /*
   涉及多期，且多期只有多张申请单，多期资产够（个人）
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_MULT_APPL IS
-    v_red_amt              demo_invest_pop_tmp.amt%type := 250;
   BEGIN
     create_items_for_unit_value;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
 
-    create_invest_pop_parameters(emp_id, subject_type_emp, v_red_amt);
+    create_invest_pop_parameters(emp_id, subject_type_emp, mult_term_mult_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -164,23 +164,20 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     assert_result_count(3);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
     assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
-    assert_detail_by_appl(appl_num_three, term_one_invest_time, v_red_amt - default_amount * 2);
-  
+    assert_detail_by_appl(appl_num_three, term_one_invest_time, mult_term_mult_appl_red_amt - default_amount * 2);
   END;
 
   /*
   涉及多期，且多期只有多张申请单，多期资产够（个人）
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_NOTENOUGH IS
-    v_red_amt              demo_invest_pop_tmp.amt%type := 310;
-  
   BEGIN
     create_items_for_unit_value;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
   
-    create_invest_pop_parameters(emp_id, subject_type_emp, v_red_amt);
+    create_invest_pop_parameters(emp_id, subject_type_emp, not_enough_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -192,15 +189,13 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   涉及多期，且多期只有多张申请单，多期资产够（企业）
   */
   PROCEDURE UT_EX_CO_MULT_TERM IS
-    v_red_amt              demo_invest_pop_tmp.amt%type := 250;
-  
   BEGIN
     create_items_for_unit_value;
     create_one_term_acct_for_co(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_three, term_one_invest_time, default_amount);
   
-    create_invest_pop_parameters(emp_id_for_co, subject_type_co, v_red_amt);
+    create_invest_pop_parameters(emp_id_for_co, subject_type_co, mult_term_mult_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -210,15 +205,13 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     assert_result_count(3);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
     assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
-    assert_detail_by_appl(appl_num_three, term_one_invest_time, v_red_amt - default_amount * 2);
+    assert_detail_by_appl(appl_num_three, term_one_invest_time, mult_term_mult_appl_red_amt - default_amount * 2);
   END;
 
   /*
   赎回涉及超过五张申请单（企业）
   */
   PROCEDURE UT_EX_CO_MAX_FIVE_APPL IS
-    v_red_amt              demo_invest_pop_tmp.amt%type := 600;
-  
   BEGIN
     create_items_for_unit_value;
     create_one_term_acct_for_co(appl_num_one, term_one_invest_time, default_amount);
@@ -228,7 +221,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_term_acct_for_co(appl_num_five, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_six, term_one_invest_time, default_amount);
   
-    create_invest_pop_parameters(emp_id_for_co, subject_type_co, v_red_amt);
+    create_invest_pop_parameters(emp_id_for_co, subject_type_co, enough_red_amt_for_over_five);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
