@@ -7,9 +7,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   PROCEDURE UT_UNEX_CO_NOTENOUGH;
 
   procedure create_unex_prod_info;
-  procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
-                                         subject_type demo_emp_invest.subject_type%type,
-                                         red_amt demo_invest_pop_tmp.amt%type);
   
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type);
@@ -92,7 +89,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_recent_traded); 
     UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
   
-    create_invest_pop_parameters(emp_id, subject_type_emp, v_red_amt);
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, v_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -310,16 +307,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     utassert.eqqueryvalue(msg_in           => '校验tablecount',
                           CHECK_QUERY_IN   => 'select count(1) from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => expected_count);
-  end;
-
-  procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
-                                         subject_type demo_emp_invest.subject_type%type,
-                                         red_amt demo_invest_pop_tmp.amt%type) is
-  begin
-    insert into demo_invest_pop_tmp
-      (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
-    values
-      (emp_id, co_id, subject_type, red_amt);
   end;
 
 END UT_PKG_DEMO_PROC_POP_DEAL_UNEX;
