@@ -10,8 +10,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type);
-  procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
-                                           eval_state_flag demo_invest_unit_value.EVAL_STATE_FLAG%type);
   
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type);
@@ -91,8 +89,8 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_one_invest_time, op_control_purchase_term_no); 
     UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
  
-    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_recent_traded); 
-    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
+    UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_recent_traded); 
+    UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
   
     create_invest_pop_parameters(emp_id, subject_type_emp, v_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -323,15 +321,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     values
       (emp_id, co_id, subject_type, red_amt);
   end;
-
-  procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
-                                           eval_state_flag demo_invest_unit_value.EVAL_STATE_FLAG%type) is
-  begin
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, evaluate_date, plan_id, Dummy, eval_state_flag);
-  end create_one_item_for_unit_value;
 
 END UT_PKG_DEMO_PROC_POP_DEAL_UNEX;
 /
