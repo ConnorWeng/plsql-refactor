@@ -113,7 +113,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_recent_traded);
     create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
-  
+
     create_invest_pop_parameters(emp_id, subject_type_emp, one_term_one_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
                            O_FLAG      => OUT_FLAG,
