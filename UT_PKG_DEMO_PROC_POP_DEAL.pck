@@ -28,6 +28,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL IS
   procedure create_one_purchase_for_op_ctl(invest_time VARCHAR2);
   procedure create_one_red_for_op_ctl(term_no number, invest_time VARCHAR2);
   procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2);
+  procedure create_red_pur_for_op_ctl(red_term_invest_time VARCHAR2);
   procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
                                            eval_state_flag demo_invest_unit_value.EVAL_STATE_FLAG%type);
   
@@ -101,8 +102,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, red_amt);
   
     create_one_purchase_for_op_ctl(term_one_invest_time);
-    create_one_red_for_op_ctl(1, one_day_before(red_term_invest_time));
-    create_one_purchase_for_op_ctl(red_term_invest_time);
+    create_red_pur_for_op_ctl(red_term_invest_time);
   
     create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_purchase);
     create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_redemption);
@@ -118,33 +118,11 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     assert_detail_by_appl(appl_num_one, term_one_invest_time, red_amt, red_amt);
   END;
 
-  procedure create_one_purchase_for_op_ctl(invest_time VARCHAR2) is
+  procedure create_red_pur_for_op_ctl(red_term_invest_time VARCHAR2) is
   begin
-    create_one_item_for_op_ctl(op_type_purchase, op_control_purchase_term_no, invest_time);
-    op_control_purchase_term_no := op_control_purchase_term_no + sell_min_term;
-  end create_one_purchase_for_op_ctl;
-
-  procedure create_one_red_for_op_ctl(term_no number, invest_time VARCHAR2) is
-  begin
-    create_one_item_for_op_ctl(op_type_redemption, term_no, invest_time);
-  end create_one_red_for_op_ctl;
-
-  procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2) is
-  begin
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, op_type, term_no, invest_time);
-  end create_one_item_for_op_ctl;
-
-  procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
-                                           eval_state_flag demo_invest_unit_value.EVAL_STATE_FLAG%type) is
-  begin
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, evaluate_date, plan_id, Dummy, eval_state_flag);
-  end create_one_item_for_unit_value;
+    create_one_red_for_op_ctl(1, one_day_before(red_term_invest_time));
+    create_one_purchase_for_op_ctl(red_term_invest_time);
+  end;
 
   /*
   涉及一期，且一期只有一张申请单，一期资产够（个人）
@@ -158,8 +136,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
   
     create_one_purchase_for_op_ctl(term_one_invest_time);
     create_one_purchase_for_op_ctl(term_two_invest_time);
-    create_one_red_for_op_ctl(1, one_day_before(red_term_invest_time));
-    create_one_purchase_for_op_ctl(red_term_invest_time);
+    create_red_pur_for_op_ctl(red_term_invest_time);
 
     create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_tbd);
     create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_purchase);
@@ -949,6 +926,34 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL IS
     values
       (emp_id, co_id, subject_type, red_amt);
   end;
+
+  procedure create_one_purchase_for_op_ctl(invest_time VARCHAR2) is
+  begin
+    create_one_item_for_op_ctl(op_type_purchase, op_control_purchase_term_no, invest_time);
+    op_control_purchase_term_no := op_control_purchase_term_no + sell_min_term;
+  end create_one_purchase_for_op_ctl;
+
+  procedure create_one_red_for_op_ctl(term_no number, invest_time VARCHAR2) is
+  begin
+    create_one_item_for_op_ctl(op_type_redemption, term_no, invest_time);
+  end create_one_red_for_op_ctl;
+
+  procedure create_one_item_for_op_ctl(op_type number, term_no number, invest_time VARCHAR2) is
+  begin
+    insert into demo_invest_op_control
+      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
+    values
+      (invest_id, op_type, term_no, invest_time);
+  end create_one_item_for_op_ctl;
+
+  procedure create_one_item_for_unit_value(evaluate_date demo_invest_unit_value.EVALUATE_DATE%type, 
+                                           eval_state_flag demo_invest_unit_value.EVAL_STATE_FLAG%type) is
+  begin
+    insert into demo_invest_unit_value
+      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
+    values
+      (invest_id, evaluate_date, plan_id, Dummy, eval_state_flag);
+  end create_one_item_for_unit_value;
 
   function one_day_before(day VARCHAR2) return VARCHAR2 is
   begin
