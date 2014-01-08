@@ -54,9 +54,10 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   appl_num_six                      constant demo_appl_num_rel.appl_num%type := 6;
   
   default_amount                    constant number(17, 2) := 100;
-  enough_red_quotient              demo_invest_pop_tmp.amt%type := 40;
-  original_quotient                demo_emp_invest.QUOTIENT%type := 50;
-  original_amt                     demo_emp_invest.AMT%type := 100;
+  enough_red_quotient               demo_invest_pop_tmp.amt%type := 40;
+  red_quotient_not_enough           demo_invest_pop_tmp.amt%type := 100;
+  original_quotient                 demo_emp_invest.QUOTIENT%type := 50;
+  original_amt                      demo_emp_invest.AMT%type := 100;
 
   sell_min_term                     constant number := 1;
   op_control_purchase_term_no       number;
@@ -132,60 +133,21 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   净值报价型，企业赎回,不够
   */
   PROCEDURE UT_UNEX_CO_NOTENOUGH IS
-    --out arguements definition
-    v_term_one_invest_time VARCHAR2(10) := '2013-01-01';
-    v_red_term_invest_time VARCHAR2(10) := '2013-12-16';
-    v_red_quotient              demo_invest_pop_tmp.amt%type := 100;
   
   BEGIN
-    --准备数据
-    --预期收益产品准备
-    --账务数据
-    insert into demo_co_invest
-      (CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
-    values
-      (co_id, subject_type_co, INVEST_ID, 50, 50, 100);
+    create_co_invest_info(original_amt, original_quotient);
   
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, 2, 1, v_term_one_invest_time);
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id,
-       3,
-       1,
-       to_char(to_date(v_red_term_invest_time, 'yyyy-mm-dd') - 1,
-               'yyyy-mm-dd'));
-    insert into demo_invest_op_control
-      (INVEST_ID, OP_TYPE, TERM_NO, INVEST_TIME)
-    values
-      (invest_id, 2, 12, v_red_term_invest_time);
+    UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_one_invest_time, op_control_purchase_term_no);
+    UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
+    UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_recent_traded);
+    UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
   
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, v_term_one_invest_time, plan_id, 1, 2);
-  
-    insert into demo_invest_unit_value
-      (INVEST_ID, EVALUATE_DATE, PLAN_ID, UNIT_VALUE, EVAL_STATE_FLAG)
-    values
-      (invest_id, v_red_term_invest_time, plan_id, 1, 3);
-  
-    --传入数据
-    insert into demo_invest_pop_tmp
-      (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
-    values
-      (emp_id_for_co, co_id, subject_type_co, v_red_quotient);
-  
-    --执行被测代码
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, red_quotient_not_enough);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
 
     assert_out_flag_and_out_msg(2, '赎回份额分配出错');
-  
   END;
 
   procedure create_unex_prod_info is
