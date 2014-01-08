@@ -7,6 +7,8 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   PROCEDURE UT_UNEX_CO_NOTENOUGH;
 
   procedure create_unex_prod_info;
+  procedure create_emp_invest_info(original_amt demo_emp_invest.QUOTIENT%type,
+                                   original_quotient demo_emp_invest.AMT%type);
   
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type);
@@ -79,11 +81,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     original_quotient           demo_emp_invest.QUOTIENT%type := 50;
     original_amt                demo_emp_invest.AMT%type := 100;
   BEGIN
-    --账务数据
-    insert into demo_emp_invest
-      (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
-    values
-      (emp_id, co_id, subject_type_emp, INVEST_ID, original_amt, original_quotient, Dummy);
+    create_emp_invest_info(original_amt, original_quotient);
  
     UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_one_invest_time, op_control_purchase_term_no); 
     UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
@@ -111,6 +109,16 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
                           AGAINST_VALUE_IN => v_red_quotient / original_quotient * original_amt);
   
   END;
+
+  procedure create_emp_invest_info(original_amt demo_emp_invest.QUOTIENT%type,
+                                   original_quotient demo_emp_invest.AMT%type) is
+  begin
+    insert into demo_emp_invest
+      (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
+    values
+      (emp_id, co_id, subject_type_emp, INVEST_ID, original_amt, original_quotient, Dummy);
+  end;
+
   /*
   净值报价型，企业赎回
   */
