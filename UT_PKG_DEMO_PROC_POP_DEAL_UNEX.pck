@@ -15,8 +15,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   procedure assert_quotient_and_amt(expected_red_quotient demo_invest_pop_result_tmp.QUOTIENT%type,
                                     expected_amt demo_invest_pop_result_tmp.AMT%type);
   
-  procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
-                                  expected_emp_id       in demo_emp_invest.emp_id%type);
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,
                                   expected_quotient    in number,
@@ -99,7 +97,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
                            O_MSG       => OUT_MSG);
     
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
-    assert_redemption_obj(subject_type_emp, emp_id);
+    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count(1);
     assert_quotient_and_amt(enough_red_quotient, enough_red_quotient / original_quotient * original_amt);
   END;
@@ -122,7 +120,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
                            O_MSG       => OUT_MSG);
     
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
-    assert_redemption_obj(subject_type_co, emp_id_for_co);
+    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_co, emp_id_for_co);
     assert_result_count(1);
     assert_quotient_and_amt(enough_red_quotient, enough_red_quotient / original_quotient * original_amt);
   END;
@@ -181,20 +179,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
                           CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => expected_amt);
   end;
-
-  procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
-                       expected_emp_id       in demo_emp_invest.emp_id%type) is
-  begin
-    utassert.eqqueryvalue(msg_in           => '校验co_id',
-                          CHECK_QUERY_IN   => 'select distinct co_id from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => co_id);
-    utassert.eqqueryvalue(msg_in           => '校验emp_id',
-                          CHECK_QUERY_IN   => 'select distinct emp_id from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => expected_emp_id);
-    utassert.eqqueryvalue(msg_in           => '校验subject_type',
-                          CHECK_QUERY_IN   => 'select distinct subject_type from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => expected_subject_type);
-  end assert_redemption_obj;
 
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,

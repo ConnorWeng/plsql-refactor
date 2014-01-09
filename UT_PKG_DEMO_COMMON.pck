@@ -13,6 +13,8 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_COMMON IS
   procedure assert_out_flag_and_out_msg(out_flag number, expected_out_flag number, 
                                         out_msg VARCHAR2, expected_out_msg VARCHAR2);
   procedure assert_return_success(out_flag number, out_msg VARCHAR2);
+  procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
+                                  expected_emp_id       in demo_emp_invest.emp_id%type);
 
   function one_day_before(day VARCHAR2) return VARCHAR2;
 
@@ -118,6 +120,20 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_COMMON IS
   begin
     assert_out_flag_and_out_msg(out_flag, 0, out_msg, '成功');
   end assert_return_success;
+
+  procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
+                                  expected_emp_id       in demo_emp_invest.emp_id%type) is
+  begin
+    utassert.eqqueryvalue(msg_in           => '校验co_id',
+                          CHECK_QUERY_IN   => 'select distinct co_id from demo_invest_pop_result_tmp',
+                          AGAINST_VALUE_IN => co_id);
+    utassert.eqqueryvalue(msg_in           => '校验emp_id',
+                          CHECK_QUERY_IN   => 'select distinct emp_id from demo_invest_pop_result_tmp',
+                          AGAINST_VALUE_IN => expected_emp_id);
+    utassert.eqqueryvalue(msg_in           => '校验subject_type',
+                          CHECK_QUERY_IN   => 'select distinct subject_type from demo_invest_pop_result_tmp',
+                          AGAINST_VALUE_IN => expected_subject_type);
+  end assert_redemption_obj;
 
   function one_day_before(day VARCHAR2) return VARCHAR2 is
   begin
