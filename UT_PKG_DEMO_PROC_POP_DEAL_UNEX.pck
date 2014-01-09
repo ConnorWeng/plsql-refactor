@@ -71,6 +71,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
 
     UT_PKG_DEMO_COMMON.create_plan_info;
     create_unex_prod_info;
+    UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_one_invest_time, op_control_purchase_term_no); 
+    UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
+    UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
   END;
   PROCEDURE UT_TEARDOWN IS
   BEGIN
@@ -84,10 +87,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   BEGIN
     create_emp_invest_info(original_amt, original_quotient);
  
-    UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_one_invest_time, op_control_purchase_term_no); 
-    UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
-    UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
-  
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, enough_red_quotient);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
@@ -106,10 +105,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   BEGIN
     create_co_invest_info(original_amt, original_quotient);
 
-    UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_one_invest_time, op_control_purchase_term_no);
-    UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
-    UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
-  
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, enough_red_quotient);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
@@ -128,10 +123,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   
   BEGIN
     create_co_invest_info(original_amt, original_quotient);
-  
-    UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_one_invest_time, op_control_purchase_term_no);
-    UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
-    UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
   
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, red_quotient_not_enough);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
