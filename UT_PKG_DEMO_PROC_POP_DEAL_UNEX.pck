@@ -15,11 +15,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   procedure assert_quotient_and_amt(expected_red_quotient demo_invest_pop_result_tmp.QUOTIENT%type,
                                     expected_amt demo_invest_pop_result_tmp.AMT%type);
   
-  procedure assert_detail_by_appl(yappl_num   in number,
-                                  expected_invest_time in varchar2,
-                                  expected_quotient    in number,
-                                  expected_amt         in number);
-
   invest_id                         constant DEMO_INVEST_INFO.INVEST_ID%type := UT_PKG_DEMO_COMMON.invest_id;
   co_id                             constant demo_co_invest.co_id%type := UT_PKG_DEMO_COMMON.co_id;
   emp_id                            constant demo_emp_invest.emp_id%type := UT_PKG_DEMO_COMMON.emp_id;
@@ -99,7 +94,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   净值报价型，企业赎回,不够
   */
   PROCEDURE UT_UNEX_CO_NOTENOUGH IS
-  
   BEGIN
     create_co_invest_info(original_amt, original_quotient);
   
@@ -144,27 +138,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
                           CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => expected_amt);
   end;
-
-  procedure assert_detail_by_appl(yappl_num   in number,
-                                  expected_invest_time in varchar2,
-                                  expected_quotient    in number,
-                                  expected_amt         in number) is
-  begin
-    utassert.eqqueryvalue(msg_in           => '校验invest_time',
-                          CHECK_QUERY_IN   => 'select invest_time from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
-                                              yappl_num,
-                          AGAINST_VALUE_IN => expected_invest_time);
-  
-    utassert.eqqueryvalue(msg_in           => '校验quotient',
-                          CHECK_QUERY_IN   => 'select quotient from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
-                                              yappl_num,
-                          AGAINST_VALUE_IN => expected_quotient);
-  
-    utassert.eqqueryvalue(msg_in           => '校验amt',
-                          CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
-                                              yappl_num,
-                          AGAINST_VALUE_IN => expected_amt);
-  end assert_detail_by_appl;
 
 END UT_PKG_DEMO_PROC_POP_DEAL_UNEX;
 /
