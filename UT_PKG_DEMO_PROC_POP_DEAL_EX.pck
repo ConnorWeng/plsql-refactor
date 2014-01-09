@@ -22,8 +22,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   procedure create_one_term_for_unit_val;
   procedure create_mult_term_for_unit_val;
   
-  procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
-                                  expected_emp_id       in demo_emp_invest.emp_id%type);
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,
                                   expected_amt         in number);
@@ -108,7 +106,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_MSG       => OUT_MSG);
   
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
-    assert_redemption_obj(subject_type_emp, emp_id);
+    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count(1);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
   END;
@@ -128,7 +126,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_MSG       => OUT_MSG);
   
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
-    assert_redemption_obj(subject_type_emp, emp_id);
+    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count(2);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, mult_term_one_appl_red_amt - default_amount);
     assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
@@ -150,7 +148,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_MSG       => OUT_MSG);
   
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
-    assert_redemption_obj(subject_type_emp, emp_id);
+    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count(3);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
     assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
@@ -191,7 +189,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_MSG       => OUT_MSG);
   
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
-    assert_redemption_obj(subject_type_co, emp_id_for_co);
+    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_co, emp_id_for_co);
     assert_result_count(3);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
     assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
@@ -232,20 +230,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   begin
     UT_PKG_DEMO_COMMON.create_prod_info(True);
   end create_ex_prod_info;
-
-  procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
-                                  expected_emp_id       in demo_emp_invest.emp_id%type) is
-  begin
-    utassert.eqqueryvalue(msg_in           => '校验co_id',
-                          CHECK_QUERY_IN   => 'select distinct co_id from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => co_id);
-    utassert.eqqueryvalue(msg_in           => '校验emp_id',
-                          CHECK_QUERY_IN   => 'select distinct emp_id from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => expected_emp_id);
-    utassert.eqqueryvalue(msg_in           => '校验subject_type',
-                          CHECK_QUERY_IN   => 'select distinct subject_type from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => expected_subject_type);
-  end assert_redemption_obj;
 
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,
