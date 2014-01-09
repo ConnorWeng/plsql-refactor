@@ -24,8 +24,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type);
-  procedure assert_return_success;
-  procedure assert_out_flag_and_out_msg(expected_out_flag number, expected_out_msg VARCHAR2);
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,
                                   expected_amt         in number);
@@ -109,7 +107,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
-    assert_return_success;
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
     assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count(1);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
@@ -129,7 +127,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
-    assert_return_success;
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
     assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count(2);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, mult_term_one_appl_red_amt - default_amount);
@@ -151,7 +149,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
-    assert_return_success;
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
     assert_redemption_obj(subject_type_emp, emp_id);
     assert_result_count(3);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
@@ -174,7 +172,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
 
-    assert_out_flag_and_out_msg(2, '进行后进先出处理时，资产不足');
+    UT_PKG_DEMO_COMMON.assert_out_flag_and_out_msg(out_flag, 2, out_msg, '进行后进先出处理时，资产不足');
   END;
 
   /*
@@ -192,7 +190,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
-    assert_return_success;
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
     assert_redemption_obj(subject_type_co, emp_id_for_co);
     assert_result_count(3);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
@@ -218,7 +216,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
-    assert_out_flag_and_out_msg(3, '企业：' ||
+    UT_PKG_DEMO_COMMON.assert_out_flag_and_out_msg(out_flag, 3, out_msg, '企业：' ||
                                    PKG_DEMO_COMMON.FUNC_GET_COFNAMEBYID(co_id) ||
                                    '生成申请单超过5条');
     assert_result_count(6);
@@ -248,21 +246,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                           CHECK_QUERY_IN   => 'select distinct subject_type from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => expected_subject_type);
   end assert_redemption_obj;
-
-  procedure assert_return_success is
-  begin
-    assert_out_flag_and_out_msg(0, '成功');
-  end assert_return_success;
-
-  procedure assert_out_flag_and_out_msg(expected_out_flag number, expected_out_msg VARCHAR2) is
-  begin
-    utassert.eq(msg_in          => '校验程序返回标志',
-                check_this_in   => out_flag,
-                against_this_in => expected_out_flag);
-    utassert.eq(msg_in          => '校验程序返回信息',
-                check_this_in   => out_msg,
-                against_this_in => expected_out_msg);
-  end assert_out_flag_and_out_msg;
 
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,
