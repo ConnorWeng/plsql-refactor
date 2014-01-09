@@ -88,7 +88,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
-    UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     UT_PKG_DEMO_COMMON.assert_result_count(1);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
@@ -108,7 +108,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
-    UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     UT_PKG_DEMO_COMMON.assert_result_count(2);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, mult_term_one_appl_red_amt - default_amount);
@@ -130,7 +130,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
-    UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     UT_PKG_DEMO_COMMON.assert_result_count(3);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
@@ -171,7 +171,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
-    UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_co, emp_id_for_co);
     UT_PKG_DEMO_COMMON.assert_result_count(3);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);

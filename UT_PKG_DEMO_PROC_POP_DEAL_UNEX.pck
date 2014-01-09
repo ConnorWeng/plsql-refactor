@@ -66,7 +66,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
     
-    UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     UT_PKG_DEMO_COMMON.assert_result_count(1);
     assert_quotient_and_amt(enough_red_quotient, enough_red_quotient / original_quotient * original_amt);
@@ -84,7 +84,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
     
-    UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_co, emp_id_for_co);
     UT_PKG_DEMO_COMMON.assert_result_count(1);
     assert_quotient_and_amt(enough_red_quotient, enough_red_quotient / original_quotient * original_amt);
