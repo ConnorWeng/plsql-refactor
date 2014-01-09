@@ -10,7 +10,9 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_COMMON IS
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type);
 
-  -- procedure assert_out_flag_and_out_msg(expected_out_flag number, expected_out_msg VARCHAR2);
+  procedure assert_out_flag_and_out_msg(out_flag number, expected_out_flag number, 
+                                        out_msg VARCHAR2, expected_out_msg VARCHAR2);
+  procedure assert_return_success(out_flag number, out_msg VARCHAR2);
 
   function one_day_before(day VARCHAR2) return VARCHAR2;
 
@@ -101,15 +103,21 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_COMMON IS
       (emp_id, co_id, subject_type, red_amt);
   end;
 
-  -- procedure assert_out_flag_and_out_msg(expected_out_flag number, expected_out_msg VARCHAR2) is
-  -- begin
-  --   utassert.eq(msg_in          => '校验程序返回标志',
-  --               check_this_in   => out_flag,
-  --               against_this_in => expected_out_flag);
-  --   utassert.eq(msg_in          => '校验程序返回信息',
-  --               check_this_in   => out_msg,
-  --               against_this_in => expected_out_msg);
-  -- end assert_out_flag_and_out_msg;
+  procedure assert_out_flag_and_out_msg(out_flag number, expected_out_flag number, 
+                                        out_msg VARCHAR2, expected_out_msg VARCHAR2) is
+  begin
+    utassert.eq(msg_in          => '校验程序返回标志',
+                check_this_in   => out_flag,
+                against_this_in => expected_out_flag);
+    utassert.eq(msg_in          => '校验程序返回信息',
+                check_this_in   => out_msg,
+                against_this_in => expected_out_msg);
+  end assert_out_flag_and_out_msg;
+
+  procedure assert_return_success(out_flag number, out_msg VARCHAR2) is
+  begin
+    assert_out_flag_and_out_msg(out_flag, 0, out_msg, '成功');
+  end assert_return_success;
 
   function one_day_before(day VARCHAR2) return VARCHAR2 is
   begin
