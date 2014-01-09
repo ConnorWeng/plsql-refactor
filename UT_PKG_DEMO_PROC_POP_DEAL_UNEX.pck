@@ -19,7 +19,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
                                   expected_invest_time in varchar2,
                                   expected_quotient    in number,
                                   expected_amt         in number);
-  procedure assert_result_count(expected_count number);
 
   True                constant number := 0;
   False               constant number := 1;
@@ -98,7 +97,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
-    assert_result_count(1);
+    UT_PKG_DEMO_COMMON.assert_result_count(1);
     assert_quotient_and_amt(enough_red_quotient, enough_red_quotient / original_quotient * original_amt);
   END;
 
@@ -121,7 +120,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag, out_msg);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_co, emp_id_for_co);
-    assert_result_count(1);
+    UT_PKG_DEMO_COMMON.assert_result_count(1);
     assert_quotient_and_amt(enough_red_quotient, enough_red_quotient / original_quotient * original_amt);
   END;
 
@@ -200,13 +199,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
                                               yappl_num,
                           AGAINST_VALUE_IN => expected_amt);
   end assert_detail_by_appl;
-
-  procedure assert_result_count(expected_count number) is
-  begin
-    utassert.eqqueryvalue(msg_in           => '校验tablecount',
-                          CHECK_QUERY_IN   => 'select count(1) from demo_invest_pop_result_tmp',
-                          AGAINST_VALUE_IN => expected_count);
-  end;
 
 END UT_PKG_DEMO_PROC_POP_DEAL_UNEX;
 /

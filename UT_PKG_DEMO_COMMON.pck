@@ -15,6 +15,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_COMMON IS
   procedure assert_return_success(out_flag number, out_msg VARCHAR2);
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type);
+  procedure assert_result_count(expected_count number);
 
   function one_day_before(day VARCHAR2) return VARCHAR2;
 
@@ -134,6 +135,13 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_COMMON IS
                           CHECK_QUERY_IN   => 'select distinct subject_type from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => expected_subject_type);
   end assert_redemption_obj;
+
+  procedure assert_result_count(expected_count number) is
+  begin
+    utassert.eqqueryvalue(msg_in           => '校验tablecount',
+                          CHECK_QUERY_IN   => 'select count(1) from demo_invest_pop_result_tmp',
+                          AGAINST_VALUE_IN => expected_count);
+  end;
 
   function one_day_before(day VARCHAR2) return VARCHAR2 is
   begin
