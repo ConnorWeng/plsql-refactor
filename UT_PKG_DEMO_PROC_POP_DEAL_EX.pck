@@ -25,21 +25,12 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                   expected_invest_time in varchar2,
                                   expected_amt         in number);
 
-  function one_day_before(day VARCHAR2) return VARCHAR2;
-
-  True                constant number := 0;
-  False               constant number := 1;
-  Dummy               constant number := 99;
-
-  invest_id                         constant DEMO_INVEST_INFO.INVEST_ID%type := '990001';
-  plan_id                           constant demo_plan_info.plan_id%type := '000001';
-  co_id                             constant demo_co_invest.co_id%type := '0000001000000';
-  emp_id                            constant demo_emp_invest.emp_id%type := '0000000001';
-  emp_id_for_co                     constant demo_emp_invest.emp_id%type := 'FFFFFFFFFF';
-  subject_type_emp                  constant demo_emp_invest.subject_type%type := '301001';
-  subject_type_co                   constant demo_emp_invest.subject_type%type := '302101';
-  op_type_purchase                  constant demo_invest_op_control.OP_TYPE%type := 2;
-  op_type_redemption                constant demo_invest_op_control.OP_TYPE%type := 3;
+  invest_id                         constant DEMO_INVEST_INFO.INVEST_ID%type := UT_PKG_DEMO_COMMON.invest_id;
+  co_id                             constant demo_co_invest.co_id%type := UT_PKG_DEMO_COMMON.co_id;
+  emp_id                            constant demo_emp_invest.emp_id%type := UT_PKG_DEMO_COMMON.emp_id;
+  emp_id_for_co                     constant demo_emp_invest.emp_id%type := UT_PKG_DEMO_COMMON.emp_id_for_co;
+  subject_type_emp                  constant demo_emp_invest.subject_type%type := UT_PKG_DEMO_COMMON.subject_type_emp;
+  subject_type_co                   constant demo_emp_invest.subject_type%type := UT_PKG_DEMO_COMMON.subject_type_co;
   eval_state_flag_traded            constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 1;
   eval_state_flag_recent_traded     constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
   eval_state_flag_not_excuted       constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 3;
@@ -226,7 +217,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
 
   procedure create_ex_prod_info is
   begin
-    UT_PKG_DEMO_COMMON.create_prod_info(True);
+    UT_PKG_DEMO_COMMON.create_prod_info(UT_PKG_DEMO_COMMON.True);
   end create_ex_prod_info;
 
   procedure assert_detail_by_appl(yappl_num   in number,
@@ -363,10 +354,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
   end;
 
-  function one_day_before(day VARCHAR2) return VARCHAR2 is
-  begin
-    return to_char(to_date(day, 'yyyy-mm-dd') - 1, 'yyyy-mm-dd');
-  end;
 END UT_PKG_DEMO_PROC_POP_DEAL_EX;
 /
 
