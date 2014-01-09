@@ -32,7 +32,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   subject_type_co                   constant demo_emp_invest.subject_type%type := UT_PKG_DEMO_COMMON.subject_type_co;
   
   term_one_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.term_one_invest_time;
-  term_two_invest_time              constant VARCHAR2(10) := '2013-02-01';
+  term_two_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.term_two_invest_time;
   red_term_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.red_term_invest_time;
 
   appl_num_one                      constant demo_appl_num_rel.appl_num%type := 1;
@@ -49,9 +49,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   not_enough_red_amt                constant demo_invest_pop_tmp.amt%type := 310;
   enough_red_amt_for_over_five      constant demo_invest_pop_tmp.amt%type := 580;
 
-  sell_min_term                     constant number := 1;
   op_control_purchase_term_no       number;
-
   OUT_FLAG                          number;
   OUT_MSG                           VARCHAR2(2000);
 END UT_PKG_DEMO_PROC_POP_DEAL_EX;
