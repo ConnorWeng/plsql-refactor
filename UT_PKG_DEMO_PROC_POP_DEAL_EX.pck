@@ -19,7 +19,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   procedure create_one_appl_num_rel(appl_num     in demo_appl_num_rel.appl_num%type,
                                     invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                     amt          in demo_appl_num_rel.AMT%type);
-  procedure create_mult_term_for_unit_val;
   
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,
@@ -31,9 +30,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   emp_id_for_co                     constant demo_emp_invest.emp_id%type := UT_PKG_DEMO_COMMON.emp_id_for_co;
   subject_type_emp                  constant demo_emp_invest.subject_type%type := UT_PKG_DEMO_COMMON.subject_type_emp;
   subject_type_co                   constant demo_emp_invest.subject_type%type := UT_PKG_DEMO_COMMON.subject_type_co;
-  eval_state_flag_traded            constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 1;
-  eval_state_flag_recent_traded     constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
-  eval_state_flag_not_excuted       constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 3;
   
   term_one_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.term_one_invest_time;
   term_two_invest_time              constant VARCHAR2(10) := '2013-02-01';
@@ -105,7 +101,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_ONE_APPL IS
   BEGIN
-    create_mult_term_for_unit_val;
+    UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
  
@@ -126,7 +122,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_MULT_APPL IS
   BEGIN
-    create_mult_term_for_unit_val;
+    UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
@@ -149,7 +145,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_NOTENOUGH IS
   BEGIN
-    create_mult_term_for_unit_val;
+    UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
@@ -167,7 +163,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   */
   PROCEDURE UT_EX_CO_MULT_TERM IS
   BEGIN
-    create_mult_term_for_unit_val;
+    UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
     create_one_term_acct_for_co(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_three, term_one_invest_time, default_amount);
@@ -190,7 +186,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   */
   PROCEDURE UT_EX_CO_MAX_FIVE_APPL IS
   BEGIN
-    create_mult_term_for_unit_val;
+    UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
     create_one_term_acct_for_co(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_three, term_one_invest_time, default_amount);
@@ -346,13 +342,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
         (b.co_id, b.subject_type, b.invest_id, b.invest_time, b.amt);
   
   end create_one_term_acct_for_co;
-
-  procedure create_mult_term_for_unit_val is
-  begin
-    UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_traded);
-    UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(term_two_invest_time, eval_state_flag_recent_traded);
-    UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
-  end;
 
 END UT_PKG_DEMO_PROC_POP_DEAL_EX;
 /
