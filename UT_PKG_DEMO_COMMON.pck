@@ -9,6 +9,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_COMMON IS
   procedure create_invest_pop_parameters(emp_id demo_emp_invest.emp_id%type,
                                          subject_type demo_emp_invest.subject_type%type,
                                          red_amt demo_invest_pop_tmp.amt%type);
+  procedure create_one_term_for_unit_val;
 
   procedure assert_out_flag_and_out_msg(out_flag number, expected_out_flag number, 
                                         out_msg VARCHAR2, expected_out_msg VARCHAR2);
@@ -30,6 +31,10 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_COMMON IS
   term_one_invest_time              constant VARCHAR2(10) := '2013-01-01';
   red_term_invest_time              constant VARCHAR2(10) := '2013-12-16';
 
+  eval_state_flag_traded            constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 1;
+  eval_state_flag_recent_traded     constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
+  eval_state_flag_not_excuted       constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 3;
+  
   sell_min_term                     constant number := 1;
 
 END UT_PKG_DEMO_COMMON;
@@ -104,6 +109,12 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_COMMON IS
       (EMP_ID, CO_ID, SUBJECT_TYPE, AMT)
     values
       (emp_id, co_id, subject_type, red_amt);
+  end;
+
+  procedure create_one_term_for_unit_val is
+  begin
+    create_one_item_for_unit_value(term_one_invest_time, eval_state_flag_recent_traded);
+    create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
   end;
 
   procedure assert_out_flag_and_out_msg(out_flag number, expected_out_flag number, 
