@@ -40,7 +40,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   PROCEDURE UT_SETUP IS
   BEGIN
     OUT_FLAG := -1;
-    OUT_MSG := '';
     op_control_purchase_term_no := 1;
 
     UT_PKG_DEMO_COMMON.create_plan_info;
@@ -102,7 +101,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
 
-    UT_PKG_DEMO_COMMON.assert_out_flag_and_out_msg(out_flag, 2, out_msg, '赎回份额分配出错');
+    UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 2);
   END;
 
   procedure create_unex_prod_info is

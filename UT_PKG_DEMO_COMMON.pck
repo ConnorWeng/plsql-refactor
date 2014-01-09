@@ -12,8 +12,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_COMMON IS
   procedure create_one_term_for_unit_val;
   procedure create_mult_term_for_unit_val;
 
-  procedure assert_out_flag_and_out_msg(out_flag number, expected_out_flag number, 
-                                        out_msg VARCHAR2, expected_out_msg VARCHAR2);
+  procedure assert_out_flag(out_flag number, expected_out_flag number);
   procedure assert_return_success(out_flag number);
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type);
@@ -132,20 +131,16 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_COMMON IS
     create_one_item_for_unit_value(red_term_invest_time, eval_state_flag_not_excuted);
   end;
 
-  procedure assert_out_flag_and_out_msg(out_flag number, expected_out_flag number, 
-                                        out_msg VARCHAR2, expected_out_msg VARCHAR2) is
+  procedure assert_out_flag(out_flag number, expected_out_flag number) is
   begin
     utassert.eq(msg_in          => '校验程序返回标志',
                 check_this_in   => out_flag,
                 against_this_in => expected_out_flag);
-    utassert.eq(msg_in          => '校验程序返回信息',
-                check_this_in   => out_msg,
-                against_this_in => expected_out_msg);
-  end assert_out_flag_and_out_msg;
+  end assert_out_flag;
 
   procedure assert_return_success(out_flag number) is
   begin
-    assert_out_flag_and_out_msg(out_flag, 0, '成功', '成功');
+    assert_out_flag(out_flag, 0);
   end assert_return_success;
 
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,

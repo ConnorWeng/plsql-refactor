@@ -59,7 +59,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   PROCEDURE UT_SETUP IS
   BEGIN
     OUT_FLAG := -1;
-    OUT_MSG := '';
     op_control_purchase_term_no := 1;
 
     UT_PKG_DEMO_COMMON.create_plan_info;
@@ -153,7 +152,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
 
-    UT_PKG_DEMO_COMMON.assert_out_flag_and_out_msg(out_flag, 2, out_msg, '进行后进先出处理时，资产不足');
+    UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 2);
   END;
 
   /*
@@ -197,9 +196,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
   
-    UT_PKG_DEMO_COMMON.assert_out_flag_and_out_msg(out_flag, 3, out_msg, '企业：' ||
-                                   PKG_DEMO_COMMON.FUNC_GET_COFNAMEBYID(co_id) ||
-                                   '生成申请单超过5条');
+    UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 3);
     UT_PKG_DEMO_COMMON.assert_result_count(6);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
     assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
