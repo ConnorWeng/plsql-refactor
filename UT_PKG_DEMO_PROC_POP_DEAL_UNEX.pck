@@ -20,43 +20,22 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
                                   expected_quotient    in number,
                                   expected_amt         in number);
 
-  True                constant number := 0;
-  False               constant number := 1;
-  Dummy               constant number := 99;
-
-  invest_id                         constant DEMO_INVEST_INFO.INVEST_ID%type := '990001';
-  plan_id                           constant demo_plan_info.plan_id%type := '000001';
-  co_id                             constant demo_co_invest.co_id%type := '0000001000000';
-  emp_id                            constant demo_emp_invest.emp_id%type := '0000000001';
-  emp_id_for_co                     constant demo_emp_invest.emp_id%type := 'FFFFFFFFFF';
-  subject_type_emp                  constant demo_emp_invest.subject_type%type := '301001';
-  subject_type_co                   constant demo_emp_invest.subject_type%type := '302101';
-  op_type_purchase                  constant demo_invest_op_control.OP_TYPE%type := 2;
-  op_type_redemption                constant demo_invest_op_control.OP_TYPE%type := 3;
-  eval_state_flag_traded            constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 1;
-  eval_state_flag_recent_traded     constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
-  eval_state_flag_not_excuted       constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 3;
+  invest_id                         constant DEMO_INVEST_INFO.INVEST_ID%type := UT_PKG_DEMO_COMMON.invest_id;
+  co_id                             constant demo_co_invest.co_id%type := UT_PKG_DEMO_COMMON.co_id;
+  emp_id                            constant demo_emp_invest.emp_id%type := UT_PKG_DEMO_COMMON.emp_id;
+  emp_id_for_co                     constant demo_emp_invest.emp_id%type := UT_PKG_DEMO_COMMON.emp_id_for_co;
+  subject_type_emp                  constant demo_emp_invest.subject_type%type := UT_PKG_DEMO_COMMON.subject_type_emp;
+  subject_type_co                   constant demo_emp_invest.subject_type%type := UT_PKG_DEMO_COMMON.subject_type_co;
   
   term_one_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.term_one_invest_time;
-  term_two_invest_time              constant VARCHAR2(10) := '2013-02-01';
   red_term_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.red_term_invest_time;
 
-  appl_num_one                      constant demo_appl_num_rel.appl_num%type := 1;
-  appl_num_two                      constant demo_appl_num_rel.appl_num%type := 2;
-  appl_num_three                    constant demo_appl_num_rel.appl_num%type := 3;
-  appl_num_four                     constant demo_appl_num_rel.appl_num%type := 4;
-  appl_num_five                     constant demo_appl_num_rel.appl_num%type := 5;
-  appl_num_six                      constant demo_appl_num_rel.appl_num%type := 6;
-  
-  default_amount                    constant number(17, 2) := 100;
   enough_red_quotient               demo_invest_pop_tmp.amt%type := 40;
-  red_quotient_not_enough           demo_invest_pop_tmp.amt%type := 100;
+  not_enough_red_quotient           demo_invest_pop_tmp.amt%type := 100;
   original_quotient                 demo_emp_invest.QUOTIENT%type := 50;
   original_amt                      demo_emp_invest.AMT%type := 100;
 
-  sell_min_term                     constant number := 1;
   op_control_purchase_term_no       number;
-
   OUT_FLAG                          number;
   OUT_MSG                           VARCHAR2(2000);
 END UT_PKG_DEMO_PROC_POP_DEAL_UNEX;
@@ -124,7 +103,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   BEGIN
     create_co_invest_info(original_amt, original_quotient);
   
-    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, red_quotient_not_enough);
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, not_enough_red_quotient);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
@@ -134,7 +113,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
 
   procedure create_unex_prod_info is
   begin
-    UT_PKG_DEMO_COMMON.create_prod_info(False);
+    UT_PKG_DEMO_COMMON.create_prod_info(UT_PKG_DEMO_COMMON.False);
   end create_unex_prod_info;
 
   procedure create_emp_invest_info(original_amt demo_emp_invest.QUOTIENT%type,
@@ -143,7 +122,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     insert into demo_emp_invest
       (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
     values
-      (emp_id, co_id, subject_type_emp, INVEST_ID, original_amt, original_quotient, Dummy);
+      (emp_id, co_id, subject_type_emp, INVEST_ID, original_amt, original_quotient, UT_PKG_DEMO_COMMON.Dummy);
   end;
 
   procedure create_co_invest_info(original_amt demo_emp_invest.QUOTIENT%type,
@@ -152,7 +131,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     insert into demo_co_invest
       (CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
     values
-      (co_id, subject_type_co, INVEST_ID, original_amt, original_quotient, Dummy);
+      (co_id, subject_type_co, INVEST_ID, original_amt, original_quotient, UT_PKG_DEMO_COMMON.Dummy);
   end;
 
   procedure assert_quotient_and_amt(expected_red_quotient demo_invest_pop_result_tmp.QUOTIENT%type,
