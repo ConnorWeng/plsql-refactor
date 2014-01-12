@@ -43,11 +43,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   appl_num_six                      constant demo_appl_num_rel.appl_num%type := 6;
   
   default_amount                    constant number(17, 2) := 100;
-  one_term_one_appl_red_amt         constant demo_invest_pop_tmp.amt%type := 90;
-  mult_term_one_appl_red_amt        constant demo_invest_pop_tmp.amt%type := 180;
   mult_term_mult_appl_red_amt       constant demo_invest_pop_tmp.amt%type := 250;
-  not_enough_red_amt                constant demo_invest_pop_tmp.amt%type := 310;
-  enough_red_amt_for_over_five      constant demo_invest_pop_tmp.amt%type := 580;
 
   op_control_purchase_term_no       number;
   OUT_FLAG                          number;
@@ -78,6 +74,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   涉及一期，且一期只有一张申请单，一期资产够（个人）
   */
   PROCEDURE UT_EX_EMP_ONE_TERM_ONE_APPL IS
+    one_term_one_appl_red_amt         constant demo_invest_pop_tmp.amt%type := 90;
   BEGIN
     UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
@@ -97,6 +94,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   涉及一期，且一期只有一张申请单，一期资产够（个人）
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_ONE_APPL IS
+    mult_term_one_appl_red_amt        constant demo_invest_pop_tmp.amt%type := 180;
   BEGIN
     UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
@@ -141,6 +139,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   涉及多期，且多期只有多张申请单，多期资产够（个人）
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_NOTENOUGH IS
+    not_enough_red_amt                constant demo_invest_pop_tmp.amt%type := 310;
   BEGIN
     UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
@@ -182,6 +181,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   赎回涉及超过五张申请单（企业）
   */
   PROCEDURE UT_EX_CO_MAX_FIVE_APPL IS
+    enough_red_amt_for_over_five      constant demo_invest_pop_tmp.amt%type := 580;
   BEGIN
     UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
     create_one_term_acct_for_co(appl_num_one, term_one_invest_time, default_amount);
