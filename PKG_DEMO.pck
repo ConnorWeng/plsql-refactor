@@ -511,3 +511,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   END FUNC_GET_RED_PRIORITY;
 END PKG_DEMO;
 /
+
+set serveroutput on
+/
+
+BEGIN
+  utSuite.add ('UT_PKG_DEMO_PROC_POP_DEAL');
+  utPackage.add ('UT_PKG_DEMO_PROC_POP_DEAL', 'UT_PKG_DEMO_PROC_POP_DEAL_EX');
+  utPackage.add ('UT_PKG_DEMO_PROC_POP_DEAL', 'UT_PKG_DEMO_PROC_POP_DEAL_UNEX');
+  utPLSQL.runsuite ('UT_PKG_DEMO_PROC_POP_DEAL', per_method_setup_in => TRUE);
+END;
+/
+
+select last_status from ut_suite where name = 'UT_PKG_DEMO_PROC_POP_DEAL';
