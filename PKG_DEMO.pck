@@ -318,7 +318,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       set_out_flag_and_out_msg(O_FLAG, O_MSG, '无法获取下一次赎回集中确认日', I_INVEST_ID);
       RETURN;
     end if;
-    
+
     DELETE FROM DEMO_OP_CO;
     INSERT INTO DEMO_OP_CO
       (OP_DATE, CO_ID)
@@ -407,8 +407,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
      WHERE AMT_REMAIN > 0
        AND ROWNUM = 1;
     IF V_COUNT > 0 THEN
-      V_MSG := '进行后进先出处理时，资产不足';
-      RAISE E_CUSTOM;
+      set_out_flag_and_out_msg(O_FLAG, O_MSG, '进行后进先出处理时，资产不足', I_INVEST_ID);
+      RETURN;
     END IF;
 
     FOR RS IN (SELECT *
@@ -458,15 +458,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       END LOOP;
     END LOOP;
 
-    EXCEPTION
-      WHEN E_CUSTOM THEN
-        --ROLLBACK;
-        O_FLAG := 2;
-        O_MSG  := V_MSG;
-        PACK_LOG.LOG(V_PROC_NAME,
-                     V_STEP,
-                     O_MSG || '|' || V_PARAMS,
-                     PACK_LOG.WARN_LEVEL);
   end;
 
   PROCEDURE deal_pop_unex (I_INVEST_ID in VARCHAR2,
