@@ -436,6 +436,42 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       
       RETURN NOT FUNC_EXIST_AMT_REMAIN;
   END;
+  function FUNC_GET_REDABLE_APPL_AMT(I_CO_ID       IN VARCHAR2,
+                                     I_INVEST_TIME IN VARCHAR2,
+                                     I_APPL_NUM    IN NUMBER,
+                                     I_AMT         IN NUMBER,
+                                     I_REDABLE_AMT IN NUMBER) RETURN NUMBER IS
+    V_REDABLE_APPL_AMT NUMBER(17, 2);
+  BEGIN
+    SELECT I_AMT - NVL(I_REDABLE_AMT, 0) - NVL(SUM(T3.AMT), 0)
+      INTO V_REDABLE_APPL_AMT
+      FROM DEMO_INVEST_POP_RESULT_TMP T3
+     WHERE T3.CO_ID = I_CO_ID
+       AND T3.INVEST_TIME = I_INVEST_TIME
+       AND T3.YAPPL_NUM = I_APPL_NUM;
+    RETURN V_REDABLE_APPL_AMT;
+  END;
+  
+  PROCEDURE PROC_DEAL_POP_EX_TERM_TO_APPL(I_EMP_ID                 IN VARCHAR2,
+                                          I_CO_ID                  IN VARCHAR2,
+                                          I_SUBJECT_TYPE           IN VARCHAR2,
+                                          I_INVEST_TIME            IN VARCHAR2,
+                                          I_APPL_NUM               IN NUMBER,
+                                          I_DEAL_POP_DONE_APPL_AMT IN NUMBER) IS
+  
+  BEGIN
+    INSERT INTO DEMO_INVEST_POP_RESULT_TMP
+      (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT, YAPPL_NUM)
+    VALUES
+      (I_EMP_ID,
+       I_CO_ID,
+       I_SUBJECT_TYPE,
+       I_INVEST_TIME,
+       I_DEAL_POP_DONE_APPL_AMT,
+       I_DEAL_POP_DONE_APPL_AMT,
+       I_APPL_NUM);
+  
+  END;
 
   PROCEDURE PROC_DEAL_POP_EX(i_invest_id in varchar2,
                              o_flag      in out number,
@@ -449,8 +485,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   
     V_COUNT           NUMBER;
     V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE := NULL;
-    V_AMT             NUMBER(17, 2) := NULL;
-    V_AMT2            NUMBER(17, 2) := NULL;
+    V_REDABLE_TERM_AMT             NUMBER(17, 2) := NULL;
+    V_REDABLE_APPL_AMT            NUMBER(17, 2) := NULL;
+    V_DEAL_POP_DONE_APPL_AMT      NUMBER(17,2);
   begin
     --获取最近一次的集中确认日
     V_RED_INVEST_TIME := FUNC_GET_NEXT_RED_TIME(I_INVEST_ID);
@@ -484,7 +521,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                  FROM DEMO_INVEST_POP_RESULT_TMP T1
                 WHERE T1.YAPPL_NUM IS NULL) LOOP
     
-      V_AMT := RS.AMT;
+      V_REDABLE_TERM_AMT := RS.AMT;
     
       FOR RS1 IN (SELECT *
                     FROM DEMO_APPL_NUM_REL T2
@@ -494,33 +531,23 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                      AND T2.AMT > 0
                      AND T2.AMT - NVL(T2.RED_AMT, 0) > 0) LOOP
         --对于一期有多张申请单的情况进行倒序获取
-        exit when V_AMT = 0;
-          SELECT RS1.AMT - NVL(RS1.RED_AMT, 0) - NVL(SUM(T3.AMT), 0)
-            INTO V_AMT2
-            FROM DEMO_INVEST_POP_RESULT_TMP T3
-           WHERE T3.CO_ID = RS1.CO_ID
-             AND T3.INVEST_TIME = RS1.INVEST_TIME
-             AND T3.YAPPL_NUM = RS1.APPL_NUM;
-        
-          IF V_AMT2 > 0 THEN
-            INSERT INTO DEMO_INVEST_POP_RESULT_TMP
-              (EMP_ID,
-               CO_ID,
-               SUBJECT_TYPE,
-               INVEST_TIME,
-               AMT,
-               QUOTIENT,
-               YAPPL_NUM)
-            VALUES
-              (RS.EMP_ID,
+        exit when V_REDABLE_TERM_AMT = 0;
+          V_REDABLE_APPL_AMT :=  FUNC_GET_REDABLE_APPL_AMT(RS1.CO_ID,
+                                               RS1.INVEST_TIME,
+                                               RS1.APPL_NUM,
+                                               RS1.AMT,
+                                               RS1.RED_AMT);
+          IF V_REDABLE_APPL_AMT > 0 THEN
+            V_DEAL_POP_DONE_APPL_AMT := LEAST(V_REDABLE_TERM_AMT, V_REDABLE_APPL_AMT);
+            PROC_DEAL_POP_EX_TERM_TO_APPL(RS.EMP_ID,
                RS.CO_ID,
                RS.SUBJECT_TYPE,
                RS.INVEST_TIME,
-               LEAST(V_AMT, V_AMT2),
-               LEAST(V_AMT, V_AMT2),
-               RS1.APPL_NUM);
+               RS1.APPL_NUM,
+               V_DEAL_POP_DONE_APPL_AMT
+               );
           
-            V_AMT := V_AMT - LEAST(V_AMT, V_AMT2);
+            V_REDABLE_TERM_AMT := V_REDABLE_TERM_AMT - V_DEAL_POP_DONE_APPL_AMT;
           END IF;
       END LOOP;
     END LOOP;
