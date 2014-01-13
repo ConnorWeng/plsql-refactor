@@ -63,9 +63,10 @@ CREATE OR REPLACE PACKAGE PKG_DEMO IS
                              o_flag      in out number,
                              o_msg       in out varchar2);
   PROCEDURE PROC_DEAL_POP_UNEX(i_invest_id in varchar2,
-                             o_flag      in out number,
-                             o_msg       in out varchar2);
-    procedure PROC_INIT_AND_CLEANUP;
+                               o_flag      in out number,
+                               o_msg       in out varchar2);
+  procedure PROC_INIT_AND_CLEANUP;
+  FUNCTION FUNC_IS_RED_TOTAL_AMT_EQUAL RETURN BOOLEAN;
 END PKG_DEMO;
 /
 CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
@@ -111,11 +112,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       PROC_DEAL_POP_UNEX(i_invest_id,o_flag,O_MSG);
     END IF;
 
-    SELECT NVL(SUM(AMT), 0) INTO V_AMT FROM DEMO_INVEST_POP_TMP;
-    SELECT NVL(SUM(quotient), 0)
-      INTO V_AMT2
-      FROM DEMO_INVEST_POP_RESULT_TMP;
-    IF V_AMT <> V_AMT2 THEN
+    IF NOT FUNC_IS_RED_TOTAL_AMT_EQUAL  THEN
       V_MSG := '赎回份额分配出错';
       RAISE E_CUSTOM;
     END IF;
@@ -589,5 +586,17 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
         
         DELETE FROM DEMO_INVEST_POP_RESULT_TMP;
       end PROC_INIT_AND_CLEANUP;
+      
+    FUNCTION FUNC_IS_RED_TOTAL_AMT_EQUAL RETURN BOOLEAN IS
+      V_RED_TOTAL_AMT  NUMBER(17, 2);
+      V_RESULT_TOTAL_AMT NUMBER(17, 2);
+    BEGIN
+      SELECT NVL(SUM(AMT), 0) INTO V_RED_TOTAL_AMT FROM DEMO_INVEST_POP_TMP;
+      SELECT NVL(SUM(quotient), 0)
+        INTO V_RESULT_TOTAL_AMT
+        FROM DEMO_INVEST_POP_RESULT_TMP;
+        
+      RETURN V_RED_TOTAL_AMT = V_RESULT_TOTAL_AMT;
+    END;
 END PKG_DEMO;
 /
