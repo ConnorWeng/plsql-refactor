@@ -62,6 +62,9 @@ CREATE OR REPLACE PACKAGE PKG_DEMO IS
   PROCEDURE PROC_DEAL_POP_EX(i_invest_id in varchar2,
                              o_flag      in out number,
                              o_msg       in out varchar2);
+      PROCEDURE PROC_DEAL_POP_UNEX(i_invest_id in varchar2,
+                                 o_flag      in out number,
+                                 o_msg       in out varchar2);
 END PKG_DEMO;
 /
 CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
@@ -106,79 +109,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       PROC_DEAL_POP_EX(i_invest_id,o_flag,O_MSG);
 
     ELSE
-      --净值报价型
-      SELECT COUNT(1)
-        INTO V_COUNT
-        FROM DEMO_INVEST_UNIT_VALUE T
-       WHERE T.INVEST_ID = I_INVEST_ID
-         AND T.EVAL_STATE_FLAG = 2;
-      IF V_COUNT = 0 THEN
-        V_MSG := '系统中不存在已完成的集中确认日，无法进行后续操作！';
-        RAISE E_CUSTOM;
-      END IF;
-
-      INSERT INTO DEMO_INVEST_POP_RESULT_TMP
-        (EMP_ID,
-         CO_ID,
-         SUBJECT_TYPE,
-         INVEST_TIME,
-         AMT,
-         QUOTIENT,
-         YAPPL_NUM)
-        SELECT T1.EMP_ID,
-               T1.CO_ID,
-               T1.SUBJECT_TYPE,
-               (SELECT T3.EVALUATE_DATE
-                  FROM DEMO_INVEST_UNIT_VALUE T3
-                 WHERE T3.INVEST_ID = T2.INVEST_ID
-                   AND T3.EVAL_STATE_FLAG = 2),
-               /*DECODE(SIGN(T1.AMT_REMAIN - T2.AMT),
-               1,
-               T2.AMT,
-               T1.AMT_REMAIN),*/
-               LEAST(T1.AMT_REMAIN, T2.quotient) / t2.quotient * t2.amt,
-               LEAST(T1.AMT_REMAIN, T2.quotient),
-               0
-          FROM DEMO_INVEST_POP_TMP T1, DEMO_EMP_INVEST T2
-         WHERE T1.EMP_ID = T2.EMP_ID
-           AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
-           AND T2.INVEST_ID = I_INVEST_ID
-           AND T2.quotient > 0
-           AND T1.AMT_REMAIN > 0
-           AND T1.EMP_ID <> 'FFFFFFFFFF';
-
-      --企业部分
-      INSERT INTO DEMO_INVEST_POP_RESULT_TMP
-        (EMP_ID,
-         CO_ID,
-         SUBJECT_TYPE,
-         INVEST_TIME,
-         AMT,
-         QUOTIENT,
-         YAPPL_NUM)
-        SELECT T1.EMP_ID,
-               T1.CO_ID,
-               T1.SUBJECT_TYPE,
-               (SELECT T3.EVALUATE_DATE
-                  FROM DEMO_INVEST_UNIT_VALUE T3
-                 WHERE T3.INVEST_ID = T2.INVEST_ID
-                   AND T3.EVAL_STATE_FLAG = 2),
-               LEAST(T1.AMT_REMAIN, T2.quotient) / t2.quotient * t2.amt,
-               LEAST(T1.AMT_REMAIN, T2.quotient),
-               0
-          FROM DEMO_INVEST_POP_TMP T1, DEMO_CO_INVEST T2
-         WHERE T1.CO_ID = T2.CO_ID
-           AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
-           AND T2.INVEST_ID = I_INVEST_ID
-           AND T2.quotient > 0
-           AND T1.AMT_REMAIN > 0
-           AND T1.EMP_ID = 'FFFFFFFFFF';
-
-      MERGE INTO DEMO_INVEST_POP_TMP A
-      USING DEMO_INVEST_POP_RESULT_TMP B
-      ON (A.EMP_ID = B.EMP_ID AND A.SUBJECT_TYPE = B.SUBJECT_TYPE AND A.CO_ID = B.CO_ID)
-      WHEN MATCHED THEN
-        UPDATE SET A.AMT_REMAIN = A.AMT_REMAIN - B.quotient;
+      PROC_DEAL_POP_UNEX(i_invest_id,o_flag,O_MSG);
     END IF;
 
     DELETE FROM DEMO_INVEST_POP_RESULT_TMP WHERE YAPPL_NUM IS NULL;
@@ -541,5 +472,114 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                    O_MSG || '|' || V_PARAMS,
                    PACK_LOG.WARN_LEVEL);
   end;
+  
+    PROCEDURE PROC_DEAL_POP_UNEX(i_invest_id in varchar2,
+                                 o_flag      in out number,
+                                 o_msg       in out varchar2) is
+      V_PROC_NAME DB_LOG.PROC_NAME%TYPE := 'PKG_DEMO.PROC_DEAL_POP';
+      V_PARAMS    VARCHAR2(4000) := I_INVEST_ID;
+      V_STEP      NUMBER := NULL;
+      --V_FLAG      NUMBER := NULL;
+      V_MSG VARCHAR2(4000) := NULL;
+      E_CUSTOM EXCEPTION;
+      E_APP_COUNT EXCEPTION;
+    
+      V_COUNT           NUMBER;
+      V_PLAN_ID         DEMO_PLAN_INFO.PLAN_ID%TYPE := NULL;
+      V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE := NULL;
+      V_AMT             NUMBER(17, 2) := NULL;
+      V_AMT2            NUMBER(17, 2) := NULL;
+    begin
+      --净值报价型
+      SELECT COUNT(1)
+        INTO V_COUNT
+        FROM DEMO_INVEST_UNIT_VALUE T
+       WHERE T.INVEST_ID = I_INVEST_ID
+         AND T.EVAL_STATE_FLAG = 2;
+      IF V_COUNT = 0 THEN
+        V_MSG := '系统中不存在已完成的集中确认日，无法进行后续操作！';
+        RAISE E_CUSTOM;
+      END IF;
+    
+      INSERT INTO DEMO_INVEST_POP_RESULT_TMP
+        (EMP_ID,
+         CO_ID,
+         SUBJECT_TYPE,
+         INVEST_TIME,
+         AMT,
+         QUOTIENT,
+         YAPPL_NUM)
+        SELECT T1.EMP_ID,
+               T1.CO_ID,
+               T1.SUBJECT_TYPE,
+               (SELECT T3.EVALUATE_DATE
+                  FROM DEMO_INVEST_UNIT_VALUE T3
+                 WHERE T3.INVEST_ID = T2.INVEST_ID
+                   AND T3.EVAL_STATE_FLAG = 2),
+               /*DECODE(SIGN(T1.AMT_REMAIN - T2.AMT),
+               1,
+               T2.AMT,
+               T1.AMT_REMAIN),*/
+               LEAST(T1.AMT_REMAIN, T2.quotient) / t2.quotient * t2.amt,
+               LEAST(T1.AMT_REMAIN, T2.quotient),
+               0
+          FROM DEMO_INVEST_POP_TMP T1, DEMO_EMP_INVEST T2
+         WHERE T1.EMP_ID = T2.EMP_ID
+           AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
+           AND T2.INVEST_ID = I_INVEST_ID
+           AND T2.quotient > 0
+           AND T1.AMT_REMAIN > 0
+           AND T1.EMP_ID <> 'FFFFFFFFFF';
+    
+      --企业部分
+      INSERT INTO DEMO_INVEST_POP_RESULT_TMP
+        (EMP_ID,
+         CO_ID,
+         SUBJECT_TYPE,
+         INVEST_TIME,
+         AMT,
+         QUOTIENT,
+         YAPPL_NUM)
+        SELECT T1.EMP_ID,
+               T1.CO_ID,
+               T1.SUBJECT_TYPE,
+               (SELECT T3.EVALUATE_DATE
+                  FROM DEMO_INVEST_UNIT_VALUE T3
+                 WHERE T3.INVEST_ID = T2.INVEST_ID
+                   AND T3.EVAL_STATE_FLAG = 2),
+               LEAST(T1.AMT_REMAIN, T2.quotient) / t2.quotient * t2.amt,
+               LEAST(T1.AMT_REMAIN, T2.quotient),
+               0
+          FROM DEMO_INVEST_POP_TMP T1, DEMO_CO_INVEST T2
+         WHERE T1.CO_ID = T2.CO_ID
+           AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
+           AND T2.INVEST_ID = I_INVEST_ID
+           AND T2.quotient > 0
+           AND T1.AMT_REMAIN > 0
+           AND T1.EMP_ID = 'FFFFFFFFFF';
+    
+      MERGE INTO DEMO_INVEST_POP_TMP A
+      USING DEMO_INVEST_POP_RESULT_TMP B
+      ON (A.EMP_ID = B.EMP_ID AND A.SUBJECT_TYPE = B.SUBJECT_TYPE AND A.CO_ID = B.CO_ID)
+      WHEN MATCHED THEN
+        UPDATE SET A.AMT_REMAIN = A.AMT_REMAIN - B.quotient;
+    EXCEPTION
+    WHEN E_CUSTOM THEN
+      --ROLLBACK;
+      O_FLAG := 2;
+      O_MSG  := V_MSG;
+      PACK_LOG.LOG(V_PROC_NAME,
+                   V_STEP,
+                   O_MSG || '|' || V_PARAMS,
+                   PACK_LOG.WARN_LEVEL);
+    WHEN E_APP_COUNT THEN
+      --ROLLBACK;
+      O_FLAG := 3;
+      O_MSG  := V_MSG;
+      PACK_LOG.LOG(V_PROC_NAME,
+                   V_STEP,
+                   O_MSG || '|' || V_PARAMS,
+                   PACK_LOG.WARN_LEVEL);
+    end;
 END PKG_DEMO;
 /
