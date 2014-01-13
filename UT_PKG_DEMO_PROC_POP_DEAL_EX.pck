@@ -9,9 +9,11 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   PROCEDURE UT_EX_CO_MULT_TERM;
   PROCEDURE UT_EX_CO_MAX_FIVE_APPL;
   PROCEDURE UT_EX_GET_NEXT_RED_TIME_NULL;
+  PROCEDURE UT_EX_MULT_EMP_ONE_APPL;
 
   procedure create_ex_prod_info;
-  procedure create_one_term_acct_for_emp(appl_num     in demo_appl_num_rel.appl_num%type,
+  procedure create_one_term_acct_for_emp(emp_id       in demo_emp_info.emp_id%type,
+                                         appl_num     in demo_appl_num_rel.appl_num%type,
                                          invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                          amt          in demo_appl_num_rel.AMT%type);
   procedure create_one_term_acct_for_co(appl_num     in demo_appl_num_rel.appl_num%type,
@@ -21,7 +23,8 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                     invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                     amt          in demo_appl_num_rel.AMT%type);
 
-  procedure assert_detail_by_appl(yappl_num   in number,
+  procedure assert_detail_by_appl(emp_id      in demo_emp_info.emp_id%type,
+                                  yappl_num   in number,
                                   expected_invest_time in varchar2,
                                   expected_amt         in number);
 
@@ -77,7 +80,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   BEGIN
     UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
     UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
-    create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+    create_one_term_acct_for_emp(emp_id,appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
 
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, one_term_one_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
@@ -87,7 +90,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     UT_PKG_DEMO_COMMON.assert_result_count(1);
-    assert_detail_by_appl(appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+    assert_detail_by_appl(emp_id, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
   END;
 
   /*
@@ -98,8 +101,8 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   BEGIN
     UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
     UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
-    create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
-    create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
+    create_one_term_acct_for_emp(emp_id, appl_num_one, term_one_invest_time, default_amount);
+    create_one_term_acct_for_emp(emp_id, appl_num_two, term_two_invest_time, default_amount);
 
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, mult_term_one_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -109,8 +112,8 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     UT_PKG_DEMO_COMMON.assert_result_count(2);
-    assert_detail_by_appl(appl_num_one, term_one_invest_time, mult_term_one_appl_red_amt - default_amount);
-    assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
+    assert_detail_by_appl(emp_id, appl_num_one, term_one_invest_time, mult_term_one_appl_red_amt - default_amount);
+    assert_detail_by_appl(emp_id, appl_num_two, term_two_invest_time, default_amount);
   END;
 
   /*
@@ -120,9 +123,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   BEGIN
     UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
     UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
-    create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
-    create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
-    create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
+    create_one_term_acct_for_emp(emp_id, appl_num_one, term_one_invest_time, default_amount);
+    create_one_term_acct_for_emp(emp_id, appl_num_two, term_two_invest_time, default_amount);
+    create_one_term_acct_for_emp(emp_id, appl_num_three, term_one_invest_time, default_amount);
 
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, mult_term_mult_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -132,9 +135,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     UT_PKG_DEMO_COMMON.assert_result_count(3);
-    assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
-    assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
-    assert_detail_by_appl(appl_num_three, term_one_invest_time, mult_term_mult_appl_red_amt - default_amount * 2);
+    assert_detail_by_appl(emp_id, appl_num_one, term_one_invest_time, default_amount);
+    assert_detail_by_appl(emp_id, appl_num_two, term_two_invest_time, default_amount);
+    assert_detail_by_appl(emp_id, appl_num_three, term_one_invest_time, mult_term_mult_appl_red_amt - default_amount * 2);
   END;
 
   /*
@@ -145,9 +148,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   BEGIN
     UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
     UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
-    create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
-    create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
-    create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
+    create_one_term_acct_for_emp(emp_id, appl_num_one, term_one_invest_time, default_amount);
+    create_one_term_acct_for_emp(emp_id, appl_num_two, term_two_invest_time, default_amount);
+    create_one_term_acct_for_emp(emp_id, appl_num_three, term_one_invest_time, default_amount);
 
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, not_enough_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
@@ -176,9 +179,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_co, emp_id_for_co);
     UT_PKG_DEMO_COMMON.assert_result_count(3);
-    assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
-    assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
-    assert_detail_by_appl(appl_num_three, term_one_invest_time, mult_term_mult_appl_red_amt - default_amount * 2);
+    assert_detail_by_appl(emp_id_for_co, appl_num_one, term_one_invest_time, default_amount);
+    assert_detail_by_appl(emp_id_for_co, appl_num_two, term_two_invest_time, default_amount);
+    assert_detail_by_appl(emp_id_for_co, appl_num_three, term_one_invest_time, mult_term_mult_appl_red_amt - default_amount * 2);
   END;
 
   /*
@@ -203,19 +206,19 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
 
     UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 3);
     UT_PKG_DEMO_COMMON.assert_result_count(6);
-    assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
-    assert_detail_by_appl(appl_num_two, term_two_invest_time, default_amount);
-    assert_detail_by_appl(appl_num_three, term_one_invest_time, default_amount);
-    assert_detail_by_appl(appl_num_four, term_one_invest_time, default_amount);
-    assert_detail_by_appl(appl_num_five, term_one_invest_time, default_amount);
-    assert_detail_by_appl(appl_num_six, term_one_invest_time, enough_red_amt_for_over_five - default_amount * 5);
+    assert_detail_by_appl(emp_id_for_co, appl_num_one, term_one_invest_time, default_amount);
+    assert_detail_by_appl(emp_id_for_co, appl_num_two, term_two_invest_time, default_amount);
+    assert_detail_by_appl(emp_id_for_co, appl_num_three, term_one_invest_time, default_amount);
+    assert_detail_by_appl(emp_id_for_co, appl_num_four, term_one_invest_time, default_amount);
+    assert_detail_by_appl(emp_id_for_co, appl_num_five, term_one_invest_time, default_amount);
+    assert_detail_by_appl(emp_id_for_co, appl_num_six, term_one_invest_time, enough_red_amt_for_over_five - default_amount * 5);
   END;
   
   procedure UT_EX_GET_NEXT_RED_TIME_NULL IS
     
   BEGIN
     UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
-    create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+    create_one_term_acct_for_emp(emp_id, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
 
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, one_term_one_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
@@ -223,35 +226,59 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                            O_MSG       => OUT_MSG);
     UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 2);
   END;
+  
+  PROCEDURE UT_EX_MULT_EMP_ONE_APPL IS
+    ANOTHER_EMP_ID CONSTANT DEMO_EMP_INFO.EMP_ID%TYPE := '0000000002';
+  BEGIN
+    UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
+    UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
+    create_one_term_acct_for_emp(emp_id, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+    create_one_term_acct_for_emp(ANOTHER_EMP_ID, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, one_term_one_appl_red_amt);
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(ANOTHER_EMP_ID, subject_type_emp, one_term_one_appl_red_amt);
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
+                           O_FLAG      => OUT_FLAG,
+                           O_MSG       => OUT_MSG);
+
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
+    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
+    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, ANOTHER_EMP_ID);
+    UT_PKG_DEMO_COMMON.assert_result_count(2);
+    assert_detail_by_appl(emp_id, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+    assert_detail_by_appl(ANOTHER_EMP_ID, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+  END;
 
   procedure create_ex_prod_info is
   begin
     UT_PKG_DEMO_COMMON.create_prod_info(UT_PKG_DEMO_COMMON.True);
   end create_ex_prod_info;
 
-  procedure assert_detail_by_appl(yappl_num   in number,
+  procedure assert_detail_by_appl(emp_id      in demo_emp_info.emp_id%type,
+                                  yappl_num   in number,
                                   expected_invest_time in varchar2,
                                   expected_amt         in number) is
   begin
     utassert.eqqueryvalue(msg_in           => '校验invest_time',
                           CHECK_QUERY_IN   => 'select invest_time from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
-                                              yappl_num,
+                                              yappl_num || ' and emp_id = ''' || emp_id || '''',
                           AGAINST_VALUE_IN => expected_invest_time);
 
     utassert.eqqueryvalue(msg_in           => '校验quotient',
                           CHECK_QUERY_IN   => 'select quotient from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
-                                              yappl_num,
+                                              yappl_num || ' and emp_id = ''' || emp_id || '''',
                           AGAINST_VALUE_IN => expected_amt);
 
     utassert.eqqueryvalue(msg_in           => '校验amt',
                           CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
-                                              yappl_num,
+                                              yappl_num || ' and emp_id = ''' || emp_id || '''',
                           AGAINST_VALUE_IN => expected_amt);
   end assert_detail_by_appl;
 
-  procedure create_one_term_acct_for_emp(appl_num     in demo_appl_num_rel.appl_num%type,
-                                       invest_time  in demo_appl_num_rel.INVEST_TIME%type,
-                                       amt          in demo_appl_num_rel.AMT%type) is
+  procedure create_one_term_acct_for_emp(emp_id       in demo_emp_info.emp_id%type,
+                                         appl_num     in demo_appl_num_rel.appl_num%type,
+                                         invest_time  in demo_appl_num_rel.INVEST_TIME%type,
+                                         amt          in demo_appl_num_rel.AMT%type) is
   begin
     create_one_appl_num_rel(appl_num, invest_time, amt);
 
@@ -308,10 +335,17 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                     invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                     amt          in demo_appl_num_rel.AMT%type) is
   begin
-    insert into demo_appl_num_rel
-      (CO_ID, INVEST_ID, APPL_NUM, INVEST_TIME, AMT, RED_AMT)
-    values
-      (co_id, invest_id, appl_num, invest_time, amt, 0.00);
+    merge into demo_appl_num_rel a
+    using (select co_id co_id, invest_id invest_id, appl_num appl_num, invest_time invest_time, amt amt, 0.00 red_amt
+             from dual) b
+    on (a.appl_num = b.appl_num)
+    when matched then
+      update set a.amt = a.amt + b.amt
+    when not matched then
+      insert
+        (CO_ID, INVEST_ID, APPL_NUM, INVEST_TIME, AMT, RED_AMT)
+      values
+        (b.co_id, b.invest_id, b.appl_num, b.invest_time, b.amt, b.red_amt);
   end;
 
   procedure create_one_term_acct_for_co(appl_num     in demo_appl_num_rel.appl_num%type,

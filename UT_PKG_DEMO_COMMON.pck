@@ -149,7 +149,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_COMMON IS
                           CHECK_QUERY_IN   => 'select distinct co_id from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => co_id);
     utassert.eqqueryvalue(msg_in           => '校验emp_id',
-                          CHECK_QUERY_IN   => 'select distinct emp_id from demo_invest_pop_result_tmp',
+                          CHECK_QUERY_IN   => 'select distinct emp_id from demo_invest_pop_result_tmp where emp_id = ''' || expected_emp_id || '''',
                           AGAINST_VALUE_IN => expected_emp_id);
     utassert.eqqueryvalue(msg_in           => '校验subject_type',
                           CHECK_QUERY_IN   => 'select distinct subject_type from demo_invest_pop_result_tmp',

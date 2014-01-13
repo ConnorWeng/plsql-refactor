@@ -494,8 +494,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                      AND T2.AMT > 0
                      AND T2.AMT - NVL(T2.RED_AMT, 0) > 0) LOOP
         --对于一期有多张申请单的情况进行倒序获取
-      
-        IF V_AMT > 0 THEN
+        exit when V_AMT = 0;
           SELECT RS1.AMT - NVL(RS1.RED_AMT, 0) - NVL(SUM(T3.AMT), 0)
             INTO V_AMT2
             FROM DEMO_INVEST_POP_RESULT_TMP T3
@@ -523,7 +522,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
           
             V_AMT := V_AMT - LEAST(V_AMT, V_AMT2);
           END IF;
-        END IF;
       END LOOP;
     END LOOP;
     DELETE FROM DEMO_INVEST_POP_RESULT_TMP WHERE YAPPL_NUM IS NULL;
