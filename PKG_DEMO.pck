@@ -149,53 +149,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   
   END;
   
-  PROCEDURE PROC_DEAL_POP_UNEX_EMP(I_INVEST_ID IN VARCHAR2) IS
-  BEGIN
-    INSERT INTO DEMO_INVEST_POP_RESULT_TMP
-      (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT, YAPPL_NUM)
-      SELECT T1.EMP_ID,
-             T1.CO_ID,
-             T1.SUBJECT_TYPE,
-             (SELECT T3.EVALUATE_DATE
-                FROM DEMO_INVEST_UNIT_VALUE T3
-               WHERE T3.INVEST_ID = T2.INVEST_ID
-                 AND T3.EVAL_STATE_FLAG = 2),
-             LEAST(T1.AMT_REMAIN, T2.quotient) / t2.quotient * t2.amt,
-             LEAST(T1.AMT_REMAIN, T2.quotient),
-             0
-        FROM DEMO_INVEST_POP_TMP T1, DEMO_EMP_INVEST T2
-       WHERE T1.EMP_ID = T2.EMP_ID
-         AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
-         AND T2.INVEST_ID = I_INVEST_ID
-         AND T2.quotient > 0
-         AND T1.AMT_REMAIN > 0
-         AND T1.EMP_ID <> 'FFFFFFFFFF';
-  END;
-  
-  PROCEDURE PROC_DEAL_POP_UNEX_CO(I_INVEST_ID IN VARCHAR2) IS
-    
-  BEGIN
-    INSERT INTO DEMO_INVEST_POP_RESULT_TMP
-      (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT, YAPPL_NUM)
-      SELECT T1.EMP_ID,
-             T1.CO_ID,
-             T1.SUBJECT_TYPE,
-             (SELECT T3.EVALUATE_DATE
-                FROM DEMO_INVEST_UNIT_VALUE T3
-               WHERE T3.INVEST_ID = T2.INVEST_ID
-                 AND T3.EVAL_STATE_FLAG = 2),
-             LEAST(T1.AMT_REMAIN, T2.quotient) / t2.quotient * t2.amt,
-             LEAST(T1.AMT_REMAIN, T2.quotient),
-             0
-        FROM DEMO_INVEST_POP_TMP T1, DEMO_CO_INVEST T2
-       WHERE T1.CO_ID = T2.CO_ID
-         AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
-         AND T2.INVEST_ID = I_INVEST_ID
-         AND T2.quotient > 0
-         AND T1.AMT_REMAIN > 0
-         AND T1.EMP_ID = 'FFFFFFFFFF';
-    
-  END;
+
   
   /*********************************************************************
   --存储过程名称： PROC_DEAL_POP
@@ -559,6 +513,54 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                    O_MSG || '|' || V_PARAMS,
                    PACK_LOG.WARN_LEVEL);
   end;
+  
+    PROCEDURE PROC_DEAL_POP_UNEX_EMP(I_INVEST_ID IN VARCHAR2) IS
+  BEGIN
+    INSERT INTO DEMO_INVEST_POP_RESULT_TMP
+      (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT, YAPPL_NUM)
+      SELECT T1.EMP_ID,
+             T1.CO_ID,
+             T1.SUBJECT_TYPE,
+             (SELECT T3.EVALUATE_DATE
+                FROM DEMO_INVEST_UNIT_VALUE T3
+               WHERE T3.INVEST_ID = T2.INVEST_ID
+                 AND T3.EVAL_STATE_FLAG = 2),
+             LEAST(T1.AMT_REMAIN, T2.quotient) / t2.quotient * t2.amt,
+             LEAST(T1.AMT_REMAIN, T2.quotient),
+             0
+        FROM DEMO_INVEST_POP_TMP T1, DEMO_EMP_INVEST T2
+       WHERE T1.EMP_ID = T2.EMP_ID
+         AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
+         AND T2.INVEST_ID = I_INVEST_ID
+         AND T2.quotient > 0
+         AND T1.AMT_REMAIN > 0
+         AND T1.EMP_ID <> 'FFFFFFFFFF';
+  END;
+  
+  PROCEDURE PROC_DEAL_POP_UNEX_CO(I_INVEST_ID IN VARCHAR2) IS
+    
+  BEGIN
+    INSERT INTO DEMO_INVEST_POP_RESULT_TMP
+      (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT, YAPPL_NUM)
+      SELECT T1.EMP_ID,
+             T1.CO_ID,
+             T1.SUBJECT_TYPE,
+             (SELECT T3.EVALUATE_DATE
+                FROM DEMO_INVEST_UNIT_VALUE T3
+               WHERE T3.INVEST_ID = T2.INVEST_ID
+                 AND T3.EVAL_STATE_FLAG = 2),
+             LEAST(T1.AMT_REMAIN, T2.quotient) / t2.quotient * t2.amt,
+             LEAST(T1.AMT_REMAIN, T2.quotient),
+             0
+        FROM DEMO_INVEST_POP_TMP T1, DEMO_CO_INVEST T2
+       WHERE T1.CO_ID = T2.CO_ID
+         AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
+         AND T2.INVEST_ID = I_INVEST_ID
+         AND T2.quotient > 0
+         AND T1.AMT_REMAIN > 0
+         AND T1.EMP_ID = 'FFFFFFFFFF';
+    
+  END;
 
   PROCEDURE PROC_DEAL_POP_UNEX(i_invest_id in varchar2,
                                o_flag      in out number,
@@ -583,12 +585,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     
     PROC_DEAL_POP_UNEX_EMP(I_INVEST_ID);
     PROC_DEAL_POP_UNEX_CO(I_INVEST_ID);
-  
-    MERGE INTO DEMO_INVEST_POP_TMP A
-    USING DEMO_INVEST_POP_RESULT_TMP B
-    ON (A.EMP_ID = B.EMP_ID AND A.SUBJECT_TYPE = B.SUBJECT_TYPE AND A.CO_ID = B.CO_ID)
-    WHEN MATCHED THEN
-      UPDATE SET A.AMT_REMAIN = A.AMT_REMAIN - B.quotient;
   
     IF FUNC_IS_RED_TOTAL_AMT_NOTEQ THEN
       V_MSG := '赎回份额分配出错';
