@@ -125,13 +125,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     RETURN PKG_DEMO_COMMON.FUNC_IS_EXPERT_LCR(I_INVEST_ID) = 0;
   END;
   FUNCTION FUNC_NOT_EXIST_DONE_OP_DATE(I_INVEST_ID IN VARCHAR2) RETURN BOOLEAN IS
+    eval_state_flag_recent_traded     constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
     V_COUNT NUMBER;
   BEGIN
     SELECT COUNT(1)
       INTO V_COUNT
       FROM DEMO_INVEST_UNIT_VALUE T
      WHERE T.INVEST_ID = I_INVEST_ID
-       AND T.EVAL_STATE_FLAG = 2;
+       AND T.EVAL_STATE_FLAG = eval_state_flag_recent_traded;
     RETURN V_COUNT = 0;
   END;
   function FUNC_GET_PLAN_ID_BY_INVEST_ID(i_invest_id in varchar2) return varchar2 is
@@ -144,6 +145,21 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
      WHERE INVEST_ID = I_INVEST_ID;
     return V_PLAN_ID;
   end;
+  function FUNC_GET_NEXT_RED_TIME(I_INVEST_ID IN VARCHAR2) RETURN VARCHAR2 IS
+    RED_OP_TYPE CONSTANT NUMBER := 3;
+    V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE;
+  BEGIN
+    --获取最近一次的集中确认日
+    SELECT MIN(T.DEMO_INVEST_TIME)
+      INTO V_RED_INVEST_TIME
+      FROM V_INVEST_OP_CONTROL T
+     WHERE T.INVEST_ID = I_INVEST_ID
+       AND T.OP_TYPE = RED_OP_TYPE
+       AND T.DEMO_INVEST_TIME >
+           PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(func_get_plan_id_by_invest_id(i_invest_id));
+    RETURN V_RED_INVEST_TIME;
+  END;
+    
   PROCEDURE PROC_SET_O_FLAG_AND_O_MSG(V_FLAG   IN NUMBER,
                                       V_MSG    IN VARCHAR2,
                                       V_PARAMS IN VARCHAR2,
@@ -339,18 +355,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     V_AMT2            NUMBER(17, 2) := NULL;
   begin
     --获取最近一次的集中确认日
-    SELECT MIN(T.DEMO_INVEST_TIME)
-      INTO V_RED_INVEST_TIME
-      FROM V_INVEST_OP_CONTROL T
-     WHERE T.INVEST_ID = I_INVEST_ID
-       AND T.OP_TYPE = 3
-       AND T.DEMO_INVEST_TIME >
-           PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(func_get_plan_id_by_invest_id(i_invest_id));
+    V_RED_INVEST_TIME := FUNC_GET_NEXT_RED_TIME(I_INVEST_ID);
+    
   
     if V_RED_INVEST_TIME is null then
-      V_MSG := '无法获取下一次赎回集中确认日';
-      RAISE E_CUSTOM;
+      PROC_SET_O_FLAG_AND_O_MSG(2,'无法获取下一次赎回集中确认日',I_INVEST_ID,O_FLAG,O_MSG);
+      RETURN;
     end if;
+    
     DELETE FROM DEMO_OP_CO;
     INSERT INTO DEMO_OP_CO
       (OP_DATE, CO_ID)
