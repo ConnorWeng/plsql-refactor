@@ -565,21 +565,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   PROCEDURE PROC_DEAL_POP_UNEX(i_invest_id in varchar2,
                                o_flag      in out number,
                                o_msg       in out varchar2) is
-    V_PARAMS    VARCHAR2(4000) := I_INVEST_ID;
-    V_STEP      NUMBER := NULL;
-    --V_FLAG      NUMBER := NULL;
-    V_MSG VARCHAR2(4000) := NULL;
-    E_CUSTOM EXCEPTION;
-  
-    V_COUNT           NUMBER;
-    V_PLAN_ID         DEMO_PLAN_INFO.PLAN_ID%TYPE := NULL;
-    V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE := NULL;
-    V_AMT             NUMBER(17, 2) := NULL;
-    V_AMT2            NUMBER(17, 2) := NULL;
   begin
-    --净值报价型
     IF FUNC_NOT_EXIST_DONE_OP_DATE(I_INVEST_ID) THEN
-      PROC_SET_O_FLAG_AND_O_MSG(2,'系统中不存在已完成的集中确认日，无法进行后续操作！',V_PARAMS,O_FLAG,O_MSG);
+      PROC_SET_O_FLAG_AND_O_MSG(2,'系统中不存在已完成的集中确认日，无法进行后续操作！',I_INVEST_ID,O_FLAG,O_MSG);
       RETURN;
     END IF;
     
@@ -587,19 +575,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     PROC_DEAL_POP_UNEX_CO(I_INVEST_ID);
   
     IF FUNC_IS_RED_TOTAL_AMT_NOTEQ THEN
-      V_MSG := '赎回份额分配出错';
-      RAISE E_CUSTOM;
+      PROC_SET_O_FLAG_AND_O_MSG(2,'赎回份额分配出错！',I_INVEST_ID,O_FLAG,O_MSG);
+      RETURN;
     END IF;
-  EXCEPTION
-    WHEN E_CUSTOM THEN
-      O_FLAG := 2;
-      O_MSG  := V_MSG;
-      PACK_LOG.LOG(PROC_NAME,
-                   V_STEP,
-                   O_MSG || '|' || V_PARAMS,
-                   PACK_LOG.WARN_LEVEL);
   end;
-
 
 END PKG_DEMO;
 /
