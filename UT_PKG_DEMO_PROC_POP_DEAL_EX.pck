@@ -19,7 +19,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   procedure create_one_appl_num_rel(appl_num     in demo_appl_num_rel.appl_num%type,
                                     invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                     amt          in demo_appl_num_rel.AMT%type);
-  
+
   procedure assert_detail_by_appl(yappl_num   in number,
                                   expected_invest_time in varchar2,
                                   expected_amt         in number);
@@ -30,7 +30,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   emp_id_for_co                     constant demo_emp_invest.emp_id%type := UT_PKG_DEMO_COMMON.emp_id_for_co;
   subject_type_emp                  constant demo_emp_invest.subject_type%type := UT_PKG_DEMO_COMMON.subject_type_emp;
   subject_type_co                   constant demo_emp_invest.subject_type%type := UT_PKG_DEMO_COMMON.subject_type_co;
-  
+
   term_one_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.term_one_invest_time;
   term_two_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.term_two_invest_time;
   red_term_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.red_term_invest_time;
@@ -41,7 +41,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   appl_num_four                     constant demo_appl_num_rel.appl_num%type := 4;
   appl_num_five                     constant demo_appl_num_rel.appl_num%type := 5;
   appl_num_six                      constant demo_appl_num_rel.appl_num%type := 6;
-  
+
   default_amount                    constant number(17, 2) := 100;
   mult_term_mult_appl_red_amt       constant demo_invest_pop_tmp.amt%type := 250;
 
@@ -50,7 +50,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   OUT_MSG                           VARCHAR2(2000);
 END UT_PKG_DEMO_PROC_POP_DEAL_EX;
 /
-
 CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   PROCEDURE UT_SETUP IS
   BEGIN
@@ -69,9 +68,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   BEGIN
     rollback;
   END;
-  
+
   /*
-  æ¶‰åŠä¸€æœŸï¼Œä¸”ä¸€æœŸåªæœ‰ä¸€å¼ ç”³è¯·å•ï¼Œä¸€æœŸèµ„äº§å¤Ÿï¼ˆä¸ªäººï¼‰
+  Éæ¼°Ò»ÆÚ£¬ÇÒÒ»ÆÚÖ»ÓÐÒ»ÕÅÉêÇëµ¥£¬Ò»ÆÚ×Ê²ú¹»£¨¸öÈË£©
   */
   PROCEDURE UT_EX_EMP_ONE_TERM_ONE_APPL IS
     one_term_one_appl_red_amt         constant demo_invest_pop_tmp.amt%type := 90;
@@ -83,7 +82,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
-  
+
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     UT_PKG_DEMO_COMMON.assert_result_count(1);
@@ -91,7 +90,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
 
   /*
-  æ¶‰åŠä¸€æœŸï¼Œä¸”ä¸€æœŸåªæœ‰ä¸€å¼ ç”³è¯·å•ï¼Œä¸€æœŸèµ„äº§å¤Ÿï¼ˆä¸ªäººï¼‰
+  Éæ¼°Ò»ÆÚ£¬ÇÒÒ»ÆÚÖ»ÓÐÒ»ÕÅÉêÇëµ¥£¬Ò»ÆÚ×Ê²ú¹»£¨¸öÈË£©
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_ONE_APPL IS
     mult_term_one_appl_red_amt        constant demo_invest_pop_tmp.amt%type := 180;
@@ -99,12 +98,12 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
- 
+
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, mult_term_one_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
-  
+
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     UT_PKG_DEMO_COMMON.assert_result_count(2);
@@ -113,7 +112,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
 
   /*
-  æ¶‰åŠå¤šæœŸï¼Œä¸”å¤šæœŸåªæœ‰å¤šå¼ ç”³è¯·å•ï¼Œå¤šæœŸèµ„äº§å¤Ÿï¼ˆä¸ªäººï¼‰
+  Éæ¼°¶àÆÚ£¬ÇÒ¶àÆÚÖ»ÓÐ¶àÕÅÉêÇëµ¥£¬¶àÆÚ×Ê²ú¹»£¨¸öÈË£©
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_MULT_APPL IS
   BEGIN
@@ -126,7 +125,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
-  
+
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     UT_PKG_DEMO_COMMON.assert_result_count(3);
@@ -136,7 +135,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
 
   /*
-  æ¶‰åŠå¤šæœŸï¼Œä¸”å¤šæœŸåªæœ‰å¤šå¼ ç”³è¯·å•ï¼Œå¤šæœŸèµ„äº§å¤Ÿï¼ˆä¸ªäººï¼‰
+  Éæ¼°¶àÆÚ£¬ÇÒ¶àÆÚÖ»ÓÐ¶àÕÅÉêÇëµ¥£¬¶àÆÚ×Ê²ú¹»£¨¸öÈË£©
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_NOTENOUGH IS
     not_enough_red_amt                constant demo_invest_pop_tmp.amt%type := 310;
@@ -145,7 +144,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_term_acct_for_emp(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_emp(appl_num_three, term_one_invest_time, default_amount);
-  
+
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, not_enough_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
@@ -155,7 +154,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
 
   /*
-  æ¶‰åŠå¤šæœŸï¼Œä¸”å¤šæœŸåªæœ‰å¤šå¼ ç”³è¯·å•ï¼Œå¤šæœŸèµ„äº§å¤Ÿï¼ˆä¼ä¸šï¼‰
+  Éæ¼°¶àÆÚ£¬ÇÒ¶àÆÚÖ»ÓÐ¶àÕÅÉêÇëµ¥£¬¶àÆÚ×Ê²ú¹»£¨ÆóÒµ£©
   */
   PROCEDURE UT_EX_CO_MULT_TERM IS
   BEGIN
@@ -163,12 +162,12 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_term_acct_for_co(appl_num_one, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_two, term_two_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_three, term_one_invest_time, default_amount);
-  
+
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, mult_term_mult_appl_red_amt);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
-  
+
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_co, emp_id_for_co);
     UT_PKG_DEMO_COMMON.assert_result_count(3);
@@ -178,7 +177,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
 
   /*
-  èµŽå›žæ¶‰åŠè¶…è¿‡äº”å¼ ç”³è¯·å•ï¼ˆä¼ä¸šï¼‰
+  Êê»ØÉæ¼°³¬¹ýÎåÕÅÉêÇëµ¥£¨ÆóÒµ£©
   */
   PROCEDURE UT_EX_CO_MAX_FIVE_APPL IS
     enough_red_amt_for_over_five      constant demo_invest_pop_tmp.amt%type := 580;
@@ -190,12 +189,12 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     create_one_term_acct_for_co(appl_num_four, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_five, term_one_invest_time, default_amount);
     create_one_term_acct_for_co(appl_num_six, term_one_invest_time, default_amount);
-  
+
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, enough_red_amt_for_over_five);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
-  
+
     UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 3);
     UT_PKG_DEMO_COMMON.assert_result_count(6);
     assert_detail_by_appl(appl_num_one, term_one_invest_time, default_amount);
@@ -215,17 +214,17 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                   expected_invest_time in varchar2,
                                   expected_amt         in number) is
   begin
-    utassert.eqqueryvalue(msg_in           => 'æ ¡éªŒinvest_time',
+    utassert.eqqueryvalue(msg_in           => 'Ð£Ñéinvest_time',
                           CHECK_QUERY_IN   => 'select invest_time from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
                                               yappl_num,
                           AGAINST_VALUE_IN => expected_invest_time);
-  
-    utassert.eqqueryvalue(msg_in           => 'æ ¡éªŒquotient',
+
+    utassert.eqqueryvalue(msg_in           => 'Ð£Ñéquotient',
                           CHECK_QUERY_IN   => 'select quotient from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
                                               yappl_num,
                           AGAINST_VALUE_IN => expected_amt);
-  
-    utassert.eqqueryvalue(msg_in           => 'æ ¡éªŒamt',
+
+    utassert.eqqueryvalue(msg_in           => 'Ð£Ñéamt',
                           CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
                                               yappl_num,
                           AGAINST_VALUE_IN => expected_amt);
@@ -236,7 +235,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                        amt          in demo_appl_num_rel.AMT%type) is
   begin
     create_one_appl_num_rel(appl_num, invest_time, amt);
-  
+
     merge into demo_emp_invest a
     using (select emp_id       emp_id,
                   co_id        co_id,
@@ -261,7 +260,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
          b.amt,
          b.amt,
          b.amt);
-  
+
     merge into demo_emp_invest_term a
     using (select emp_id       emp_id,
                   co_id        co_id,
@@ -283,7 +282,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
          b.invest_id,
          b.invest_time,
          b.amt);
-  
+
   end create_one_term_acct_for_emp;
 
   procedure create_one_appl_num_rel(appl_num     in demo_appl_num_rel.appl_num%type,
@@ -301,7 +300,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                         amt          in demo_appl_num_rel.AMT%type) is
   begin
     create_one_appl_num_rel(appl_num, invest_time, amt);
-  
+
     merge into demo_co_invest a
     using (select co_id        co_id,
                   subject_type_co subject_type,
@@ -319,7 +318,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
         (CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
       values
         (b.co_id, b.subject_type, b.invest_id, b.amt, b.amt, b.amt);
-  
+
     merge into demo_co_invest_term a
     using (select co_id        co_id,
                   subject_type_co subject_type,
@@ -335,14 +334,8 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
         (CO_ID, SUBJECT_TYPE, INVEST_ID, invest_time, AMT)
       values
         (b.co_id, b.subject_type, b.invest_id, b.invest_time, b.amt);
-  
+
   end create_one_term_acct_for_co;
 
 END UT_PKG_DEMO_PROC_POP_DEAL_EX;
-/
-
-set serveroutput on
-/
-
-exec utplsql.run ('UT_PKG_DEMO_PROC_POP_DEAL_EX', per_method_setup_in => TRUE)
 /

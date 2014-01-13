@@ -14,14 +14,14 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
 
   procedure assert_quotient_and_amt(expected_red_quotient demo_invest_pop_result_tmp.QUOTIENT%type,
                                     expected_amt demo_invest_pop_result_tmp.AMT%type);
-  
+
   invest_id                         constant DEMO_INVEST_INFO.INVEST_ID%type := UT_PKG_DEMO_COMMON.invest_id;
   co_id                             constant demo_co_invest.co_id%type := UT_PKG_DEMO_COMMON.co_id;
   emp_id                            constant demo_emp_invest.emp_id%type := UT_PKG_DEMO_COMMON.emp_id;
   emp_id_for_co                     constant demo_emp_invest.emp_id%type := UT_PKG_DEMO_COMMON.emp_id_for_co;
   subject_type_emp                  constant demo_emp_invest.subject_type%type := UT_PKG_DEMO_COMMON.subject_type_emp;
   subject_type_co                   constant demo_emp_invest.subject_type%type := UT_PKG_DEMO_COMMON.subject_type_co;
-  
+
   term_one_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.term_one_invest_time;
   red_term_invest_time              constant VARCHAR2(10) := UT_PKG_DEMO_COMMON.red_term_invest_time;
 
@@ -35,7 +35,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   OUT_MSG                           VARCHAR2(2000);
 END UT_PKG_DEMO_PROC_POP_DEAL_UNEX;
 /
-
 CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   PROCEDURE UT_SETUP IS
   BEGIN
@@ -44,7 +43,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
 
     UT_PKG_DEMO_COMMON.create_plan_info;
     create_unex_prod_info;
-    UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_one_invest_time, op_control_purchase_term_no); 
+    UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_one_invest_time, op_control_purchase_term_no);
     UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
     UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
   END;
@@ -52,19 +51,19 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   BEGIN
     rollback;
   END;
-  
+
   /*
-  å‡€å€¼æŠ¥ä»·åž‹ï¼Œä¸ªäººèµŽå›ž
+  ¾»Öµ±¨¼ÛÐÍ£¬¸öÈËÊê»Ø
   */
   PROCEDURE UT_UNEX_EMP_ENOUGH IS
   BEGIN
     create_emp_invest_info(original_amt, original_quotient);
- 
+
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, enough_red_quotient);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
-    
+
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     UT_PKG_DEMO_COMMON.assert_result_count(1);
@@ -72,7 +71,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   END;
 
   /*
-  å‡€å€¼æŠ¥ä»·åž‹ï¼Œä¼ä¸šèµŽå›ž
+  ¾»Öµ±¨¼ÛÐÍ£¬ÆóÒµÊê»Ø
   */
   PROCEDURE UT_UNEX_CO_ENOUGH IS
   BEGIN
@@ -82,7 +81,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
-    
+
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_co, emp_id_for_co);
     UT_PKG_DEMO_COMMON.assert_result_count(1);
@@ -90,12 +89,12 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   END;
 
   /*
-  å‡€å€¼æŠ¥ä»·åž‹ï¼Œä¼ä¸šèµŽå›ž,ä¸å¤Ÿ
+  ¾»Öµ±¨¼ÛÐÍ£¬ÆóÒµÊê»Ø,²»¹»
   */
   PROCEDURE UT_UNEX_CO_NOTENOUGH IS
   BEGIN
     create_co_invest_info(original_amt, original_quotient);
-  
+
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, not_enough_red_quotient);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
@@ -130,19 +129,13 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   procedure assert_quotient_and_amt(expected_red_quotient demo_invest_pop_result_tmp.QUOTIENT%type,
                                     expected_amt demo_invest_pop_result_tmp.AMT%type) is
   begin
-    utassert.eqqueryvalue(msg_in           => 'æ ¡éªŒquotient',
+    utassert.eqqueryvalue(msg_in           => 'Ð£Ñéquotient',
                           CHECK_QUERY_IN   => 'select quotient from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => expected_red_quotient);
-    utassert.eqqueryvalue(msg_in           => 'æ ¡éªŒamt',
+    utassert.eqqueryvalue(msg_in           => 'Ð£Ñéamt',
                           CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => expected_amt);
   end;
 
 END UT_PKG_DEMO_PROC_POP_DEAL_UNEX;
-/
-
-set serveroutput on
-/
-
-exec utplsql.run ('UT_PKG_DEMO_PROC_POP_DEAL_UNEX', per_method_setup_in => TRUE)
 /
