@@ -61,7 +61,8 @@ CREATE OR REPLACE PACKAGE PKG_DEMO IS
                                  p_invest_time     IN VARCHAR2,
                                  p_invest_red_time IN VARCHAR2)
     RETURN VARCHAR2;
-  function FUNC_GET_PLAN_ID_BY_INVEST_ID(i_invest_id in varchar2) return varchar2;
+  function FUNC_GET_PLAN_ID_BY_INVEST_ID(i_invest_id in varchar2)
+    return varchar2;
   PROCEDURE PROC_DEAL_POP_EX(i_invest_id in varchar2,
                              o_flag      in out number,
                              o_msg       in out varchar2);
@@ -71,7 +72,7 @@ CREATE OR REPLACE PACKAGE PKG_DEMO IS
 END PKG_DEMO;
 /
 CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
-    procedure PROC_INIT_AND_CLEANUP is
+  procedure PROC_INIT_AND_CLEANUP is
   begin
     --剩余调整额字段初始化
     UPDATE DEMO_INVEST_POP_TMP SET AMT_REMAIN = AMT;
@@ -124,8 +125,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   BEGIN
     RETURN PKG_DEMO_COMMON.FUNC_IS_EXPERT_LCR(I_INVEST_ID) = 0;
   END;
-  FUNCTION FUNC_NOT_EXIST_DONE_OP_DATE(I_INVEST_ID IN VARCHAR2) RETURN BOOLEAN IS
-    eval_state_flag_recent_traded     constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
+  FUNCTION FUNC_NOT_EXIST_DONE_OP_DATE(I_INVEST_ID IN VARCHAR2)
+    RETURN BOOLEAN IS
+    eval_state_flag_recent_traded constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
     V_COUNT NUMBER;
   BEGIN
     SELECT COUNT(1)
@@ -135,7 +137,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
        AND T.EVAL_STATE_FLAG = eval_state_flag_recent_traded;
     RETURN V_COUNT = 0;
   END;
-  function FUNC_GET_PLAN_ID_BY_INVEST_ID(i_invest_id in varchar2) return varchar2 is
+  function FUNC_GET_PLAN_ID_BY_INVEST_ID(i_invest_id in varchar2)
+    return varchar2 is
     V_PLAN_ID DEMO_INVEST_INFO.Plan_Id%type;
   begin
     --获取计划编码
@@ -159,7 +162,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
            PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(func_get_plan_id_by_invest_id(i_invest_id));
     RETURN V_RED_INVEST_TIME;
   END;
-    
+
   PROCEDURE PROC_SET_O_FLAG_AND_O_MSG(V_FLAG   IN NUMBER,
                                       V_MSG    IN VARCHAR2,
                                       V_PARAMS IN VARCHAR2,
@@ -175,9 +178,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                  PACK_LOG.WARN_LEVEL);
   
   END;
-  
 
-  
   /*********************************************************************
   --存储过程名称： PROC_DEAL_POP
   --存储过程描述： 资产后进先出拆分处理
@@ -209,7 +210,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     WHEN OTHERS THEN
       O_FLAG := 1;
       O_MSG  := '进行后进先出处理时异常！';
-      
+    
       PACK_LOG.LOG(PROC_NAME,
                    null,
                    O_MSG || '|' || I_INVEST_ID || '|' || SQLERRM || '|' ||
@@ -338,8 +339,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     WHEN OTHERS THEN
       RETURN p_invest_time;
   END FUNC_GET_RED_PRIORITY;
-  
-  procedure PROC_EX_INIT_CO_OPDATE_REL(I_INVEST_ID IN VARCHAR2,
+
+  procedure PROC_EX_INIT_CO_OPDATE_REL(I_INVEST_ID       IN VARCHAR2,
                                        I_RED_INVEST_TIME IN VARCHAR2) IS
   begin
     DELETE FROM DEMO_OP_CO;
@@ -369,9 +370,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                                         I_RED_INVEST_TIME,
                                         T1.INVEST_TIME) = 0;
   end;
-  
-  PROCEDURE PROC_DEAL_POP_EX_EMP(I_INVEST_ID   IN VARCHAR2,
-                                 I_INVEST_TIME IN VARCHAR2) IS
+
+  PROCEDURE PROC_DEAL_POP_EX_TO_TERM_EMP(I_INVEST_ID   IN VARCHAR2,
+                                         I_INVEST_TIME IN VARCHAR2) IS
   
   BEGIN
     INSERT INTO DEMO_INVEST_POP_RESULT_TMP
@@ -392,49 +393,49 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
          AND T1.EMP_ID <> 'FFFFFFFFFF';
   
   END;
-  PROCEDURE PROC_DEAL_POP_EX_CO(I_INVEST_ID   IN VARCHAR2,
-                                 I_INVEST_TIME IN VARCHAR2) IS
+  PROCEDURE PROC_DEAL_POP_EX_TO_TERM_CO(I_INVEST_ID   IN VARCHAR2,
+                                        I_INVEST_TIME IN VARCHAR2) IS
   BEGIN
     --企业部分
-      INSERT INTO DEMO_INVEST_POP_RESULT_TMP
-        (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT)
-        SELECT T1.EMP_ID,
-               T1.CO_ID,
-               T1.SUBJECT_TYPE,
-               T2.INVEST_TIME,
-               LEAST(T1.AMT_REMAIN, T2.AMT),
-               LEAST(T1.AMT_REMAIN, T2.AMT)
-          FROM DEMO_INVEST_POP_TMP T1, DEMO_CO_INVEST_TERM T2
-         WHERE T1.CO_ID = T2.CO_ID
-           AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
-           AND T2.INVEST_ID = I_INVEST_ID
-           AND T2.INVEST_TIME = I_INVEST_TIME
-           AND T2.AMT > 0
-           AND T1.AMT_REMAIN > 0
-           AND T1.EMP_ID = 'FFFFFFFFFF';
+    INSERT INTO DEMO_INVEST_POP_RESULT_TMP
+      (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT)
+      SELECT T1.EMP_ID,
+             T1.CO_ID,
+             T1.SUBJECT_TYPE,
+             T2.INVEST_TIME,
+             LEAST(T1.AMT_REMAIN, T2.AMT),
+             LEAST(T1.AMT_REMAIN, T2.AMT)
+        FROM DEMO_INVEST_POP_TMP T1, DEMO_CO_INVEST_TERM T2
+       WHERE T1.CO_ID = T2.CO_ID
+         AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
+         AND T2.INVEST_ID = I_INVEST_ID
+         AND T2.INVEST_TIME = I_INVEST_TIME
+         AND T2.AMT > 0
+         AND T1.AMT_REMAIN > 0
+         AND T1.EMP_ID = 'FFFFFFFFFF';
   END;
-  
+
   FUNCTION FUNC_EXIST_AMT_REMAIN RETURN BOOLEAN IS
     V_COUNT NUMBER;
   BEGIN
     SELECT COUNT(1)
-        INTO V_COUNT
-        FROM DEMO_INVEST_POP_TMP
-       WHERE AMT_REMAIN > 0
-         AND ROWNUM = 1;
+      INTO V_COUNT
+      FROM DEMO_INVEST_POP_TMP
+     WHERE AMT_REMAIN > 0
+       AND ROWNUM = 1;
     RETURN V_COUNT > 0;
   END;
-  
-  FUNCTION FUNC_IS_TOTAL_TO_TERM_DONE(I_INVEST_TIME IN VARCHAR2) RETURN BOOLEAN IS
-    V_COUNT NUMBER;
+
+  FUNCTION FUNC_IS_TOTAL_TO_TERM_DONE(I_INVEST_TIME IN VARCHAR2)
+    RETURN BOOLEAN IS
   BEGIN
     MERGE INTO DEMO_INVEST_POP_TMP A
-      USING DEMO_INVEST_POP_RESULT_TMP B
-      ON (A.EMP_ID = B.EMP_ID AND A.SUBJECT_TYPE = B.SUBJECT_TYPE AND A.CO_ID = B.CO_ID AND B.INVEST_TIME = I_INVEST_TIME)
-      WHEN MATCHED THEN
-        UPDATE SET A.AMT_REMAIN = A.AMT_REMAIN - B.quotient;
-      
-      RETURN NOT FUNC_EXIST_AMT_REMAIN;
+    USING DEMO_INVEST_POP_RESULT_TMP B
+    ON (A.EMP_ID = B.EMP_ID AND A.SUBJECT_TYPE = B.SUBJECT_TYPE AND A.CO_ID = B.CO_ID AND B.INVEST_TIME = I_INVEST_TIME)
+    WHEN MATCHED THEN
+      UPDATE SET A.AMT_REMAIN = A.AMT_REMAIN - B.quotient;
+  
+    RETURN NOT FUNC_EXIST_AMT_REMAIN;
   END;
   function FUNC_GET_REDABLE_APPL_AMT(I_CO_ID       IN VARCHAR2,
                                      I_INVEST_TIME IN VARCHAR2,
@@ -451,7 +452,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
        AND T3.YAPPL_NUM = I_APPL_NUM;
     RETURN V_REDABLE_APPL_AMT;
   END;
-  
+
   PROCEDURE PROC_DEAL_POP_EX_TERM_TO_APPL(I_EMP_ID                 IN VARCHAR2,
                                           I_CO_ID                  IN VARCHAR2,
                                           I_SUBJECT_TYPE           IN VARCHAR2,
@@ -473,50 +474,29 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   
   END;
 
-  PROCEDURE PROC_DEAL_POP_EX(i_invest_id in varchar2,
-                             o_flag      in out number,
-                             o_msg       in out varchar2) is
-    V_PARAMS    VARCHAR2(4000) := I_INVEST_ID;
-    V_STEP      NUMBER := NULL;
-    --V_FLAG      NUMBER := NULL;
-    V_MSG VARCHAR2(4000) := NULL;
-    E_CUSTOM EXCEPTION;
-    E_APP_COUNT EXCEPTION;
+  procedure PROC_DEAL_POP_TO_TERM(I_INVEST_ID       IN VARCHAR2,
+                                  I_RED_INVEST_TIME IN VARCHAR2) IS
   
-    V_COUNT           NUMBER;
-    V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE := NULL;
-    V_REDABLE_TERM_AMT             NUMBER(17, 2) := NULL;
-    V_REDABLE_APPL_AMT            NUMBER(17, 2) := NULL;
-    V_DEAL_POP_DONE_APPL_AMT      NUMBER(17,2);
-  begin
-    --获取最近一次的集中确认日
-    V_RED_INVEST_TIME := FUNC_GET_NEXT_RED_TIME(I_INVEST_ID);
-    
-  
-    if V_RED_INVEST_TIME is null then
-      PROC_SET_O_FLAG_AND_O_MSG(2,'无法获取下一次赎回集中确认日',I_INVEST_ID,O_FLAG,O_MSG);
-      RETURN;
-    end if;
-    
-    PROC_EX_INIT_CO_OPDATE_REL(I_INVEST_ID,V_RED_INVEST_TIME);
-  
+  BEGIN
     FOR RS IN (SELECT T1.OP_DATE INVEST_TIME
                  FROM DEMO_OP_CO T1
                 ORDER BY pkg_demo.FUNC_GET_RED_PRIORITY(I_INVEST_ID,
-                                                         T1.OP_DATE,
-                                                        V_RED_INVEST_TIME) DESC) LOOP
-                                                        
-      PROC_DEAL_POP_EX_EMP(I_INVEST_ID,RS.INVEST_TIME);
-      PROC_DEAL_POP_EX_CO(I_INVEST_ID,RS.INVEST_TIME);
+                                                        T1.OP_DATE,
+                                                        I_RED_INVEST_TIME) DESC) LOOP
+    
+      PROC_DEAL_POP_EX_TO_TERM_EMP(I_INVEST_ID, RS.INVEST_TIME);
+      PROC_DEAL_POP_EX_TO_TERM_CO(I_INVEST_ID, RS.INVEST_TIME);
     
       EXIT WHEN FUNC_IS_TOTAL_TO_TERM_DONE(RS.INVEST_TIME);
     END LOOP;
-
-    IF FUNC_EXIST_AMT_REMAIN THEN
-      PROC_SET_O_FLAG_AND_O_MSG(2,'进行后进先出处理时，资产不足',I_INVEST_ID,O_FLAG,O_MSG);
-      return;
-    END IF;
   
+  END;
+
+  PROCEDURE PROC_DEAL_POP_TO_APPL(I_INVEST_ID IN VARCHAR2) IS
+    V_REDABLE_TERM_AMT       NUMBER(17, 2);
+    V_REDABLE_APPL_AMT       NUMBER(17, 2);
+    V_DEAL_POP_DONE_APPL_AMT NUMBER(17, 2);
+  BEGIN
     FOR RS IN (SELECT *
                  FROM DEMO_INVEST_POP_RESULT_TMP T1
                 WHERE T1.YAPPL_NUM IS NULL) LOOP
@@ -532,56 +512,79 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                      AND T2.AMT - NVL(T2.RED_AMT, 0) > 0) LOOP
         --对于一期有多张申请单的情况进行倒序获取
         exit when V_REDABLE_TERM_AMT = 0;
-          V_REDABLE_APPL_AMT :=  FUNC_GET_REDABLE_APPL_AMT(RS1.CO_ID,
-                                               RS1.INVEST_TIME,
-                                               RS1.APPL_NUM,
-                                               RS1.AMT,
-                                               RS1.RED_AMT);
-          IF V_REDABLE_APPL_AMT > 0 THEN
-            V_DEAL_POP_DONE_APPL_AMT := LEAST(V_REDABLE_TERM_AMT, V_REDABLE_APPL_AMT);
-            PROC_DEAL_POP_EX_TERM_TO_APPL(RS.EMP_ID,
-               RS.CO_ID,
-               RS.SUBJECT_TYPE,
-               RS.INVEST_TIME,
-               RS1.APPL_NUM,
-               V_DEAL_POP_DONE_APPL_AMT
-               );
-          
-            V_REDABLE_TERM_AMT := V_REDABLE_TERM_AMT - V_DEAL_POP_DONE_APPL_AMT;
-          END IF;
+        V_REDABLE_APPL_AMT := FUNC_GET_REDABLE_APPL_AMT(RS1.CO_ID,
+                                                        RS1.INVEST_TIME,
+                                                        RS1.APPL_NUM,
+                                                        RS1.AMT,
+                                                        RS1.RED_AMT);
+        IF V_REDABLE_APPL_AMT > 0 THEN
+          V_DEAL_POP_DONE_APPL_AMT := LEAST(V_REDABLE_TERM_AMT,
+                                            V_REDABLE_APPL_AMT);
+          PROC_DEAL_POP_EX_TERM_TO_APPL(RS.EMP_ID,
+                                        RS.CO_ID,
+                                        RS.SUBJECT_TYPE,
+                                        RS.INVEST_TIME,
+                                        RS1.APPL_NUM,
+                                        V_DEAL_POP_DONE_APPL_AMT);
+        
+          V_REDABLE_TERM_AMT := V_REDABLE_TERM_AMT -
+                                V_DEAL_POP_DONE_APPL_AMT;
+        END IF;
       END LOOP;
     END LOOP;
+  
     DELETE FROM DEMO_INVEST_POP_RESULT_TMP WHERE YAPPL_NUM IS NULL;
   
+  END;
+
+  PROCEDURE PROC_DEAL_POP_EX(i_invest_id in varchar2,
+                             o_flag      in out number,
+                             o_msg       in out varchar2) is
+    V_MSG VARCHAR2(4000) := NULL;
+  
+    V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE := NULL;
+  begin
+    V_RED_INVEST_TIME := FUNC_GET_NEXT_RED_TIME(I_INVEST_ID);
+  
+    if V_RED_INVEST_TIME is null then
+      PROC_SET_O_FLAG_AND_O_MSG(2,
+                                '无法获取下一次赎回集中确认日',
+                                I_INVEST_ID,
+                                O_FLAG,
+                                O_MSG);
+      RETURN;
+    end if;
+  
+    PROC_EX_INIT_CO_OPDATE_REL(I_INVEST_ID, V_RED_INVEST_TIME);
+  
+    PROC_DEAL_POP_TO_TERM(I_INVEST_ID, V_RED_INVEST_TIME);
+  
+    IF FUNC_EXIST_AMT_REMAIN THEN
+      PROC_SET_O_FLAG_AND_O_MSG(2,
+                                '进行后进先出处理时，资产不足',
+                                I_INVEST_ID,
+                                O_FLAG,
+                                O_MSG);
+      return;
+    END IF;
+    PROC_DEAL_POP_TO_APPL(I_INVEST_ID);
+  
     IF FUNC_IS_RED_TOTAL_AMT_NOTEQ THEN
-      V_MSG := '赎回份额分配出错';
-      RAISE E_CUSTOM;
+      PROC_SET_O_FLAG_AND_O_MSG(2,
+                                '赎回份额分配出错',
+                                I_INVEST_ID,
+                                O_FLAG,
+                                O_MSG);
+      return;
     END IF;
   
     IF FUNC_IS_APPL_MORE_THEN_FIVE(V_MSG) THEN
-      RAISE E_APP_COUNT;
+      PROC_SET_O_FLAG_AND_O_MSG(3, V_MSG, I_INVEST_ID, O_FLAG, O_MSG);
+      return;
     END IF;
-  
-  EXCEPTION
-    WHEN E_CUSTOM THEN
-      --ROLLBACK;
-      O_FLAG := 2;
-      O_MSG  := V_MSG;
-      PACK_LOG.LOG(PROC_NAME,
-                   V_STEP,
-                   O_MSG || '|' || V_PARAMS,
-                   PACK_LOG.WARN_LEVEL);
-    WHEN E_APP_COUNT THEN
-      --ROLLBACK;
-      O_FLAG := 3;
-      O_MSG  := V_MSG;
-      PACK_LOG.LOG(PROC_NAME,
-                   V_STEP,
-                   O_MSG || '|' || V_PARAMS,
-                   PACK_LOG.WARN_LEVEL);
   end;
-  
-    PROCEDURE PROC_DEAL_POP_UNEX_EMP(I_INVEST_ID IN VARCHAR2) IS
+
+  PROCEDURE PROC_DEAL_POP_UNEX_EMP(I_INVEST_ID IN VARCHAR2) IS
   BEGIN
     INSERT INTO DEMO_INVEST_POP_RESULT_TMP
       (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT, YAPPL_NUM)
@@ -603,9 +606,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
          AND T1.AMT_REMAIN > 0
          AND T1.EMP_ID <> 'FFFFFFFFFF';
   END;
-  
+
   PROCEDURE PROC_DEAL_POP_UNEX_CO(I_INVEST_ID IN VARCHAR2) IS
-    
+  
   BEGIN
     INSERT INTO DEMO_INVEST_POP_RESULT_TMP
       (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT, YAPPL_NUM)
@@ -626,7 +629,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
          AND T2.quotient > 0
          AND T1.AMT_REMAIN > 0
          AND T1.EMP_ID = 'FFFFFFFFFF';
-    
+  
   END;
 
   PROCEDURE PROC_DEAL_POP_UNEX(i_invest_id in varchar2,
@@ -634,15 +637,23 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                                o_msg       in out varchar2) is
   begin
     IF FUNC_NOT_EXIST_DONE_OP_DATE(I_INVEST_ID) THEN
-      PROC_SET_O_FLAG_AND_O_MSG(2,'系统中不存在已完成的集中确认日，无法进行后续操作！',I_INVEST_ID,O_FLAG,O_MSG);
+      PROC_SET_O_FLAG_AND_O_MSG(2,
+                                '系统中不存在已完成的集中确认日，无法进行后续操作！',
+                                I_INVEST_ID,
+                                O_FLAG,
+                                O_MSG);
       RETURN;
     END IF;
-    
+  
     PROC_DEAL_POP_UNEX_EMP(I_INVEST_ID);
     PROC_DEAL_POP_UNEX_CO(I_INVEST_ID);
   
     IF FUNC_IS_RED_TOTAL_AMT_NOTEQ THEN
-      PROC_SET_O_FLAG_AND_O_MSG(2,'赎回份额分配出错！',I_INVEST_ID,O_FLAG,O_MSG);
+      PROC_SET_O_FLAG_AND_O_MSG(2,
+                                '赎回份额分配出错！',
+                                I_INVEST_ID,
+                                O_FLAG,
+                                O_MSG);
       RETURN;
     END IF;
   end;
