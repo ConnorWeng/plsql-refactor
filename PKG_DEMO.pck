@@ -1,92 +1,81 @@
 CREATE OR REPLACE PACKAGE PKG_DEMO IS
+
   -- Author  : KFZX-WANGYANG01
   -- Created : 2011-9-8 18:00:15
   -- Purpose :
   /*********************************************************************
-  --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š PROC_DEAL_POP
-  --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š èµ„äº§åŽè¿›å…ˆå‡ºæ‹†åˆ†å¤„ç†
-  --åŠŸèƒ½ï¼š         åœ¨DEMO_INVEST_POP_TMPä¸­å­˜å…¥éœ€è¦è¿›è¡ŒåŽè¿›å…ˆå‡ºçš„ä¸šåŠ¡å¯¹è±¡å’Œéœ€è¦æå–çš„æ€»é‡‘é¢
-                   ç¨‹åºåœ¨DEMO_INVEST_POP_RESULT_TMPä¸­è¿”å›žåŽè¿›å…ˆå‡ºçš„ç»“æžœ
-  --åŠŸèƒ½æ¨¡å—ï¼š     é€šç”¨
-  --ä½œè€…ï¼š         
-  --æ—¶é—´ï¼š         
-  --I_INVEST_ID IN VARCHAR2,  æŠ•èµ„ç»„åˆä»£ç 
-    O_FLAG      OUT NUMBER,   é”™è¯¯ä»£ç 
-    O_MSG       OUT VARCHAR2  é”™è¯¯ä¿¡æ¯
+  --´æ´¢¹ý³ÌÃû³Æ£º PROC_DEAL_POP
+  --´æ´¢¹ý³ÌÃèÊö£º ×Ê²úºó½øÏÈ³ö²ð·Ö´¦Àí
+  --¹¦ÄÜ£º         ÔÚDEMO_INVEST_POP_TMPÖÐ´æÈëÐèÒª½øÐÐºó½øÏÈ³öµÄÒµÎñ¶ÔÏóºÍÐèÒªÌáÈ¡µÄ×Ü½ð¶î
+                   ³ÌÐòÔÚDEMO_INVEST_POP_RESULT_TMPÖÐ·µ»Øºó½øÏÈ³öµÄ½á¹û
+  --¹¦ÄÜÄ£¿é£º     Í¨ÓÃ
+  --×÷Õß£º
+  --Ê±¼ä£º
+  --I_INVEST_ID IN VARCHAR2,  Í¶×Ê×éºÏ´úÂë
+    O_FLAG      OUT NUMBER,   ´íÎó´úÂë
+    O_MSG       OUT VARCHAR2  ´íÎóÐÅÏ¢
   *********************************************************************/
   PROCEDURE PROC_DEAL_POP(I_INVEST_ID IN VARCHAR2,
                           O_FLAG      OUT NUMBER,
                           O_MSG       OUT VARCHAR2);
-  PROCEDURE deal_pop_ex(I_INVEST_ID in VARCHAR2,
-                        O_FLAG      in out NUMBER,
-                        O_MSG       in out VARCHAR2);
-  PROCEDURE deal_pop_unex(I_INVEST_ID in VARCHAR2,
-                          O_FLAG      in out NUMBER,
-                          O_MSG       in out VARCHAR2);
-  FUNCTION get_plan_id_by_invest_id(invest_id VARCHAR2) RETURN VARCHAR2;
-
-  PROCEDURE set_out_flag_and_out_msg(out_flag out NUMBER, 
-                                     out_msg out VARCHAR2,
-                                     return_msg VARCHAR2,
-                                     invest_id VARCHAR2);
-
-  V_PROC_NAME constant DB_LOG.PROC_NAME%TYPE := 'PKG_DEMO.PROC_DEAL_POP';
-  V_STEP      NUMBER := NULL;
   /*********************************************************************
-    --åç§°:FUNC_GET_RED_ABLE
-    --æè¿°:åˆ¤æ–­æ˜¯å¦å¯èµŽå›ž
-    --åŠŸèƒ½:åˆ¤æ–­æ˜¯å¦å¯èµŽå›ž
-    --æ¨¡å—:äº¤æ˜“ç®¡ç†-é›†ä¸­ç¡®è®¤
-    --ä½œè€…:
-    --æ—¶é—´:
-    --å‚æ•°:
-      I_INVEST_ID           IN VARCHAR2, --æŠ•èµ„ç»„åˆ
-      I_RED_INVEST_TIME     IN VARCHAR2, --æœ¬æ¬¡èµŽå›žé›†ä¸­ç¡®è®¤æ—¥
-      I_BUY_INVEST_TIME     IN VARCHAR2  --è´­ä¹°é›†ä¸­ç¡®è®¤æ—¥
-    --è¿”å›žï¼š0ï¼Œå¯ä»¥èµŽå›žï¼›1ï¼Œä¸èƒ½èµŽå›ž
+    --Ãû³Æ:FUNC_GET_RED_ABLE
+    --ÃèÊö:ÅÐ¶ÏÊÇ·ñ¿ÉÊê»Ø
+    --¹¦ÄÜ:ÅÐ¶ÏÊÇ·ñ¿ÉÊê»Ø
+    --Ä£¿é:½»Ò×¹ÜÀí-¼¯ÖÐÈ·ÈÏ
+    --×÷Õß:
+    --Ê±¼ä:
+    --²ÎÊý:
+      I_INVEST_ID           IN VARCHAR2, --Í¶×Ê×éºÏ
+      I_RED_INVEST_TIME     IN VARCHAR2, --±¾´ÎÊê»Ø¼¯ÖÐÈ·ÈÏÈÕ
+      I_BUY_INVEST_TIME     IN VARCHAR2  --¹ºÂò¼¯ÖÐÈ·ÈÏÈÕ
+    --·µ»Ø£º0£¬¿ÉÒÔÊê»Ø£»1£¬²»ÄÜÊê»Ø
   *********************************************************************/
   FUNCTION FUNC_GET_RED_ABLE(I_INVEST_ID       IN VARCHAR2,
                              I_RED_INVEST_TIME IN VARCHAR2,
                              I_BUY_INVEST_TIME IN VARCHAR2) RETURN NUMBER;
   /*********************************************************************/
-  --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š FUNC_GET_FULL_LCR_DATE
-  --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š æ ¹æ®æ ¹æ®èµŽå›žæ—¥æœŸï¼ŒèŽ·å–å¯¹åº”çš„æœŸæ»¡èµŽå›žæ—¥æœŸ
-  --åŠŸèƒ½ï¼š         æ ¹æ®æ ¹æ®èµŽå›žæ—¥æœŸï¼ŒèŽ·å–å¯¹åº”çš„æœŸæ»¡èµŽå›žæ—¥æœŸ
-  --åŠŸèƒ½æ¨¡å—ï¼š
-  --ä½œè€…ï¼š         
-  --æ—¶é—´ï¼š         
+  --´æ´¢¹ý³ÌÃû³Æ£º FUNC_GET_FULL_LCR_DATE
+  --´æ´¢¹ý³ÌÃèÊö£º ¸ù¾Ý¸ù¾ÝÊê»ØÈÕÆÚ£¬»ñÈ¡¶ÔÓ¦µÄÆÚÂúÊê»ØÈÕÆÚ
+  --¹¦ÄÜ£º         ¸ù¾Ý¸ù¾ÝÊê»ØÈÕÆÚ£¬»ñÈ¡¶ÔÓ¦µÄÆÚÂúÊê»ØÈÕÆÚ
+  --¹¦ÄÜÄ£¿é£º
+  --×÷Õß£º
+  --Ê±¼ä£º
   /*********************************************************************/
   FUNCTION FUNC_GET_FULL_LCR_DATE(I_INVEST_ID IN VARCHAR2,
                                   I_RED_DATE  IN VARCHAR2) RETURN VARCHAR2;
   /*********************************************************************
-  --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š PROC_GET_RED_PRIORITY
-  --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š èŽ·å–å¦‚æ„äººç”ŸèµŽå›žæœŸæ•°ä¼˜å…ˆçº§
-  --åŠŸèƒ½æ¨¡å—ï¼š     å¦‚æ„äººç”ŸèµŽå›ž
-  --ä½œè€…ï¼š         
-  --æ—¶é—´ï¼š         
-  --å‚æ•°è¯´æ˜Žï¼š
-  --p_invest_id             IN  VARCHAR2,     --æŠ•èµ„ç»„åˆç¼–ç 
-  --p_invest_time           IN  VARCHAR2,     --èµ„äº§æ‰€åœ¨çš„æ—¥æœŸ
-  --p_invest_red_time       IN  VARCHAR2,     --èµ„äº§èµŽå›žçš„é›†ä¸­ç¡®è®¤æ—¥
+  --´æ´¢¹ý³ÌÃû³Æ£º PROC_GET_RED_PRIORITY
+  --´æ´¢¹ý³ÌÃèÊö£º »ñÈ¡ÈçÒâÈËÉúÊê»ØÆÚÊýÓÅÏÈ¼¶
+  --¹¦ÄÜÄ£¿é£º     ÈçÒâÈËÉúÊê»Ø
+  --×÷Õß£º
+  --Ê±¼ä£º
+  --²ÎÊýËµÃ÷£º
+  --p_invest_id             IN  VARCHAR2,     --Í¶×Ê×éºÏ±àÂë
+  --p_invest_time           IN  VARCHAR2,     --×Ê²úËùÔÚµÄÈÕÆÚ
+  --p_invest_red_time       IN  VARCHAR2,     --×Ê²úÊê»ØµÄ¼¯ÖÐÈ·ÈÏÈÕ
   *********************************************************************/
   FUNCTION FUNC_GET_RED_PRIORITY(p_invest_id       IN VARCHAR2,
                                  p_invest_time     IN VARCHAR2,
                                  p_invest_red_time IN VARCHAR2)
     RETURN VARCHAR2;
+  PROCEDURE PROC_DEAL_POP_EX(i_invest_id in varchar2,
+                             o_flag      in out number,
+                             o_msg       in out varchar2);
 END PKG_DEMO;
 /
 CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   /*********************************************************************
-  --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š PROC_DEAL_POP
-  --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š èµ„äº§åŽè¿›å…ˆå‡ºæ‹†åˆ†å¤„ç†
-  --åŠŸèƒ½ï¼š         åœ¨DEMO_INVEST_POP_TMPä¸­å­˜å…¥éœ€è¦è¿›è¡ŒåŽè¿›å…ˆå‡ºçš„ä¸šåŠ¡å¯¹è±¡å’Œéœ€è¦æå–çš„æ€»é‡‘é¢
-                   ç¨‹åºåœ¨DEMO_INVEST_POP_RESULT_TMPä¸­è¿”å›žåŽè¿›å…ˆå‡ºçš„ç»“æžœ
-  --åŠŸèƒ½æ¨¡å—ï¼š     é€šç”¨
-  --ä½œè€…ï¼š         
-  --æ—¶é—´ï¼š         
-  --I_INVEST_ID IN VARCHAR2,  æŠ•èµ„ç»„åˆä»£ç 
-    O_FLAG      OUT NUMBER,   é”™è¯¯ä»£ç 
-    O_MSG       OUT VARCHAR2  é”™è¯¯ä¿¡æ¯
+  --´æ´¢¹ý³ÌÃû³Æ£º PROC_DEAL_POP
+  --´æ´¢¹ý³ÌÃèÊö£º ×Ê²úºó½øÏÈ³ö²ð·Ö´¦Àí
+  --¹¦ÄÜ£º         ÔÚDEMO_INVEST_POP_TMPÖÐ´æÈëÐèÒª½øÐÐºó½øÏÈ³öµÄÒµÎñ¶ÔÏóºÍÐèÒªÌáÈ¡µÄ×Ü½ð¶î
+                   ³ÌÐòÔÚDEMO_INVEST_POP_RESULT_TMPÖÐ·µ»Øºó½øÏÈ³öµÄ½á¹û
+  --¹¦ÄÜÄ£¿é£º     Í¨ÓÃ
+  --×÷Õß£º
+  --Ê±¼ä£º
+  --I_INVEST_ID IN VARCHAR2,  Í¶×Ê×éºÏ´úÂë
+    O_FLAG      OUT NUMBER,   ´íÎó´úÂë
+    O_MSG       OUT VARCHAR2  ´íÎóÐÅÏ¢
   *********************************************************************/
   PROCEDURE PROC_DEAL_POP(I_INVEST_ID IN VARCHAR2,
                           O_FLAG      OUT NUMBER,
@@ -94,394 +83,40 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     V_PROC_NAME DB_LOG.PROC_NAME%TYPE := 'PKG_DEMO.PROC_DEAL_POP';
     V_PARAMS    VARCHAR2(4000) := I_INVEST_ID;
     V_STEP      NUMBER := NULL;
+    --V_FLAG      NUMBER := NULL;
     V_MSG VARCHAR2(4000) := NULL;
     E_CUSTOM EXCEPTION;
     E_APP_COUNT EXCEPTION;
-  
+
     V_COUNT           NUMBER;
+    V_PLAN_ID         DEMO_PLAN_INFO.PLAN_ID%TYPE := NULL;
+    V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE := NULL;
     V_AMT             NUMBER(17, 2) := NULL;
     V_AMT2            NUMBER(17, 2) := NULL;
   BEGIN
     O_FLAG := 0;
-    O_MSG  := 'æˆåŠŸ';
-  
-    --å‰©ä½™è°ƒæ•´é¢å­—æ®µåˆå§‹åŒ–
+    O_MSG  := '³É¹¦';
+
+    --Ê£Óàµ÷Õû¶î×Ö¶Î³õÊ¼»¯
     UPDATE DEMO_INVEST_POP_TMP SET AMT_REMAIN = AMT;
-  
+
     DELETE FROM DEMO_INVEST_POP_RESULT_TMP;
-  
+
     IF PKG_DEMO_COMMON.FUNC_IS_EXPERT_LCR(I_INVEST_ID) = 0 THEN
-      deal_pop_ex(I_INVEST_ID, O_FLAG, O_MSG);
+      PROC_DEAL_POP_EX(i_invest_id,o_flag,O_MSG);
+
     ELSE
-      deal_pop_unex(I_INVEST_ID, O_FLAG, O_MSG);
-    END IF;
-  
-    DELETE FROM DEMO_INVEST_POP_RESULT_TMP WHERE YAPPL_NUM IS NULL;
-    SELECT NVL(SUM(AMT), 0) INTO V_AMT FROM DEMO_INVEST_POP_TMP;
-    SELECT NVL(SUM(quotient), 0)
-      INTO V_AMT2
-      FROM DEMO_INVEST_POP_RESULT_TMP;
-    IF V_AMT <> V_AMT2 THEN
-      V_MSG := 'èµŽå›žä»½é¢åˆ†é…å‡ºé”™';
-      RAISE E_CUSTOM;
-    END IF;
-  
-    --æŽ¥å£åªæ”¯æŒæœ€å¤š5æ¡
-    SELECT COUNT(1), MAX(MSG)
-      INTO V_COUNT, V_MSG
-      FROM (SELECT DECODE(EMP_ID,
-                          'FFFFFFFFFF',
-                          'ä¼ä¸šï¼š' ||
-                          PKG_DEMO_COMMON.FUNC_GET_COFNAMEBYID(CO_ID),
-                          'å‘˜å·¥ï¼š' || emp_Id) MSG
-              FROM DEMO_INVEST_POP_RESULT_TMP
-             GROUP BY EMP_ID, CO_ID, SUBJECT_TYPE
-            HAVING COUNT(1) > 5);
-    IF V_COUNT > 0 THEN
-      V_MSG := V_MSG || 'ç”Ÿæˆç”³è¯·å•è¶…è¿‡5æ¡';
-      RAISE E_APP_COUNT;
-    END IF;
-  
-  EXCEPTION
-    WHEN E_CUSTOM THEN
-      --ROLLBACK;
-      O_FLAG := 2;
-      O_MSG  := V_MSG;
-      PACK_LOG.LOG(V_PROC_NAME,
-                   V_STEP,
-                   O_MSG || '|' || V_PARAMS,
-                   PACK_LOG.WARN_LEVEL);
-    WHEN E_APP_COUNT THEN
-      --ROLLBACK;
-      O_FLAG := 3;
-      O_MSG  := V_MSG;
-      PACK_LOG.LOG(V_PROC_NAME,
-                   V_STEP,
-                   O_MSG || '|' || V_PARAMS,
-                   PACK_LOG.WARN_LEVEL);
-    WHEN OTHERS THEN
-      --ROLLBACK;
-      O_FLAG := 1;
-      O_MSG  := 'è¿›è¡ŒåŽè¿›å…ˆå‡ºå¤„ç†æ—¶å¼‚å¸¸ï¼';
-      V_MSG  := SQLERRM || '|' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE;
-      PACK_LOG.LOG(V_PROC_NAME,
-                   V_STEP,
-                   O_MSG || '|' || V_PARAMS || '|' || V_MSG,
-                   PACK_LOG.ERR_LEVEL);
-  END PROC_DEAL_POP;
-  /*********************************************************************
-    --åç§°:FUNC_GET_RED_ABLE
-    --æè¿°:åˆ¤æ–­æ˜¯å¦å¯èµŽå›ž
-    --åŠŸèƒ½:åˆ¤æ–­æ˜¯å¦å¯èµŽå›ž
-    --æ¨¡å—:äº¤æ˜“ç®¡ç†-é›†ä¸­ç¡®è®¤
-    --ä½œè€…:
-    --æ—¶é—´:
-    --å‚æ•°:
-      I_INVEST_ID       IN VARCHAR2,  æŠ•èµ„ç»„åˆä»£ç 
-      I_RED_INVEST_TIME IN VARCHAR2,  èµŽå›žé›†ä¸­ç¡®è®¤æ—¥
-      I_BUY_INVEST_TIME IN VARCHAR2   è´­ä¹°é›†ä¸­ç¡®è®¤æ—¥
-    --è¿”å›žï¼š0ï¼Œå¯ä»¥èµŽå›žï¼›1ï¼Œä¸èƒ½èµŽå›ž
-  *********************************************************************/
-  FUNCTION FUNC_GET_RED_ABLE(I_INVEST_ID       IN VARCHAR2,
-                             I_RED_INVEST_TIME IN VARCHAR2,
-                             I_BUY_INVEST_TIME IN VARCHAR2) RETURN NUMBER IS
-    V_ISSUE_WAY      DEMO_INVEST_BASIC_INFO.ISSUE_WAY%TYPE;
-    v_SELL_MIN_TERM  DEMO_INVEST_BASIC_INFO.Sell_Min_Term%TYPE;
-    v_OPEN_SELL_TERM DEMO_INVEST_BASIC_INFO.OPEN_SELL_TERM%TYPE;
-    v_max_TERM_NO    DEMO_INVEST_OP_CONTROL.term_no%TYPE;
-    v_min_TERM_NO    DEMO_INVEST_OP_CONTROL.term_no%TYPE;
-  
-  BEGIN
-    SELECT ISSUE_WAY, SELL_MIN_TERM, OPEN_SELL_TERM
-      INTO V_ISSUE_WAY, v_SELL_MIN_TERM, v_OPEN_SELL_TERM
-      FROM DEMO_INVEST_BASIC_INFO T
-     WHERE T.INVEST_ID = I_INVEST_ID;
-  
-    IF V_ISSUE_WAY = 4 THEN
-      --ç»“è½¬åž‹
-      SELECT max(TERM_NO)
-        INTO v_max_TERM_NO
-        FROM v_invest_op_control t
-       WHERE t.invest_id = I_INVEST_ID
-         and t.op_type in (1, 2)
-         AND DEMO_INVEST_TIME = I_RED_INVEST_TIME;
-    
-      SELECT MAX(TERM_NO)
-        INTO v_min_TERM_NO
-        FROM v_invest_op_control t
-       WHERE t.invest_id = I_INVEST_ID
-         and t.op_type in (1, 2)
-         AND DEMO_INVEST_TIME = I_BUY_INVEST_TIME;
-    
-      IF v_max_TERM_NO IS NULL OR v_min_TERM_NO IS NULL THEN
-        RETURN 1;
-      END IF;
-    
-      IF MOD((v_max_TERM_NO - v_min_TERM_NO - v_SELL_MIN_TERM),
-             v_OPEN_SELL_TERM) = 0 and
-         v_max_TERM_NO - v_min_TERM_NO - v_SELL_MIN_TERM >= 0 THEN
-        RETURN 0;
-      ELSE
-        RETURN 1;
-      END IF;
-    ELSE
-      --å…¶ä»–
-      RETURN 0;
-    END IF;
-  
-  EXCEPTION
-    WHEN OTHERS THEN
-      RETURN 1;
-  END FUNC_GET_RED_ABLE;
-  /*********************************************************************/
-  --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š FUNC_GET_FULL_LCR_DATE
-  --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š æ ¹æ®æ ¹æ®èµŽå›žæ—¥æœŸï¼ŒèŽ·å–å¯¹åº”çš„æœŸæ»¡èµŽå›žæ—¥æœŸ
-  --åŠŸèƒ½ï¼š         æ ¹æ®æ ¹æ®èµŽå›žæ—¥æœŸï¼ŒèŽ·å–å¯¹åº”çš„æœŸæ»¡èµŽå›žæ—¥æœŸ
-  --åŠŸèƒ½æ¨¡å—ï¼š
-  --ä½œè€…ï¼š         
-  --æ—¶é—´ï¼š         
-  /*********************************************************************/
-  FUNCTION FUNC_GET_FULL_LCR_DATE(I_INVEST_ID IN VARCHAR2,
-                                  I_RED_DATE  IN VARCHAR2) RETURN VARCHAR2 IS
-    V_FULL_LCR_DATE VARCHAR2(10);
-  BEGIN
-    SELECT MAX(T.demo_invest_time)
-      INTO V_FULL_LCR_DATE
-      FROM V_INVEST_OP_CONTROL T
-     WHERE T.INVEST_ID = I_INVEST_ID
-       AND T.OP_TYPE IN (1, 2)
-       AND EXISTS (SELECT 1
-              FROM V_INVEST_OP_CONTROL T1
-             WHERE T1.INVEST_ID = T.INVEST_ID
-               AND T1.OP_TYPE = 4
-               AND T1.demo_invest_time = I_RED_DATE
-               AND T1.TERM_NO = T.TERM_NO);
-    RETURN V_FULL_LCR_DATE;
-  EXCEPTION
-    WHEN OTHERS THEN
-      RETURN NULL;
-  END FUNC_GET_FULL_LCR_DATE;
-  /*********************************************************************
-  --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š PROC_GET_RED_PRIORITY
-  --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š èŽ·å–å¦‚æ„äººç”ŸèµŽå›žæœŸæ•°ä¼˜å…ˆçº§
-  --åŠŸèƒ½æ¨¡å—ï¼š     å¦‚æ„äººç”ŸèµŽå›ž
-  --ä½œè€…ï¼š         
-  --æ—¶é—´ï¼š         
-  --å‚æ•°è¯´æ˜Žï¼š
-  --p_invest_id             IN  VARCHAR2,     --æŠ•èµ„ç»„åˆç¼–ç 
-  --p_invest_time           IN  VARCHAR2,     --èµ„äº§æ‰€åœ¨çš„æ—¥æœŸ
-  --p_invest_red_time       IN  VARCHAR2,     --èµ„äº§èµŽå›žçš„é›†ä¸­ç¡®è®¤æ—¥
-  *********************************************************************/
-  FUNCTION FUNC_GET_RED_PRIORITY(p_invest_id       IN VARCHAR2,
-                                 p_invest_time     IN VARCHAR2,
-                                 p_invest_red_time IN VARCHAR2)
-    RETURN VARCHAR2 IS
-    v_full_lcr_date DEMO_INVEST_OP_CONTROL.invest_time%TYPE;
-  BEGIN
-    v_full_lcr_date := PKG_DEMO.FUNC_GET_FULL_LCR_DATE(p_invest_id,
-                                                       p_invest_red_time);
-    IF v_full_lcr_date = p_invest_time THEN
-      --è¿™ä¸€æœŸæ°å¥½æœŸæ»¡ï¼ŒèµŽå›žé‡‡ç”¨é«˜ä¼˜å…ˆçº§
-      RETURN '9999-12-31';
-    END IF;
-    RETURN p_invest_time;
-  
-  EXCEPTION
-    WHEN OTHERS THEN
-      RETURN p_invest_time;
-  END FUNC_GET_RED_PRIORITY;
-
-  PROCEDURE deal_pop_ex(I_INVEST_ID in VARCHAR2,
-                        O_FLAG      in out NUMBER,
-                        O_MSG       in out VARCHAR2) is
-    V_PROC_NAME DB_LOG.PROC_NAME%TYPE := 'PKG_DEMO.PROC_DEAL_POP';
-    V_PARAMS    VARCHAR2(4000) := I_INVEST_ID;
-    V_STEP      NUMBER := NULL;
-    V_MSG VARCHAR2(4000) := NULL;
-    E_CUSTOM EXCEPTION;
-  
-    V_COUNT           NUMBER;
-    V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE := NULL;
-    V_AMT             NUMBER(17, 2) := NULL;
-    V_AMT2            NUMBER(17, 2) := NULL;
-  begin
-    --èŽ·å–æœ€è¿‘ä¸€æ¬¡çš„é›†ä¸­ç¡®è®¤æ—¥
-    SELECT MIN(T.DEMO_INVEST_TIME)
-      INTO V_RED_INVEST_TIME
-      FROM V_INVEST_OP_CONTROL T
-     WHERE T.INVEST_ID = I_INVEST_ID
-       AND T.OP_TYPE = 3
-       AND T.DEMO_INVEST_TIME >
-           PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(get_plan_id_by_invest_id(I_INVEST_ID));
-
-    if V_RED_INVEST_TIME is null then
-      set_out_flag_and_out_msg(O_FLAG, O_MSG, 'æ— æ³•èŽ·å–ä¸‹ä¸€æ¬¡èµŽå›žé›†ä¸­ç¡®è®¤æ—¥', I_INVEST_ID);
-      RETURN;
-    end if;
-
-    DELETE FROM DEMO_OP_CO;
-    INSERT INTO DEMO_OP_CO
-      (OP_DATE, CO_ID)
-      SELECT T1.INVEST_TIME, T1.CO_ID
-        FROM DEMO_EMP_INVEST_TERM T1
-       WHERE (T1.EMP_ID, T1.SUBJECT_TYPE) IN
-             (SELECT EMP_ID, SUBJECT_TYPE
-                FROM DEMO_INVEST_POP_TMP
-               WHERE SUBJECT_TYPE LIKE '301%')
-         AND T1.AMT > 0
-         AND T1.INVEST_ID = I_INVEST_ID
-         AND PKG_DEMO.FUNC_GET_RED_ABLE(I_INVEST_ID,
-                                        V_RED_INVEST_TIME,
-                                        T1.INVEST_TIME) = 0 --æ»¡è¶³æœ€ä½ŽèµŽå›žæœŸæ•°
-      UNION
-      SELECT T1.INVEST_TIME, T1.CO_ID
-        FROM DEMO_CO_INVEST_TERM T1
-       WHERE (T1.CO_ID, T1.SUBJECT_TYPE) IN
-             (SELECT CO_ID, SUBJECT_TYPE
-                FROM DEMO_INVEST_POP_TMP
-               WHERE SUBJECT_TYPE NOT LIKE '301%')
-         AND T1.AMT > 0
-         AND T1.INVEST_ID = I_INVEST_ID
-         AND PKG_DEMO.FUNC_GET_RED_ABLE(I_INVEST_ID,
-                                        V_RED_INVEST_TIME,
-                                        T1.INVEST_TIME) = 0;
-
-    FOR RS IN (SELECT T1.OP_DATE INVEST_TIME
-                 FROM DEMO_OP_CO T1
-                ORDER BY pkg_demo.FUNC_GET_RED_PRIORITY(I_INVEST_ID,
-                                                        T1.OP_DATE,
-                                                        V_RED_INVEST_TIME) DESC) LOOP
-      --ä¸ªäººéƒ¨åˆ†
-      INSERT INTO DEMO_INVEST_POP_RESULT_TMP
-        (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT)
-        SELECT T1.EMP_ID,
-               T1.CO_ID,
-               T1.SUBJECT_TYPE,
-               T2.INVEST_TIME,
-               LEAST(T1.AMT_REMAIN, T2.AMT), --min(èµŽå›žç”³è¯·é‡‘é¢ï¼Œä½™é¢ - å¾…èµŽå›žé‡‘é¢)
-               LEAST(T1.AMT_REMAIN, T2.AMT)
-          FROM DEMO_INVEST_POP_TMP T1, DEMO_EMP_INVEST_TERM T2
-         WHERE T1.EMP_ID = T2.EMP_ID
-           AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
-           AND T2.INVEST_ID = I_INVEST_ID
-           AND T2.INVEST_TIME = RS.INVEST_TIME
-           AND T2.AMT > 0
-           AND T1.AMT_REMAIN > 0
-           AND T1.EMP_ID <> 'FFFFFFFFFF';
-    
-      --ä¼ä¸šéƒ¨åˆ†
-      INSERT INTO DEMO_INVEST_POP_RESULT_TMP
-        (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT)
-        SELECT T1.EMP_ID,
-               T1.CO_ID,
-               T1.SUBJECT_TYPE,
-               T2.INVEST_TIME,
-               LEAST(T1.AMT_REMAIN, T2.AMT),
-               LEAST(T1.AMT_REMAIN, T2.AMT)
-          FROM DEMO_INVEST_POP_TMP T1, DEMO_CO_INVEST_TERM T2
-         WHERE T1.CO_ID = T2.CO_ID
-           AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
-           AND T2.INVEST_ID = I_INVEST_ID
-           AND T2.INVEST_TIME = RS.INVEST_TIME
-           AND T2.AMT > 0
-           AND T1.AMT_REMAIN > 0
-           AND T1.EMP_ID = 'FFFFFFFFFF';
-    
-      MERGE INTO DEMO_INVEST_POP_TMP A
-      USING DEMO_INVEST_POP_RESULT_TMP B
-      ON (A.EMP_ID = B.EMP_ID AND A.SUBJECT_TYPE = B.SUBJECT_TYPE AND A.CO_ID = B.CO_ID AND B.INVEST_TIME = RS.INVEST_TIME)
-      WHEN MATCHED THEN
-        UPDATE SET A.AMT_REMAIN = A.AMT_REMAIN - B.quotient;
-    
-      SELECT COUNT(1)
-        INTO V_COUNT
-        FROM DEMO_INVEST_POP_TMP
-       WHERE AMT_REMAIN > 0
-         AND ROWNUM = 1;
-      EXIT WHEN V_COUNT = 0;
-    END LOOP;
-
-    SELECT COUNT(1)
-      INTO V_COUNT
-      FROM DEMO_INVEST_POP_TMP
-     WHERE AMT_REMAIN > 0
-       AND ROWNUM = 1;
-    IF V_COUNT > 0 THEN
-      set_out_flag_and_out_msg(O_FLAG, O_MSG, 'è¿›è¡ŒåŽè¿›å…ˆå‡ºå¤„ç†æ—¶ï¼Œèµ„äº§ä¸è¶³', I_INVEST_ID);
-      RETURN;
-    END IF;
-
-    FOR RS IN (SELECT *
-                 FROM DEMO_INVEST_POP_RESULT_TMP T1
-                WHERE T1.YAPPL_NUM IS NULL) LOOP
-    
-      V_AMT := RS.AMT;
-    
-      FOR RS1 IN (SELECT *
-                    FROM DEMO_APPL_NUM_REL T2
-                   WHERE T2.CO_ID = RS.CO_ID
-                     AND T2.INVEST_ID = I_INVEST_ID
-                     AND T2.INVEST_TIME = RS.INVEST_TIME
-                     AND T2.AMT > 0
-                     AND T2.AMT - NVL(T2.RED_AMT, 0) > 0) LOOP
-        --å¯¹äºŽä¸€æœŸæœ‰å¤šå¼ ç”³è¯·å•çš„æƒ…å†µè¿›è¡Œå€’åºèŽ·å–
-      
-        IF V_AMT > 0 THEN
-          SELECT RS1.AMT - NVL(RS1.RED_AMT, 0) - NVL(SUM(T3.AMT), 0)
-            INTO V_AMT2
-            FROM DEMO_INVEST_POP_RESULT_TMP T3
-           WHERE T3.CO_ID = RS1.CO_ID
-             AND T3.INVEST_TIME = RS1.INVEST_TIME
-             AND T3.YAPPL_NUM = RS1.APPL_NUM;
-        
-          IF V_AMT2 > 0 THEN
-            INSERT INTO DEMO_INVEST_POP_RESULT_TMP
-              (EMP_ID,
-               CO_ID,
-               SUBJECT_TYPE,
-               INVEST_TIME,
-               AMT,
-               QUOTIENT,
-               YAPPL_NUM)
-            VALUES
-              (RS.EMP_ID,
-               RS.CO_ID,
-               RS.SUBJECT_TYPE,
-               RS.INVEST_TIME,
-               LEAST(V_AMT, V_AMT2),
-               LEAST(V_AMT, V_AMT2),
-               RS1.APPL_NUM);
-          
-            V_AMT := V_AMT - LEAST(V_AMT, V_AMT2);
-          END IF;
-        END IF;
-      END LOOP;
-    END LOOP;
-
-  end;
-
-  PROCEDURE deal_pop_unex (I_INVEST_ID in VARCHAR2,
-                           O_FLAG      in out NUMBER,
-                           O_MSG       in out VARCHAR2) is
-    V_PROC_NAME DB_LOG.PROC_NAME%TYPE := 'PKG_DEMO.PROC_DEAL_POP';
-    V_PARAMS    VARCHAR2(4000) := I_INVEST_ID;
-    V_STEP      NUMBER := NULL;
-    V_MSG VARCHAR2(4000) := NULL;
-    E_CUSTOM EXCEPTION;
-    E_APP_COUNT EXCEPTION;
-    V_COUNT           NUMBER;
-  begin
-      --å‡€å€¼æŠ¥ä»·åž‹
+      --¾»Öµ±¨¼ÛÐÍ
       SELECT COUNT(1)
         INTO V_COUNT
         FROM DEMO_INVEST_UNIT_VALUE T
        WHERE T.INVEST_ID = I_INVEST_ID
          AND T.EVAL_STATE_FLAG = 2;
       IF V_COUNT = 0 THEN
-        V_MSG := 'ç³»ç»Ÿä¸­ä¸å­˜åœ¨å·²å®Œæˆçš„é›†ä¸­ç¡®è®¤æ—¥ï¼Œæ— æ³•è¿›è¡ŒåŽç»­æ“ä½œï¼';
+        V_MSG := 'ÏµÍ³ÖÐ²»´æÔÚÒÑÍê³ÉµÄ¼¯ÖÐÈ·ÈÏÈÕ£¬ÎÞ·¨½øÐÐºóÐø²Ù×÷£¡';
         RAISE E_CUSTOM;
       END IF;
-    
+
       INSERT INTO DEMO_INVEST_POP_RESULT_TMP
         (EMP_ID,
          CO_ID,
@@ -511,8 +146,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
            AND T2.quotient > 0
            AND T1.AMT_REMAIN > 0
            AND T1.EMP_ID <> 'FFFFFFFFFF';
-    
-      --ä¼ä¸šéƒ¨åˆ†
+
+      --ÆóÒµ²¿·Ö
       INSERT INTO DEMO_INVEST_POP_RESULT_TMP
         (EMP_ID,
          CO_ID,
@@ -538,13 +173,40 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
            AND T2.quotient > 0
            AND T1.AMT_REMAIN > 0
            AND T1.EMP_ID = 'FFFFFFFFFF';
-    
+
       MERGE INTO DEMO_INVEST_POP_TMP A
       USING DEMO_INVEST_POP_RESULT_TMP B
       ON (A.EMP_ID = B.EMP_ID AND A.SUBJECT_TYPE = B.SUBJECT_TYPE AND A.CO_ID = B.CO_ID)
       WHEN MATCHED THEN
         UPDATE SET A.AMT_REMAIN = A.AMT_REMAIN - B.quotient;
-  
+    END IF;
+
+    DELETE FROM DEMO_INVEST_POP_RESULT_TMP WHERE YAPPL_NUM IS NULL;
+    SELECT NVL(SUM(AMT), 0) INTO V_AMT FROM DEMO_INVEST_POP_TMP;
+    SELECT NVL(SUM(quotient), 0)
+      INTO V_AMT2
+      FROM DEMO_INVEST_POP_RESULT_TMP;
+    IF V_AMT <> V_AMT2 THEN
+      V_MSG := 'Êê»Ø·Ý¶î·ÖÅä³ö´í';
+      RAISE E_CUSTOM;
+    END IF;
+
+    --½Ó¿ÚÖ»Ö§³Ö×î¶à5Ìõ
+    SELECT COUNT(1), MAX(MSG)
+      INTO V_COUNT, V_MSG
+      FROM (SELECT DECODE(EMP_ID,
+                          'FFFFFFFFFF',
+                          'ÆóÒµ£º' ||
+                          PKG_DEMO_COMMON.FUNC_GET_COFNAMEBYID(CO_ID),
+                          'Ô±¹¤£º' || emp_Id) MSG
+              FROM DEMO_INVEST_POP_RESULT_TMP
+             GROUP BY EMP_ID, CO_ID, SUBJECT_TYPE
+            HAVING COUNT(1) > 5);
+    IF V_COUNT > 0 THEN
+      V_MSG := V_MSG || 'Éú³ÉÉêÇëµ¥³¬¹ý5Ìõ';
+      RAISE E_APP_COUNT;
+    END IF;
+
   EXCEPTION
     WHEN E_CUSTOM THEN
       --ROLLBACK;
@@ -562,43 +224,322 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                    V_STEP,
                    O_MSG || '|' || V_PARAMS,
                    PACK_LOG.WARN_LEVEL);
-  end;
+    WHEN OTHERS THEN
+      --ROLLBACK;
+      O_FLAG := 1;
+      O_MSG  := '½øÐÐºó½øÏÈ³ö´¦ÀíÊ±Òì³££¡';
+      V_MSG  := SQLERRM || '|' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE;
+      PACK_LOG.LOG(V_PROC_NAME,
+                   V_STEP,
+                   O_MSG || '|' || V_PARAMS || '|' || V_MSG,
+                   PACK_LOG.ERR_LEVEL);
+  END PROC_DEAL_POP;
+  /*********************************************************************
+    --Ãû³Æ:FUNC_GET_RED_ABLE
+    --ÃèÊö:ÅÐ¶ÏÊÇ·ñ¿ÉÊê»Ø
+    --¹¦ÄÜ:ÅÐ¶ÏÊÇ·ñ¿ÉÊê»Ø
+    --Ä£¿é:½»Ò×¹ÜÀí-¼¯ÖÐÈ·ÈÏ
+    --×÷Õß:
+    --Ê±¼ä:
+    --²ÎÊý:
+      I_INVEST_ID       IN VARCHAR2,  Í¶×Ê×éºÏ´úÂë
+      I_RED_INVEST_TIME IN VARCHAR2,  Êê»Ø¼¯ÖÐÈ·ÈÏÈÕ
+      I_BUY_INVEST_TIME IN VARCHAR2   ¹ºÂò¼¯ÖÐÈ·ÈÏÈÕ
+    --·µ»Ø£º0£¬¿ÉÒÔÊê»Ø£»1£¬²»ÄÜÊê»Ø
+  *********************************************************************/
+  FUNCTION FUNC_GET_RED_ABLE(I_INVEST_ID       IN VARCHAR2,
+                             I_RED_INVEST_TIME IN VARCHAR2,
+                             I_BUY_INVEST_TIME IN VARCHAR2) RETURN NUMBER IS
+    V_ISSUE_WAY      DEMO_INVEST_BASIC_INFO.ISSUE_WAY%TYPE;
+    v_SELL_MIN_TERM  DEMO_INVEST_BASIC_INFO.Sell_Min_Term%TYPE;
+    v_OPEN_SELL_TERM DEMO_INVEST_BASIC_INFO.OPEN_SELL_TERM%TYPE;
+    v_max_TERM_NO    DEMO_INVEST_OP_CONTROL.term_no%TYPE;
+    v_min_TERM_NO    DEMO_INVEST_OP_CONTROL.term_no%TYPE;
 
-  FUNCTION get_plan_id_by_invest_id(invest_id VARCHAR2) RETURN VARCHAR2 is
-    v_plan_id DEMO_PLAN_INFO.PLAN_ID%TYPE;
+  BEGIN
+    SELECT ISSUE_WAY, SELL_MIN_TERM, OPEN_SELL_TERM
+      INTO V_ISSUE_WAY, v_SELL_MIN_TERM, v_OPEN_SELL_TERM
+      FROM DEMO_INVEST_BASIC_INFO T
+     WHERE T.INVEST_ID = I_INVEST_ID;
+
+    IF V_ISSUE_WAY = 4 THEN
+      --½á×ªÐÍ
+      SELECT max(TERM_NO)
+        INTO v_max_TERM_NO
+        FROM v_invest_op_control t
+       WHERE t.invest_id = I_INVEST_ID
+         and t.op_type in (1, 2)
+         AND DEMO_INVEST_TIME = I_RED_INVEST_TIME;
+
+      SELECT MAX(TERM_NO)
+        INTO v_min_TERM_NO
+        FROM v_invest_op_control t
+       WHERE t.invest_id = I_INVEST_ID
+         and t.op_type in (1, 2)
+         AND DEMO_INVEST_TIME = I_BUY_INVEST_TIME;
+
+      IF v_max_TERM_NO IS NULL OR v_min_TERM_NO IS NULL THEN
+        RETURN 1;
+      END IF;
+
+      IF MOD((v_max_TERM_NO - v_min_TERM_NO - v_SELL_MIN_TERM),
+             v_OPEN_SELL_TERM) = 0 and
+         v_max_TERM_NO - v_min_TERM_NO - v_SELL_MIN_TERM >= 0 THEN
+        RETURN 0;
+      ELSE
+        RETURN 1;
+      END IF;
+    ELSE
+      --ÆäËû
+      RETURN 0;
+    END IF;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      RETURN 1;
+  END FUNC_GET_RED_ABLE;
+
+  /*********************************************************************/
+  --´æ´¢¹ý³ÌÃû³Æ£º FUNC_GET_FULL_LCR_DATE
+  --´æ´¢¹ý³ÌÃèÊö£º ¸ù¾Ý¸ù¾ÝÊê»ØÈÕÆÚ£¬»ñÈ¡¶ÔÓ¦µÄÆÚÂúÊê»ØÈÕÆÚ
+  --¹¦ÄÜ£º         ¸ù¾Ý¸ù¾ÝÊê»ØÈÕÆÚ£¬»ñÈ¡¶ÔÓ¦µÄÆÚÂúÊê»ØÈÕÆÚ
+  --¹¦ÄÜÄ£¿é£º
+  --×÷Õß£º
+  --Ê±¼ä£º
+  /*********************************************************************/
+  FUNCTION FUNC_GET_FULL_LCR_DATE(I_INVEST_ID IN VARCHAR2,
+                                  I_RED_DATE  IN VARCHAR2) RETURN VARCHAR2 IS
+    V_FULL_LCR_DATE VARCHAR2(10);
+  BEGIN
+    SELECT MAX(T.demo_invest_time)
+      INTO V_FULL_LCR_DATE
+      FROM V_INVEST_OP_CONTROL T
+     WHERE T.INVEST_ID = I_INVEST_ID
+       AND T.OP_TYPE IN (1, 2)
+       AND EXISTS (SELECT 1
+              FROM V_INVEST_OP_CONTROL T1
+             WHERE T1.INVEST_ID = T.INVEST_ID
+               AND T1.OP_TYPE = 4
+               AND T1.demo_invest_time = I_RED_DATE
+               AND T1.TERM_NO = T.TERM_NO);
+    RETURN V_FULL_LCR_DATE;
+  EXCEPTION
+    WHEN OTHERS THEN
+      RETURN NULL;
+  END FUNC_GET_FULL_LCR_DATE;
+  /*********************************************************************
+  --´æ´¢¹ý³ÌÃû³Æ£º PROC_GET_RED_PRIORITY
+  --´æ´¢¹ý³ÌÃèÊö£º »ñÈ¡ÈçÒâÈËÉúÊê»ØÆÚÊýÓÅÏÈ¼¶
+  --¹¦ÄÜÄ£¿é£º     ÈçÒâÈËÉúÊê»Ø
+  --×÷Õß£º
+  --Ê±¼ä£º
+  --²ÎÊýËµÃ÷£º
+  --p_invest_id             IN  VARCHAR2,     --Í¶×Ê×éºÏ±àÂë
+  --p_invest_time           IN  VARCHAR2,     --×Ê²úËùÔÚµÄÈÕÆÚ
+  --p_invest_red_time       IN  VARCHAR2,     --×Ê²úÊê»ØµÄ¼¯ÖÐÈ·ÈÏÈÕ
+  *********************************************************************/
+  FUNCTION FUNC_GET_RED_PRIORITY(p_invest_id       IN VARCHAR2,
+                                 p_invest_time     IN VARCHAR2,
+                                 p_invest_red_time IN VARCHAR2)
+    RETURN VARCHAR2 IS
+    v_full_lcr_date DEMO_INVEST_OP_CONTROL.invest_time%TYPE;
+  BEGIN
+    v_full_lcr_date := PKG_DEMO.FUNC_GET_FULL_LCR_DATE(p_invest_id,
+                                                       p_invest_red_time);
+    IF v_full_lcr_date = p_invest_time THEN
+      --ÕâÒ»ÆÚÇ¡ºÃÆÚÂú£¬Êê»Ø²ÉÓÃ¸ßÓÅÏÈ¼¶
+      RETURN '9999-12-31';
+    END IF;
+    RETURN p_invest_time;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      RETURN p_invest_time;
+  END FUNC_GET_RED_PRIORITY;
+  
+  PROCEDURE PROC_DEAL_POP_EX(i_invest_id in varchar2,
+                             o_flag      in out number,
+                             o_msg       in out varchar2) is
+    V_PROC_NAME DB_LOG.PROC_NAME%TYPE := 'PKG_DEMO.PROC_DEAL_POP';
+    V_PARAMS    VARCHAR2(4000) := I_INVEST_ID;
+    V_STEP      NUMBER := NULL;
+    --V_FLAG      NUMBER := NULL;
+    V_MSG VARCHAR2(4000) := NULL;
+    E_CUSTOM EXCEPTION;
+    E_APP_COUNT EXCEPTION;
+
+    V_COUNT           NUMBER;
+    V_PLAN_ID         DEMO_PLAN_INFO.PLAN_ID%TYPE := NULL;
+    V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE := NULL;
+    V_AMT             NUMBER(17, 2) := NULL;
+    V_AMT2            NUMBER(17, 2) := NULL;
   begin
-    SELECT PLAN_ID
-      INTO v_plan_id 
-      FROM DEMO_INVEST_INFO
-     WHERE INVEST_ID = invest_id;
-    RETURN v_plan_id;
-  end;
+    --»ñÈ¡¼Æ»®±àÂë
+      SELECT PLAN_ID
+        INTO V_PLAN_ID
+        FROM DEMO_INVEST_INFO
+       WHERE INVEST_ID = I_INVEST_ID;
 
-  PROCEDURE set_out_flag_and_out_msg(out_flag out NUMBER, 
-                                     out_msg out VARCHAR2,
-                                     return_msg VARCHAR2,
-                                     invest_id VARCHAR2) is
-  begin
-    out_flag := 2;
-    out_msg := return_msg;
-    PACK_LOG.LOG(V_PROC_NAME,
-                 V_STEP,
-                 out_msg || '|' || invest_id,
-                 PACK_LOG.WARN_LEVEL);
-  end;
+      --»ñÈ¡×î½üÒ»´ÎµÄ¼¯ÖÐÈ·ÈÏÈÕ
+      SELECT MIN(T.DEMO_INVEST_TIME)
+        INTO V_RED_INVEST_TIME
+        FROM V_INVEST_OP_CONTROL T
+       WHERE T.INVEST_ID = I_INVEST_ID
+         AND T.OP_TYPE = 3
+         AND T.DEMO_INVEST_TIME >
+             PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(V_PLAN_ID);
 
+      if V_RED_INVEST_TIME is null then
+        V_MSG := 'ÎÞ·¨»ñÈ¡ÏÂÒ»´ÎÊê»Ø¼¯ÖÐÈ·ÈÏÈÕ';
+        RAISE E_CUSTOM;
+      end if;
+      DELETE FROM DEMO_OP_CO;
+      INSERT INTO DEMO_OP_CO
+        (OP_DATE, CO_ID)
+        SELECT T1.INVEST_TIME, T1.CO_ID
+          FROM DEMO_EMP_INVEST_TERM T1
+         WHERE (T1.EMP_ID, T1.SUBJECT_TYPE) IN
+               (SELECT EMP_ID, SUBJECT_TYPE
+                  FROM DEMO_INVEST_POP_TMP
+                 WHERE SUBJECT_TYPE LIKE '301%')
+           AND T1.AMT > 0
+           AND T1.INVEST_ID = I_INVEST_ID
+           AND PKG_DEMO.FUNC_GET_RED_ABLE(I_INVEST_ID,
+                                          V_RED_INVEST_TIME,
+                                          T1.INVEST_TIME) = 0 --Âú×ã×îµÍÊê»ØÆÚÊý
+        UNION
+        SELECT T1.INVEST_TIME, T1.CO_ID
+          FROM DEMO_CO_INVEST_TERM T1
+         WHERE (T1.CO_ID, T1.SUBJECT_TYPE) IN
+               (SELECT CO_ID, SUBJECT_TYPE
+                  FROM DEMO_INVEST_POP_TMP
+                 WHERE SUBJECT_TYPE NOT LIKE '301%')
+           AND T1.AMT > 0
+           AND T1.INVEST_ID = I_INVEST_ID
+           AND PKG_DEMO.FUNC_GET_RED_ABLE(I_INVEST_ID,
+                                          V_RED_INVEST_TIME,
+                                          T1.INVEST_TIME) = 0;
+
+      FOR RS IN (SELECT T1.OP_DATE INVEST_TIME
+                   FROM DEMO_OP_CO T1
+                  ORDER BY pkg_demo.FUNC_GET_RED_PRIORITY(I_INVEST_ID,
+                                                          T1.OP_DATE,
+                                                          V_RED_INVEST_TIME) DESC) LOOP
+        --¸öÈË²¿·Ö
+        INSERT INTO DEMO_INVEST_POP_RESULT_TMP
+          (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT)
+          SELECT T1.EMP_ID,
+                 T1.CO_ID,
+                 T1.SUBJECT_TYPE,
+                 T2.INVEST_TIME,
+                 LEAST(T1.AMT_REMAIN, T2.AMT), --min(Êê»ØÉêÇë½ð¶î£¬Óà¶î - ´ýÊê»Ø½ð¶î)
+                 LEAST(T1.AMT_REMAIN, T2.AMT)
+            FROM DEMO_INVEST_POP_TMP T1, DEMO_EMP_INVEST_TERM T2
+           WHERE T1.EMP_ID = T2.EMP_ID
+             AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
+             AND T2.INVEST_ID = I_INVEST_ID
+             AND T2.INVEST_TIME = RS.INVEST_TIME
+             AND T2.AMT > 0
+             AND T1.AMT_REMAIN > 0
+             AND T1.EMP_ID <> 'FFFFFFFFFF';
+
+        --ÆóÒµ²¿·Ö
+        INSERT INTO DEMO_INVEST_POP_RESULT_TMP
+          (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT)
+          SELECT T1.EMP_ID,
+                 T1.CO_ID,
+                 T1.SUBJECT_TYPE,
+                 T2.INVEST_TIME,
+                 LEAST(T1.AMT_REMAIN, T2.AMT),
+                 LEAST(T1.AMT_REMAIN, T2.AMT)
+            FROM DEMO_INVEST_POP_TMP T1, DEMO_CO_INVEST_TERM T2
+           WHERE T1.CO_ID = T2.CO_ID
+             AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
+             AND T2.INVEST_ID = I_INVEST_ID
+             AND T2.INVEST_TIME = RS.INVEST_TIME
+             AND T2.AMT > 0
+             AND T1.AMT_REMAIN > 0
+             AND T1.EMP_ID = 'FFFFFFFFFF';
+
+        MERGE INTO DEMO_INVEST_POP_TMP A
+        USING DEMO_INVEST_POP_RESULT_TMP B
+        ON (A.EMP_ID = B.EMP_ID AND A.SUBJECT_TYPE = B.SUBJECT_TYPE AND A.CO_ID = B.CO_ID AND B.INVEST_TIME = RS.INVEST_TIME)
+        WHEN MATCHED THEN
+          UPDATE SET A.AMT_REMAIN = A.AMT_REMAIN - B.quotient;
+
+        SELECT COUNT(1)
+          INTO V_COUNT
+          FROM DEMO_INVEST_POP_TMP
+         WHERE AMT_REMAIN > 0
+           AND ROWNUM = 1;
+        EXIT WHEN V_COUNT = 0;
+      END LOOP;
+
+      SELECT COUNT(1)
+        INTO V_COUNT
+        FROM DEMO_INVEST_POP_TMP
+       WHERE AMT_REMAIN > 0
+         AND ROWNUM = 1;
+      IF V_COUNT > 0 THEN
+        V_MSG := '½øÐÐºó½øÏÈ³ö´¦ÀíÊ±£¬×Ê²ú²»×ã';
+        RAISE E_CUSTOM;
+      END IF;
+
+      FOR RS IN (SELECT *
+                   FROM DEMO_INVEST_POP_RESULT_TMP T1
+                  WHERE T1.YAPPL_NUM IS NULL) LOOP
+
+        V_AMT := RS.AMT;
+
+        FOR RS1 IN (SELECT *
+                      FROM DEMO_APPL_NUM_REL T2
+                     WHERE T2.CO_ID = RS.CO_ID
+                       AND T2.INVEST_ID = I_INVEST_ID
+                       AND T2.INVEST_TIME = RS.INVEST_TIME
+                       AND T2.AMT > 0
+                       AND T2.AMT - NVL(T2.RED_AMT, 0) > 0) LOOP
+          --¶ÔÓÚÒ»ÆÚÓÐ¶àÕÅÉêÇëµ¥µÄÇé¿ö½øÐÐµ¹Ðò»ñÈ¡
+
+          IF V_AMT > 0 THEN
+            SELECT RS1.AMT - NVL(RS1.RED_AMT, 0) - NVL(SUM(T3.AMT), 0)
+              INTO V_AMT2
+              FROM DEMO_INVEST_POP_RESULT_TMP T3
+             WHERE T3.CO_ID = RS1.CO_ID
+               AND T3.INVEST_TIME = RS1.INVEST_TIME
+               AND T3.YAPPL_NUM = RS1.APPL_NUM;
+
+            IF V_AMT2 > 0 THEN
+              INSERT INTO DEMO_INVEST_POP_RESULT_TMP
+                (EMP_ID,
+                 CO_ID,
+                 SUBJECT_TYPE,
+                 INVEST_TIME,
+                 AMT,
+                 QUOTIENT,
+                 YAPPL_NUM)
+              VALUES
+                (RS.EMP_ID,
+                 RS.CO_ID,
+                 RS.SUBJECT_TYPE,
+                 RS.INVEST_TIME,
+                 LEAST(V_AMT, V_AMT2),
+                 LEAST(V_AMT, V_AMT2),
+                 RS1.APPL_NUM);
+
+              V_AMT := V_AMT - LEAST(V_AMT, V_AMT2);
+            END IF;
+          END IF;
+        END LOOP;
+      END LOOP;
+    EXCEPTION
+    WHEN E_CUSTOM THEN
+      --ROLLBACK;
+      O_FLAG := 2;
+      O_MSG  := V_MSG;
+      PACK_LOG.LOG(V_PROC_NAME,
+                   V_STEP,
+                   O_MSG || '|' || V_PARAMS,
+                   PACK_LOG.WARN_LEVEL);
+  end;
 END PKG_DEMO;
 /
-
-set serveroutput on
-/
-
-BEGIN
-  utSuite.add ('UT_PKG_DEMO_PROC_POP_DEAL');
-  utPackage.add ('UT_PKG_DEMO_PROC_POP_DEAL', 'UT_PKG_DEMO_PROC_POP_DEAL_EX');
-  utPackage.add ('UT_PKG_DEMO_PROC_POP_DEAL', 'UT_PKG_DEMO_PROC_POP_DEAL_UNEX');
-  utPLSQL.runsuite ('UT_PKG_DEMO_PROC_POP_DEAL', per_method_setup_in => TRUE);
-END;
-/
-
-select last_status from ut_suite where name = 'UT_PKG_DEMO_PROC_POP_DEAL';
