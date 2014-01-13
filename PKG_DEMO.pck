@@ -1,5 +1,7 @@
 CREATE OR REPLACE PACKAGE PKG_DEMO IS
 
+  PROC_NAME CONSTANT DB_LOG.PROC_NAME%TYPE := 'PKG_DEMO.PROC_DEAL_POP';
+
   -- Author  : KFZX-WANGYANG01
   -- Created : 2011-9-8 18:00:15
   -- Purpose :
@@ -131,6 +133,22 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
        AND T.EVAL_STATE_FLAG = 2;
     RETURN V_COUNT = 0;
   END;
+  PROCEDURE PROC_SET_O_FLAG_AND_O_MSG(V_FLAG   IN NUMBER,
+                                      V_MSG    IN VARCHAR2,
+                                      V_PARAMS IN VARCHAR2,
+                                      O_FLAG   IN OUT NUMBER,
+                                      O_MSG    IN OUT VARCHAR2) IS
+  
+  BEGIN
+    O_FLAG := V_FLAG;
+    O_MSG  := V_MSG;
+    PACK_LOG.LOG(PROC_NAME,
+                 NULL,
+                 O_MSG || '|' || V_PARAMS,
+                 PACK_LOG.WARN_LEVEL);
+  
+  END;
+  
   /*********************************************************************
   --存储过程名称： PROC_DEAL_POP
   --存储过程描述： 资产后进先出拆分处理
@@ -162,7 +180,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     WHEN OTHERS THEN
       O_FLAG := 1;
       O_MSG  := '进行后进先出处理时异常！';
-      PACK_LOG.LOG('PKG_DEMO.PROC_DEAL_POP',
+      PACK_LOG.LOG(PROC_NAME,
                    null,
                    O_MSG || '|' || I_INVEST_ID || '|' || SQLERRM || '|' ||
                    DBMS_UTILITY.FORMAT_ERROR_BACKTRACE,
@@ -294,7 +312,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   PROCEDURE PROC_DEAL_POP_EX(i_invest_id in varchar2,
                              o_flag      in out number,
                              o_msg       in out varchar2) is
-    V_PROC_NAME DB_LOG.PROC_NAME%TYPE := 'PKG_DEMO.PROC_DEAL_POP';
     V_PARAMS    VARCHAR2(4000) := I_INVEST_ID;
     V_STEP      NUMBER := NULL;
     --V_FLAG      NUMBER := NULL;
@@ -481,7 +498,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       --ROLLBACK;
       O_FLAG := 2;
       O_MSG  := V_MSG;
-      PACK_LOG.LOG(V_PROC_NAME,
+      PACK_LOG.LOG(PROC_NAME,
                    V_STEP,
                    O_MSG || '|' || V_PARAMS,
                    PACK_LOG.WARN_LEVEL);
@@ -489,7 +506,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       --ROLLBACK;
       O_FLAG := 3;
       O_MSG  := V_MSG;
-      PACK_LOG.LOG(V_PROC_NAME,
+      PACK_LOG.LOG(PROC_NAME,
                    V_STEP,
                    O_MSG || '|' || V_PARAMS,
                    PACK_LOG.WARN_LEVEL);
@@ -498,7 +515,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   PROCEDURE PROC_DEAL_POP_UNEX(i_invest_id in varchar2,
                                o_flag      in out number,
                                o_msg       in out varchar2) is
-    V_PROC_NAME DB_LOG.PROC_NAME%TYPE := 'PKG_DEMO.PROC_DEAL_POP';
     V_PARAMS    VARCHAR2(4000) := I_INVEST_ID;
     V_STEP      NUMBER := NULL;
     --V_FLAG      NUMBER := NULL;
@@ -513,8 +529,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   begin
     --净值报价型
     IF FUNC_NOT_EXIST_DONE_OP_DATE(I_INVEST_ID) THEN
-      V_MSG := '系统中不存在已完成的集中确认日，无法进行后续操作！';
-      RAISE E_CUSTOM;
+      PROC_SET_O_FLAG_AND_O_MSG(2,'系统中不存在已完成的集中确认日，无法进行后续操作！',V_PARAMS,O_FLAG,O_MSG);
+      RETURN;
     END IF;
   
     INSERT INTO DEMO_INVEST_POP_RESULT_TMP
@@ -576,7 +592,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     WHEN E_CUSTOM THEN
       O_FLAG := 2;
       O_MSG  := V_MSG;
-      PACK_LOG.LOG(V_PROC_NAME,
+      PACK_LOG.LOG(PROC_NAME,
                    V_STEP,
                    O_MSG || '|' || V_PARAMS,
                    PACK_LOG.WARN_LEVEL);
