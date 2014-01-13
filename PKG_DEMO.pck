@@ -61,6 +61,7 @@ CREATE OR REPLACE PACKAGE PKG_DEMO IS
                                  p_invest_time     IN VARCHAR2,
                                  p_invest_red_time IN VARCHAR2)
     RETURN VARCHAR2;
+  function FUNC_GET_PLAN_ID_BY_INVEST_ID(i_invest_id in varchar2) return varchar2;
   PROCEDURE PROC_DEAL_POP_EX(i_invest_id in varchar2,
                              o_flag      in out number,
                              o_msg       in out varchar2);
@@ -133,6 +134,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
        AND T.EVAL_STATE_FLAG = 2;
     RETURN V_COUNT = 0;
   END;
+  function FUNC_GET_PLAN_ID_BY_INVEST_ID(i_invest_id in varchar2) return varchar2 is
+    V_PLAN_ID DEMO_INVEST_INFO.Plan_Id%type;
+  begin
+    --获取计划编码
+    SELECT PLAN_ID
+      INTO V_PLAN_ID
+      FROM DEMO_INVEST_INFO
+     WHERE INVEST_ID = I_INVEST_ID;
+    return V_PLAN_ID;
+  end;
   PROCEDURE PROC_SET_O_FLAG_AND_O_MSG(V_FLAG   IN NUMBER,
                                       V_MSG    IN VARCHAR2,
                                       V_PARAMS IN VARCHAR2,
@@ -182,6 +193,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     WHEN OTHERS THEN
       O_FLAG := 1;
       O_MSG  := '进行后进先出处理时异常！';
+      
       PACK_LOG.LOG(PROC_NAME,
                    null,
                    O_MSG || '|' || I_INVEST_ID || '|' || SQLERRM || '|' ||
@@ -322,17 +334,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     E_APP_COUNT EXCEPTION;
   
     V_COUNT           NUMBER;
-    V_PLAN_ID         DEMO_PLAN_INFO.PLAN_ID%TYPE := NULL;
     V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE := NULL;
     V_AMT             NUMBER(17, 2) := NULL;
     V_AMT2            NUMBER(17, 2) := NULL;
   begin
-    --获取计划编码
-    SELECT PLAN_ID
-      INTO V_PLAN_ID
-      FROM DEMO_INVEST_INFO
-     WHERE INVEST_ID = I_INVEST_ID;
-  
     --获取最近一次的集中确认日
     SELECT MIN(T.DEMO_INVEST_TIME)
       INTO V_RED_INVEST_TIME
@@ -340,7 +345,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
      WHERE T.INVEST_ID = I_INVEST_ID
        AND T.OP_TYPE = 3
        AND T.DEMO_INVEST_TIME >
-           PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(V_PLAN_ID);
+           PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(func_get_plan_id_by_invest_id(i_invest_id));
   
     if V_RED_INVEST_TIME is null then
       V_MSG := '无法获取下一次赎回集中确认日';
