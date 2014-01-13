@@ -5,6 +5,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   PROCEDURE UT_UNEX_EMP_ENOUGH;
   PROCEDURE UT_UNEX_CO_ENOUGH;
   PROCEDURE UT_UNEX_CO_NOTENOUGH;
+  PROCEDURE UT_UNEX_NOT_EXIST_DONE_OP_DATE;
 
   procedure create_unex_prod_info;
   procedure create_emp_invest_info(original_amt demo_emp_invest.QUOTIENT%type,
@@ -45,7 +46,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     create_unex_prod_info;
     UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_one_invest_time, op_control_purchase_term_no);
     UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
-    UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
+    
   END;
   PROCEDURE UT_TEARDOWN IS
   BEGIN
@@ -57,6 +58,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   */
   PROCEDURE UT_UNEX_EMP_ENOUGH IS
   BEGIN
+    UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
     create_emp_invest_info(original_amt, original_quotient);
 
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, enough_red_quotient);
@@ -75,6 +77,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   */
   PROCEDURE UT_UNEX_CO_ENOUGH IS
   BEGIN
+    UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
     create_co_invest_info(original_amt, original_quotient);
 
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, enough_red_quotient);
@@ -93,9 +96,24 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   */
   PROCEDURE UT_UNEX_CO_NOTENOUGH IS
   BEGIN
+    UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
     create_co_invest_info(original_amt, original_quotient);
 
     UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, not_enough_red_quotient);
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
+                           O_FLAG      => OUT_FLAG,
+                           O_MSG       => OUT_MSG);
+
+    UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 2);
+  END;
+  
+  /*净值报价型产品，不存在已完成的集中确认日*/
+  PROCEDURE UT_UNEX_NOT_EXIST_DONE_OP_DATE IS
+  BEGIN
+    UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(UT_PKG_DEMO_COMMON.term_one_invest_time, UT_PKG_DEMO_COMMON.eval_state_flag_not_excuted);
+    create_co_invest_info(original_amt, original_quotient);
+
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, enough_red_quotient);
     pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
                            O_FLAG      => OUT_FLAG,
                            O_MSG       => OUT_MSG);
