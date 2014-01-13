@@ -338,6 +338,101 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     WHEN OTHERS THEN
       RETURN p_invest_time;
   END FUNC_GET_RED_PRIORITY;
+  
+  procedure PROC_EX_INIT_CO_OPDATE_REL(I_INVEST_ID IN VARCHAR2,
+                                       I_RED_INVEST_TIME IN VARCHAR2) IS
+  begin
+    DELETE FROM DEMO_OP_CO;
+    INSERT INTO DEMO_OP_CO
+      (OP_DATE, CO_ID)
+      SELECT T1.INVEST_TIME, T1.CO_ID
+        FROM DEMO_EMP_INVEST_TERM T1
+       WHERE (T1.EMP_ID, T1.SUBJECT_TYPE) IN
+             (SELECT EMP_ID, SUBJECT_TYPE
+                FROM DEMO_INVEST_POP_TMP
+               WHERE SUBJECT_TYPE LIKE '301%')
+         AND T1.AMT > 0
+         AND T1.INVEST_ID = I_INVEST_ID
+         AND PKG_DEMO.FUNC_GET_RED_ABLE(I_INVEST_ID,
+                                        I_RED_INVEST_TIME,
+                                        T1.INVEST_TIME) = 0 --满足最低赎回期数
+      UNION
+      SELECT T1.INVEST_TIME, T1.CO_ID
+        FROM DEMO_CO_INVEST_TERM T1
+       WHERE (T1.CO_ID, T1.SUBJECT_TYPE) IN
+             (SELECT CO_ID, SUBJECT_TYPE
+                FROM DEMO_INVEST_POP_TMP
+               WHERE SUBJECT_TYPE NOT LIKE '301%')
+         AND T1.AMT > 0
+         AND T1.INVEST_ID = I_INVEST_ID
+         AND PKG_DEMO.FUNC_GET_RED_ABLE(I_INVEST_ID,
+                                        I_RED_INVEST_TIME,
+                                        T1.INVEST_TIME) = 0;
+  end;
+  
+  PROCEDURE PROC_DEAL_POP_EX_EMP(I_INVEST_ID   IN VARCHAR2,
+                                 I_INVEST_TIME IN VARCHAR2) IS
+  
+  BEGIN
+    INSERT INTO DEMO_INVEST_POP_RESULT_TMP
+      (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT)
+      SELECT T1.EMP_ID,
+             T1.CO_ID,
+             T1.SUBJECT_TYPE,
+             T2.INVEST_TIME,
+             LEAST(T1.AMT_REMAIN, T2.AMT), --min(赎回申请金额，余额 - 待赎回金额)
+             LEAST(T1.AMT_REMAIN, T2.AMT)
+        FROM DEMO_INVEST_POP_TMP T1, DEMO_EMP_INVEST_TERM T2
+       WHERE T1.EMP_ID = T2.EMP_ID
+         AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
+         AND T2.INVEST_ID = I_INVEST_ID
+         AND T2.INVEST_TIME = I_INVEST_TIME
+         AND T2.AMT > 0
+         AND T1.AMT_REMAIN > 0
+         AND T1.EMP_ID <> 'FFFFFFFFFF';
+  
+  END;
+  PROCEDURE PROC_DEAL_POP_EX_CO(I_INVEST_ID   IN VARCHAR2,
+                                 I_INVEST_TIME IN VARCHAR2) IS
+  BEGIN
+    --企业部分
+      INSERT INTO DEMO_INVEST_POP_RESULT_TMP
+        (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT)
+        SELECT T1.EMP_ID,
+               T1.CO_ID,
+               T1.SUBJECT_TYPE,
+               T2.INVEST_TIME,
+               LEAST(T1.AMT_REMAIN, T2.AMT),
+               LEAST(T1.AMT_REMAIN, T2.AMT)
+          FROM DEMO_INVEST_POP_TMP T1, DEMO_CO_INVEST_TERM T2
+         WHERE T1.CO_ID = T2.CO_ID
+           AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
+           AND T2.INVEST_ID = I_INVEST_ID
+           AND T2.INVEST_TIME = I_INVEST_TIME
+           AND T2.AMT > 0
+           AND T1.AMT_REMAIN > 0
+           AND T1.EMP_ID = 'FFFFFFFFFF';
+  END;
+  
+  FUNCTION FUNC_IS_TOTAL_TO_TERM_DONE(I_INVEST_TIME IN VARCHAR2) RETURN BOOLEAN IS
+    V_COUNT NUMBER;
+  BEGIN
+    MERGE INTO DEMO_INVEST_POP_TMP A
+      USING DEMO_INVEST_POP_RESULT_TMP B
+      ON (A.EMP_ID = B.EMP_ID AND A.SUBJECT_TYPE = B.SUBJECT_TYPE AND A.CO_ID = B.CO_ID AND B.INVEST_TIME = I_INVEST_TIME)
+      WHEN MATCHED THEN
+        UPDATE SET A.AMT_REMAIN = A.AMT_REMAIN - B.quotient;
+    
+      SELECT COUNT(1)
+        INTO V_COUNT
+        FROM DEMO_INVEST_POP_TMP
+       WHERE AMT_REMAIN > 0
+         AND ROWNUM = 1;
+      
+      RETURN V_COUNT = 0;
+  END;
+    
+  
 
   PROCEDURE PROC_DEAL_POP_EX(i_invest_id in varchar2,
                              o_flag      in out number,
@@ -363,86 +458,18 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       RETURN;
     end if;
     
-    DELETE FROM DEMO_OP_CO;
-    INSERT INTO DEMO_OP_CO
-      (OP_DATE, CO_ID)
-      SELECT T1.INVEST_TIME, T1.CO_ID
-        FROM DEMO_EMP_INVEST_TERM T1
-       WHERE (T1.EMP_ID, T1.SUBJECT_TYPE) IN
-             (SELECT EMP_ID, SUBJECT_TYPE
-                FROM DEMO_INVEST_POP_TMP
-               WHERE SUBJECT_TYPE LIKE '301%')
-         AND T1.AMT > 0
-         AND T1.INVEST_ID = I_INVEST_ID
-         AND PKG_DEMO.FUNC_GET_RED_ABLE(I_INVEST_ID,
-                                        V_RED_INVEST_TIME,
-                                        T1.INVEST_TIME) = 0 --满足最低赎回期数
-      UNION
-      SELECT T1.INVEST_TIME, T1.CO_ID
-        FROM DEMO_CO_INVEST_TERM T1
-       WHERE (T1.CO_ID, T1.SUBJECT_TYPE) IN
-             (SELECT CO_ID, SUBJECT_TYPE
-                FROM DEMO_INVEST_POP_TMP
-               WHERE SUBJECT_TYPE NOT LIKE '301%')
-         AND T1.AMT > 0
-         AND T1.INVEST_ID = I_INVEST_ID
-         AND PKG_DEMO.FUNC_GET_RED_ABLE(I_INVEST_ID,
-                                        V_RED_INVEST_TIME,
-                                        T1.INVEST_TIME) = 0;
+    PROC_EX_INIT_CO_OPDATE_REL(I_INVEST_ID,V_RED_INVEST_TIME);
   
     FOR RS IN (SELECT T1.OP_DATE INVEST_TIME
                  FROM DEMO_OP_CO T1
                 ORDER BY pkg_demo.FUNC_GET_RED_PRIORITY(I_INVEST_ID,
-                                                        T1.OP_DATE,
+                                                         T1.OP_DATE,
                                                         V_RED_INVEST_TIME) DESC) LOOP
-      --个人部分
-      INSERT INTO DEMO_INVEST_POP_RESULT_TMP
-        (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT)
-        SELECT T1.EMP_ID,
-               T1.CO_ID,
-               T1.SUBJECT_TYPE,
-               T2.INVEST_TIME,
-               LEAST(T1.AMT_REMAIN, T2.AMT), --min(赎回申请金额，余额 - 待赎回金额)
-               LEAST(T1.AMT_REMAIN, T2.AMT)
-          FROM DEMO_INVEST_POP_TMP T1, DEMO_EMP_INVEST_TERM T2
-         WHERE T1.EMP_ID = T2.EMP_ID
-           AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
-           AND T2.INVEST_ID = I_INVEST_ID
-           AND T2.INVEST_TIME = RS.INVEST_TIME
-           AND T2.AMT > 0
-           AND T1.AMT_REMAIN > 0
-           AND T1.EMP_ID <> 'FFFFFFFFFF';
+                                                        
+      PROC_DEAL_POP_EX_EMP(I_INVEST_ID,RS.INVEST_TIME);
+      PROC_DEAL_POP_EX_CO(I_INVEST_ID,RS.INVEST_TIME);
     
-      --企业部分
-      INSERT INTO DEMO_INVEST_POP_RESULT_TMP
-        (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT)
-        SELECT T1.EMP_ID,
-               T1.CO_ID,
-               T1.SUBJECT_TYPE,
-               T2.INVEST_TIME,
-               LEAST(T1.AMT_REMAIN, T2.AMT),
-               LEAST(T1.AMT_REMAIN, T2.AMT)
-          FROM DEMO_INVEST_POP_TMP T1, DEMO_CO_INVEST_TERM T2
-         WHERE T1.CO_ID = T2.CO_ID
-           AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
-           AND T2.INVEST_ID = I_INVEST_ID
-           AND T2.INVEST_TIME = RS.INVEST_TIME
-           AND T2.AMT > 0
-           AND T1.AMT_REMAIN > 0
-           AND T1.EMP_ID = 'FFFFFFFFFF';
-    
-      MERGE INTO DEMO_INVEST_POP_TMP A
-      USING DEMO_INVEST_POP_RESULT_TMP B
-      ON (A.EMP_ID = B.EMP_ID AND A.SUBJECT_TYPE = B.SUBJECT_TYPE AND A.CO_ID = B.CO_ID AND B.INVEST_TIME = RS.INVEST_TIME)
-      WHEN MATCHED THEN
-        UPDATE SET A.AMT_REMAIN = A.AMT_REMAIN - B.quotient;
-    
-      SELECT COUNT(1)
-        INTO V_COUNT
-        FROM DEMO_INVEST_POP_TMP
-       WHERE AMT_REMAIN > 0
-         AND ROWNUM = 1;
-      EXIT WHEN V_COUNT = 0;
+      EXIT WHEN FUNC_IS_TOTAL_TO_TERM_DONE(RS.INVEST_TIME);
     END LOOP;
   
     SELECT COUNT(1)
