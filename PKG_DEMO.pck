@@ -62,12 +62,14 @@ CREATE OR REPLACE PACKAGE PKG_DEMO IS
   PROCEDURE PROC_DEAL_POP_EX(i_invest_id in varchar2,
                              o_flag      in out number,
                              o_msg       in out varchar2);
-      PROCEDURE PROC_DEAL_POP_UNEX(i_invest_id in varchar2,
-                                 o_flag      in out number,
-                                 o_msg       in out varchar2);
+  PROCEDURE PROC_DEAL_POP_UNEX(i_invest_id in varchar2,
+                             o_flag      in out number,
+                             o_msg       in out varchar2);
+    procedure PROC_INIT_AND_CLEANUP;
 END PKG_DEMO;
 /
 CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
+  
   /*********************************************************************
   --存储过程名称： PROC_DEAL_POP
   --存储过程描述： 资产后进先出拆分处理
@@ -100,10 +102,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     O_FLAG := 0;
     O_MSG  := '成功';
 
-    --剩余调整额字段初始化
-    UPDATE DEMO_INVEST_POP_TMP SET AMT_REMAIN = AMT;
-
-    DELETE FROM DEMO_INVEST_POP_RESULT_TMP;
+    PROC_INIT_AND_CLEANUP;
 
     IF PKG_DEMO_COMMON.FUNC_IS_EXPERT_LCR(I_INVEST_ID) = 0 THEN
       PROC_DEAL_POP_EX(i_invest_id,o_flag,O_MSG);
@@ -581,5 +580,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                    O_MSG || '|' || V_PARAMS,
                    PACK_LOG.WARN_LEVEL);
     end;
+    
+    procedure PROC_INIT_AND_CLEANUP is
+      begin
+        --剩余调整额字段初始化
+        UPDATE DEMO_INVEST_POP_TMP SET AMT_REMAIN = AMT;
+        
+        DELETE FROM DEMO_INVEST_POP_RESULT_TMP;
+      end PROC_INIT_AND_CLEANUP;
 END PKG_DEMO;
 /
