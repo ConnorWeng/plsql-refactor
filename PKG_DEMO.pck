@@ -69,6 +69,7 @@ CREATE OR REPLACE PACKAGE PKG_DEMO IS
   PROCEDURE PROC_DEAL_POP_UNEX(i_invest_id in varchar2,
                                o_flag      in out number,
                                o_msg       in out varchar2);
+  FUNCTION FUNC_GET_DONE_OP_DATE(I_INVEST_ID IN VARCHAR2) RETURN VARCHAR2;
 END PKG_DEMO;
 /
 CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
@@ -125,18 +126,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   BEGIN
     RETURN PKG_DEMO_COMMON.FUNC_IS_EXPERT_LCR(I_INVEST_ID) = 0;
   END;
-  FUNCTION FUNC_NOT_EXIST_DONE_OP_DATE(I_INVEST_ID IN VARCHAR2)
-    RETURN BOOLEAN IS
-    eval_state_flag_recent_traded constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
-    V_COUNT NUMBER;
-  BEGIN
-    SELECT COUNT(1)
-      INTO V_COUNT
-      FROM DEMO_INVEST_UNIT_VALUE T
-     WHERE T.INVEST_ID = I_INVEST_ID
-       AND T.EVAL_STATE_FLAG = eval_state_flag_recent_traded;
-    RETURN V_COUNT = 0;
-  END;
+
   function FUNC_GET_PLAN_ID_BY_INVEST_ID(i_invest_id in varchar2)
     return varchar2 is
     V_PLAN_ID DEMO_INVEST_INFO.Plan_Id%type;
@@ -584,6 +574,31 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       return;
     END IF;
   end;
+  
+  FUNCTION FUNC_NOT_EXIST_DONE_OP_DATE(I_INVEST_ID IN VARCHAR2)
+    RETURN BOOLEAN IS
+    eval_state_flag_recent_traded constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
+    V_COUNT NUMBER;
+  BEGIN
+    SELECT COUNT(1)
+      INTO V_COUNT
+      FROM DEMO_INVEST_UNIT_VALUE T
+     WHERE T.INVEST_ID = I_INVEST_ID
+       AND T.EVAL_STATE_FLAG = eval_state_flag_recent_traded;
+    RETURN V_COUNT = 0;
+  END;
+  
+  FUNCTION FUNC_GET_DONE_OP_DATE(I_INVEST_ID IN VARCHAR2) RETURN VARCHAR2 IS
+    eval_state_flag_recent_traded constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
+    V_DONE_OP_DATE VARCHAR2(10);
+  BEGIN
+    SELECT EVALUATE_DATE
+      INTO V_DONE_OP_DATE
+      FROM DEMO_INVEST_UNIT_VALUE
+     WHERE INVEST_ID = I_INVEST_ID
+       AND EVAL_STATE_FLAG = eval_state_flag_recent_traded;
+    RETURN V_DONE_OP_DATE;
+  END;
 
   PROCEDURE PROC_DEAL_POP_UNEX_EMP(I_INVEST_ID IN VARCHAR2) IS
   BEGIN
@@ -592,10 +607,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       SELECT T1.EMP_ID,
              T1.CO_ID,
              T1.SUBJECT_TYPE,
-             (SELECT T3.EVALUATE_DATE
-                FROM DEMO_INVEST_UNIT_VALUE T3
-               WHERE T3.INVEST_ID = T2.INVEST_ID
-                 AND T3.EVAL_STATE_FLAG = 2),
+             FUNC_GET_DONE_OP_DATE(T2.INVEST_ID),
              LEAST(T1.AMT_REMAIN, T2.quotient) / t2.quotient * t2.amt,
              LEAST(T1.AMT_REMAIN, T2.quotient),
              0
@@ -616,10 +628,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       SELECT T1.EMP_ID,
              T1.CO_ID,
              T1.SUBJECT_TYPE,
-             (SELECT T3.EVALUATE_DATE
-                FROM DEMO_INVEST_UNIT_VALUE T3
-               WHERE T3.INVEST_ID = T2.INVEST_ID
-                 AND T3.EVAL_STATE_FLAG = 2),
+             FUNC_GET_DONE_OP_DATE(T2.INVEST_ID),
              LEAST(T1.AMT_REMAIN, T2.quotient) / t2.quotient * t2.amt,
              LEAST(T1.AMT_REMAIN, T2.quotient),
              0
