@@ -509,7 +509,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                      AND T2.INVEST_ID = I_INVEST_ID
                      AND T2.INVEST_TIME = RS.INVEST_TIME
                      AND T2.AMT > 0
-                     AND T2.AMT - NVL(T2.RED_AMT, 0) > 0) LOOP
+                     AND T2.AMT - NVL(T2.RED_AMT, 0) > 0
+                     order by t2.appl_num desc) LOOP
         --对于一期有多张申请单的情况进行倒序获取
         exit when V_REDABLE_TERM_AMT = 0;
         V_REDABLE_APPL_AMT := FUNC_GET_REDABLE_APPL_AMT(RS1.CO_ID,

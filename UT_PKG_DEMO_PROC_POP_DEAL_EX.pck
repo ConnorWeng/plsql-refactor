@@ -139,9 +139,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
     UT_PKG_DEMO_COMMON.assert_result_count(3);
-    assert_detail_by_appl(emp_id, appl_num_one, term_one_invest_time, default_amount);
+    assert_detail_by_appl(emp_id, appl_num_one, term_one_invest_time, mult_term_mult_appl_red_amt - default_amount * 2);
     assert_detail_by_appl(emp_id, appl_num_two, term_two_invest_time, default_amount);
-    assert_detail_by_appl(emp_id, appl_num_three, term_one_invest_time, mult_term_mult_appl_red_amt - default_amount * 2);
+    assert_detail_by_appl(emp_id, appl_num_three, term_one_invest_time, default_amount);
   END;
 
   /*
@@ -186,12 +186,12 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
 
     UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 3);
     UT_PKG_DEMO_COMMON.assert_result_count(6);
-    assert_detail_by_appl(emp_id, appl_num_one, term_one_invest_time, default_amount);
+    assert_detail_by_appl(emp_id, appl_num_one, term_one_invest_time, enough_red_amt_for_over_five - default_amount * 5);
     assert_detail_by_appl(emp_id, appl_num_two, term_two_invest_time, default_amount);
     assert_detail_by_appl(emp_id, appl_num_three, term_one_invest_time, default_amount);
     assert_detail_by_appl(emp_id, appl_num_four, term_one_invest_time, default_amount);
     assert_detail_by_appl(emp_id, appl_num_five, term_one_invest_time, default_amount);
-    assert_detail_by_appl(emp_id, appl_num_six, term_one_invest_time, enough_red_amt_for_over_five - default_amount * 5);
+    assert_detail_by_appl(emp_id, appl_num_six, term_one_invest_time, default_amount);
   END;
   
    PROCEDURE UT_EX_MULT_EMP_ONE_APPL IS
@@ -278,9 +278,9 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
     UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_co, emp_id_for_co);
     UT_PKG_DEMO_COMMON.assert_result_count(3);
-    assert_detail_by_appl(emp_id_for_co, appl_num_one, term_one_invest_time, default_amount);
+    assert_detail_by_appl(emp_id_for_co, appl_num_one, term_one_invest_time, mult_term_mult_appl_red_amt - default_amount * 2);
     assert_detail_by_appl(emp_id_for_co, appl_num_two, term_two_invest_time, default_amount);
-    assert_detail_by_appl(emp_id_for_co, appl_num_three, term_one_invest_time, mult_term_mult_appl_red_amt - default_amount * 2);
+    assert_detail_by_appl(emp_id_for_co, appl_num_three, term_one_invest_time, default_amount);
   END;
   
   /*
@@ -325,12 +325,12 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
 
     UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 3);
     UT_PKG_DEMO_COMMON.assert_result_count(6);
-    assert_detail_by_appl(emp_id_for_co, appl_num_one, term_one_invest_time, default_amount);
+    assert_detail_by_appl(emp_id_for_co, appl_num_one, term_one_invest_time, enough_red_amt_for_over_five - default_amount * 5);
     assert_detail_by_appl(emp_id_for_co, appl_num_two, term_two_invest_time, default_amount);
     assert_detail_by_appl(emp_id_for_co, appl_num_three, term_one_invest_time, default_amount);
     assert_detail_by_appl(emp_id_for_co, appl_num_four, term_one_invest_time, default_amount);
     assert_detail_by_appl(emp_id_for_co, appl_num_five, term_one_invest_time, default_amount);
-    assert_detail_by_appl(emp_id_for_co, appl_num_six, term_one_invest_time, enough_red_amt_for_over_five - default_amount * 5);
+    assert_detail_by_appl(emp_id_for_co, appl_num_six, term_one_invest_time, default_amount);
   END;
   
   
