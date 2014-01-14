@@ -1,4 +1,4 @@
-create or replace type ex_prod_info as object
+create or replace type ex_prod_info under prod_info
 (
 -- Author  : KFZX-WANGYANG01
 -- Created : 2013/12/21 12:16:07
@@ -7,7 +7,6 @@ create or replace type ex_prod_info as object
 -- Attributes
   PROC_NAME                     varchar2(200),
   EVAL_STATE_FLAG_RECENT_TRADED number(1),
-  invest_id                     varchar2(6),
   constructor function ex_prod_info(I_INVEST_ID IN VARCHAR2)
     return self as result,
   member FUNCTION FUNC_GET_RED_ABLE(I_RED_INVEST_TIME IN VARCHAR2,
@@ -38,8 +37,8 @@ create or replace type ex_prod_info as object
                                                  I_DEAL_POP_DONE_APPL_AMT IN NUMBER),
   member procedure PROC_DEAL_POP_TO_TERM(I_RED_INVEST_TIME IN VARCHAR2),
   member PROCEDURE PROC_DEAL_POP_TO_APPL,
-  member PROCEDURE PROC_DEAL_POP_EX(o_flag in out number,
-                                    o_msg  in out varchar2),
+  overriding member PROCEDURE PROC_DEAL_POP(o_flag in out number,
+                                            o_msg  in out varchar2),
   member function FUNC_GET_PLAN_ID_BY_INVEST_ID return varchar2,
   member function FUNC_GET_NEXT_RED_TIME RETURN VARCHAR2,
   member PROCEDURE PROC_SET_O_FLAG_AND_O_MSG(V_FLAG   IN NUMBER,
@@ -373,8 +372,8 @@ create or replace type body ex_prod_info is
   
   END;
 
-  member PROCEDURE PROC_DEAL_POP_EX(o_flag in out number,
-                                    o_msg  in out varchar2) is
+  overriding member PROCEDURE PROC_DEAL_POP(o_flag in out number,
+                                            o_msg  in out varchar2) is
     V_MSG VARCHAR2(4000) := NULL;
   
     V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE := NULL;
@@ -435,6 +434,8 @@ create or replace type body ex_prod_info is
   member function FUNC_GET_NEXT_RED_TIME RETURN VARCHAR2 IS
     RED_OP_TYPE CONSTANT NUMBER := 3;
     V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE;
+    --外部包调用子类内部方法，不支持直接放在外部包的方法内，需要分开写。
+    v_plan_id demo_plan_info.plan_id%type := self.func_get_plan_id_by_invest_id;
   BEGIN
     --获取最近一次的集中确认日
     SELECT MIN(T.DEMO_INVEST_TIME)
@@ -443,7 +444,7 @@ create or replace type body ex_prod_info is
      WHERE T.INVEST_ID = self.invest_id
        AND T.OP_TYPE = RED_OP_TYPE
        AND T.DEMO_INVEST_TIME >
-           PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(self.func_get_plan_id_by_invest_id);
+           PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(v_plan_id);
     RETURN V_RED_INVEST_TIME;
   END;
 
