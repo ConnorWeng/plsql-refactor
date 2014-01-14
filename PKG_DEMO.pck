@@ -77,6 +77,7 @@ CREATE OR REPLACE PACKAGE PKG_DEMO IS
   function FUNC_GET_REDABLE_AMT(I_QUOTIENT_REMAIN IN NUMBER,
                                 I_QUOTIENT        IN NUMBER,
                                 I_AMT             IN NUMBER) RETURN NUMBER;
+  PROCEDURE PROC_DEAL_POP_UNEX_EMP_AND_CO(I_INVEST_ID IN VARCHAR2);
 END PKG_DEMO;
 /
 CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
@@ -191,6 +192,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   PROCEDURE PROC_DEAL_POP(I_INVEST_ID IN VARCHAR2,
                           O_FLAG      OUT NUMBER,
                           O_MSG       OUT VARCHAR2) IS
+    v_unex_prod_info unex_prod_info;
   BEGIN
     O_FLAG := 0;
     O_MSG  := '³É¹¦';
@@ -200,7 +202,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     IF FUNC_IS_EXPERT_LCR(I_INVEST_ID) THEN
       PROC_DEAL_POP_EX(i_invest_id, o_flag, O_MSG);
     ELSE
-      PROC_DEAL_POP_UNEX(i_invest_id, o_flag, O_MSG);
+      v_unex_prod_info := unex_prod_info(i_invest_id);
+      v_unex_prod_info.PROC_DEAL_POP_UNEX(o_flag, O_MSG);
     END IF;
   
   EXCEPTION
