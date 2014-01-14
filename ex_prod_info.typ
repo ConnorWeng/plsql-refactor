@@ -5,8 +5,6 @@ create or replace type ex_prod_info under prod_info
 -- Purpose : ²úÆ·
 
 -- Attributes
-  PROC_NAME                     varchar2(200),
-  EVAL_STATE_FLAG_RECENT_TRADED number(1),
   constructor function ex_prod_info(I_INVEST_ID IN VARCHAR2)
     return self as result,
   member FUNCTION FUNC_GET_RED_ABLE(I_RED_INVEST_TIME IN VARCHAR2,
@@ -41,12 +39,6 @@ create or replace type ex_prod_info under prod_info
                                             o_msg  in out varchar2),
   member function FUNC_GET_PLAN_ID_BY_INVEST_ID return varchar2,
   member function FUNC_GET_NEXT_RED_TIME RETURN VARCHAR2,
-  member PROCEDURE PROC_SET_O_FLAG_AND_O_MSG(V_FLAG   IN NUMBER,
-                                             V_MSG    IN VARCHAR2,
-                                             V_PARAMS IN VARCHAR2,
-                                             O_FLAG   IN OUT NUMBER,
-                                             O_MSG    IN OUT VARCHAR2),
-  member FUNCTION FUNC_IS_RED_TOTAL_AMT_NOTEQ RETURN BOOLEAN,
   member FUNCTION FUNC_IS_APPL_MORE_THEN_FIVE(V_MSG OUT VARCHAR2)
     RETURN BOOLEAN
 )
@@ -378,6 +370,7 @@ create or replace type body ex_prod_info is
   
     V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE := NULL;
   begin
+    self.PROC_INIT_AND_CLEANUP;
     V_RED_INVEST_TIME := self.FUNC_GET_NEXT_RED_TIME;
   
     if V_RED_INVEST_TIME is null then
@@ -447,33 +440,7 @@ create or replace type body ex_prod_info is
            PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(v_plan_id);
     RETURN V_RED_INVEST_TIME;
   END;
-
-  member PROCEDURE PROC_SET_O_FLAG_AND_O_MSG(V_FLAG   IN NUMBER,
-                                             V_MSG    IN VARCHAR2,
-                                             V_PARAMS IN VARCHAR2,
-                                             O_FLAG   IN OUT NUMBER,
-                                             O_MSG    IN OUT VARCHAR2) IS
   
-  BEGIN
-    O_FLAG := V_FLAG;
-    O_MSG  := V_MSG;
-    PACK_LOG.LOG(PROC_NAME,
-                 NULL,
-                 O_MSG || '|' || V_PARAMS,
-                 PACK_LOG.WARN_LEVEL);
-  
-  END;
-  member FUNCTION FUNC_IS_RED_TOTAL_AMT_NOTEQ RETURN BOOLEAN IS
-    V_RED_TOTAL_AMT    NUMBER(17, 2);
-    V_RESULT_TOTAL_AMT NUMBER(17, 2);
-  BEGIN
-    SELECT NVL(SUM(AMT), 0) INTO V_RED_TOTAL_AMT FROM DEMO_INVEST_POP_TMP;
-    SELECT NVL(SUM(quotient), 0)
-      INTO V_RESULT_TOTAL_AMT
-      FROM DEMO_INVEST_POP_RESULT_TMP;
-  
-    RETURN V_RED_TOTAL_AMT <> V_RESULT_TOTAL_AMT;
-  END;
   member FUNCTION FUNC_IS_APPL_MORE_THEN_FIVE(V_MSG OUT VARCHAR2)
     RETURN BOOLEAN IS
     V_COUNT  NUMBER;

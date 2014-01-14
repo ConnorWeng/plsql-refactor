@@ -1,21 +1,12 @@
 create or replace type unex_prod_info under prod_info
 (
 -- Purpose : 净值报价产品
-  PROC_NAME                     varchar2(200),
-  EVAL_STATE_FLAG_RECENT_TRADED number(1),
-  --invest_id                     varchar2(6),
   constructor function unex_prod_info(I_INVEST_ID IN VARCHAR2)
     return self as result,
   member FUNCTION FUNC_GET_DONE_OP_DATE RETURN VARCHAR2,
   member FUNCTION FUNC_NOT_EXIST_DONE_OP_DATE RETURN BOOLEAN,
   overriding member PROCEDURE PROC_DEAL_POP(o_flag in out number,
-                                      o_msg  in out varchar2),
-  member PROCEDURE PROC_SET_O_FLAG_AND_O_MSG(V_FLAG   IN NUMBER,
-                                             V_MSG    IN VARCHAR2,
-                                             V_PARAMS IN VARCHAR2,
-                                             O_FLAG   IN OUT NUMBER,
-                                             O_MSG    IN OUT VARCHAR2),
-  member FUNCTION FUNC_IS_RED_TOTAL_AMT_NOTEQ RETURN BOOLEAN,
+                                            o_msg  in out varchar2),
   member function FUNC_GET_REDABLE_QUOTIENT(I_QUOTIENT_REMAIN IN NUMBER,
                                             I_QUOTIENT        IN NUMBER)
     RETURN NUMBER,
@@ -24,7 +15,6 @@ create or replace type unex_prod_info under prod_info
                                        I_AMT             IN NUMBER)
     RETURN NUMBER,
   member PROCEDURE PROC_DEAL_POP_UNEX_EMP_AND_CO
-  
 
 )
 /
@@ -58,56 +48,30 @@ create or replace type body unex_prod_info is
   END;
 
   overriding member PROCEDURE PROC_DEAL_POP(o_flag in out number,
-                                      o_msg  in out varchar2) is
+                                            o_msg  in out varchar2) is
   begin
+    self.PROC_INIT_AND_CLEANUP;
     IF FUNC_NOT_EXIST_DONE_OP_DATE THEN
-      PROC_SET_O_FLAG_AND_O_MSG(2,
-                                '系统中不存在已完成的集中确认日，无法进行后续操作！',
-                                self.invest_id,
-                                O_FLAG,
-                                O_MSG);
+      self.PROC_SET_O_FLAG_AND_O_MSG(2,
+                                     '系统中不存在已完成的集中确认日，无法进行后续操作！',
+                                     self.invest_id,
+                                     O_FLAG,
+                                     O_MSG);
       RETURN;
     END IF;
   
     PROC_DEAL_POP_UNEX_EMP_AND_CO;
   
-    IF FUNC_IS_RED_TOTAL_AMT_NOTEQ THEN
-      PROC_SET_O_FLAG_AND_O_MSG(2,
-                                '赎回份额分配出错！',
-                                self.invest_id,
-                                O_FLAG,
-                                O_MSG);
+    IF self.FUNC_IS_RED_TOTAL_AMT_NOTEQ THEN
+      self.PROC_SET_O_FLAG_AND_O_MSG(2,
+                                     '赎回份额分配出错！',
+                                     self.invest_id,
+                                     O_FLAG,
+                                     O_MSG);
       RETURN;
     END IF;
   end;
-  member PROCEDURE PROC_SET_O_FLAG_AND_O_MSG(V_FLAG   IN NUMBER,
-                                             V_MSG    IN VARCHAR2,
-                                             V_PARAMS IN VARCHAR2,
-                                             O_FLAG   IN OUT NUMBER,
-                                             O_MSG    IN OUT VARCHAR2) IS
-  
-  BEGIN
-    O_FLAG := V_FLAG;
-    O_MSG  := V_MSG;
-    PACK_LOG.LOG(PROC_NAME,
-                 NULL,
-                 O_MSG || '|' || V_PARAMS,
-                 PACK_LOG.WARN_LEVEL);
-  
-  END;
-
-  member FUNCTION FUNC_IS_RED_TOTAL_AMT_NOTEQ RETURN BOOLEAN IS
-    V_RED_TOTAL_AMT    NUMBER(17, 2);
-    V_RESULT_TOTAL_AMT NUMBER(17, 2);
-  BEGIN
-    SELECT NVL(SUM(AMT), 0) INTO V_RED_TOTAL_AMT FROM DEMO_INVEST_POP_TMP;
-    SELECT NVL(SUM(quotient), 0)
-      INTO V_RESULT_TOTAL_AMT
-      FROM DEMO_INVEST_POP_RESULT_TMP;
-  
-    RETURN V_RED_TOTAL_AMT <> V_RESULT_TOTAL_AMT;
-  END;
-    member function FUNC_GET_REDABLE_QUOTIENT(I_QUOTIENT_REMAIN IN NUMBER,
+  member function FUNC_GET_REDABLE_QUOTIENT(I_QUOTIENT_REMAIN IN NUMBER,
                                             I_QUOTIENT        IN NUMBER)
     RETURN NUMBER IS
   
@@ -131,7 +95,9 @@ create or replace type body unex_prod_info is
              T1.CO_ID,
              T1.SUBJECT_TYPE,
              self.FUNC_GET_DONE_OP_DATE,
-             self.FUNC_GET_REDABLE_AMT(T1.quotient_remain, T2.quotient, T2.AMT),
+             self.FUNC_GET_REDABLE_AMT(T1.quotient_remain,
+                                       T2.quotient,
+                                       T2.AMT),
              self.FUNC_GET_REDABLE_QUOTIENT(T1.quotient_remain, T2.quotient)
         FROM DEMO_INVEST_POP_TMP T1, V_EMP_CO_INVEST_ACCT T2
        WHERE T1.EMP_ID = T2.EMP_ID

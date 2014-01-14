@@ -65,13 +65,6 @@ CREATE OR REPLACE PACKAGE PKG_DEMO IS
 END PKG_DEMO;
 /
 CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
-  procedure PROC_INIT_AND_CLEANUP is
-  begin
-    --剩余调整额字段初始化
-    UPDATE DEMO_INVEST_POP_TMP SET quotient_remain = AMT;
-  
-    DELETE FROM DEMO_INVEST_POP_RESULT_TMP;
-  end PROC_INIT_AND_CLEANUP;
   
 
   /*********************************************************************
@@ -93,8 +86,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   BEGIN
     O_FLAG := 0;
     O_MSG  := '成功';
-  
-    PROC_INIT_AND_CLEANUP;
     v_prod_info := prod_info.create_prod_info(i_invest_id);
     v_prod_info.PROC_DEAL_POP(O_FLAG,O_MSG);
   
