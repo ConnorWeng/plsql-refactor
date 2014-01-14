@@ -77,7 +77,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   procedure PROC_INIT_AND_CLEANUP is
   begin
     --剩余调整额字段初始化
-    UPDATE DEMO_INVEST_POP_TMP SET AMT_REMAIN = AMT;
+    UPDATE DEMO_INVEST_POP_TMP SET quotient_remain = AMT;
   
     DELETE FROM DEMO_INVEST_POP_RESULT_TMP;
   end PROC_INIT_AND_CLEANUP;
@@ -372,15 +372,15 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
              T1.CO_ID,
              T1.SUBJECT_TYPE,
              T2.INVEST_TIME,
-             LEAST(T1.AMT_REMAIN, T2.AMT), --min(赎回申请金额，余额 - 待赎回金额)
-             LEAST(T1.AMT_REMAIN, T2.AMT)
+             LEAST(T1.quotient_remain, T2.AMT), --min(赎回申请金额，余额 - 待赎回金额)
+             LEAST(T1.quotient_remain, T2.AMT)
         FROM DEMO_INVEST_POP_TMP T1, DEMO_EMP_INVEST_TERM T2
        WHERE T1.EMP_ID = T2.EMP_ID
          AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
          AND T2.INVEST_ID = I_INVEST_ID
          AND T2.INVEST_TIME = I_INVEST_TIME
          AND T2.AMT > 0
-         AND T1.AMT_REMAIN > 0
+         AND T1.quotient_remain > 0
          AND T1.EMP_ID <> 'FFFFFFFFFF';
   
   END;
@@ -394,25 +394,25 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
              T1.CO_ID,
              T1.SUBJECT_TYPE,
              T2.INVEST_TIME,
-             LEAST(T1.AMT_REMAIN, T2.AMT),
-             LEAST(T1.AMT_REMAIN, T2.AMT)
+             LEAST(T1.quotient_remain, T2.AMT),
+             LEAST(T1.quotient_remain, T2.AMT)
         FROM DEMO_INVEST_POP_TMP T1, DEMO_CO_INVEST_TERM T2
        WHERE T1.CO_ID = T2.CO_ID
          AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
          AND T2.INVEST_ID = I_INVEST_ID
          AND T2.INVEST_TIME = I_INVEST_TIME
          AND T2.AMT > 0
-         AND T1.AMT_REMAIN > 0
+         AND T1.quotient_remain > 0
          AND T1.EMP_ID = 'FFFFFFFFFF';
   END;
 
-  FUNCTION FUNC_EXIST_AMT_REMAIN RETURN BOOLEAN IS
+  FUNCTION FUNC_EXIST_QUOTIENT_REMAIN RETURN BOOLEAN IS
     V_COUNT NUMBER;
   BEGIN
     SELECT COUNT(1)
       INTO V_COUNT
       FROM DEMO_INVEST_POP_TMP
-     WHERE AMT_REMAIN > 0
+     WHERE quotient_remain > 0
        AND ROWNUM = 1;
     RETURN V_COUNT > 0;
   END;
@@ -424,9 +424,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     USING DEMO_INVEST_POP_RESULT_TMP B
     ON (A.EMP_ID = B.EMP_ID AND A.SUBJECT_TYPE = B.SUBJECT_TYPE AND A.CO_ID = B.CO_ID AND B.INVEST_TIME = I_INVEST_TIME)
     WHEN MATCHED THEN
-      UPDATE SET A.AMT_REMAIN = A.AMT_REMAIN - B.quotient;
+      UPDATE SET A.quotient_remain = A.quotient_remain - B.quotient;
   
-    RETURN NOT FUNC_EXIST_AMT_REMAIN;
+    RETURN NOT FUNC_EXIST_QUOTIENT_REMAIN;
   END;
   function FUNC_GET_REDABLE_APPL_AMT(I_CO_ID       IN VARCHAR2,
                                      I_INVEST_TIME IN VARCHAR2,
@@ -551,7 +551,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   
     PROC_DEAL_POP_TO_TERM(I_INVEST_ID, V_RED_INVEST_TIME);
   
-    IF FUNC_EXIST_AMT_REMAIN THEN
+    IF FUNC_EXIST_QUOTIENT_REMAIN THEN
       PROC_SET_O_FLAG_AND_O_MSG(2,
                                 '进行后进先出处理时，资产不足',
                                 I_INVEST_ID,
@@ -605,13 +605,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
              T1.CO_ID,
              T1.SUBJECT_TYPE,
              FUNC_GET_DONE_OP_DATE(T2.INVEST_ID),
-             LEAST(T1.AMT_REMAIN, T2.quotient) / t2.quotient * t2.amt,
-             LEAST(T1.AMT_REMAIN, T2.quotient)
+             LEAST(T1.quotient_remain, T2.quotient) / t2.quotient * t2.amt,
+             LEAST(T1.quotient_remain, T2.quotient)
         FROM DEMO_INVEST_POP_TMP T1, V_EMP_CO_INVEST_ACCT T2
        WHERE T1.EMP_ID = T2.EMP_ID
          AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
          AND T2.INVEST_ID = I_INVEST_ID
-         AND T1.AMT_REMAIN > 0;
+         AND T1.quotient_remain > 0;
   END;
 
 

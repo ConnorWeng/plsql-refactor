@@ -16,3 +16,10 @@ SELECT 'FFFFFFFFFF'EMP_ID,
        AMT
   FROM DEMO_CO_INVEST
  WHERE quotient > 0;
+
+alter table DEMO_INVEST_POP_TMP add quotient_remain NUMBER(17,2);
+comment on column DEMO_INVEST_POP_TMP.quotient_remain
+  is ' £”‡∑›∂Ó';
+
+-- Drop columns 
+alter table DEMO_INVEST_POP_TMP drop column amt_remain;
