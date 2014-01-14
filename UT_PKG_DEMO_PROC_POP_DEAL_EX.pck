@@ -6,10 +6,14 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   PROCEDURE UT_EX_EMP_MULT_TERM_ONE_APPL;
   PROCEDURE UT_EX_EMP_MULT_TERM_MULT_APPL;
   PROCEDURE UT_EX_EMP_MULT_TERM_NOTENOUGH;
-  PROCEDURE UT_EX_CO_MULT_TERM;
+  PROCEDURE UT_EX_EMP_MAX_FIVE_APPL;
+  PROCEDURE UT_EX_MULT_EMP_ONE_APPL;
+  PROCEDURE UT_EX_CO_ONE_TERM_ONE_APPL;
+  PROCEDURE UT_EX_CO_MULT_TERM_ONE_APPL;
+  PROCEDURE UT_EX_CO_MULT_TERM_MULT_APPL;
+  PROCEDURE UT_EX_CO_MULT_TERM_NOTENOUGH;
   PROCEDURE UT_EX_CO_MAX_FIVE_APPL;
   PROCEDURE UT_EX_GET_NEXT_RED_TIME_NULL;
-  PROCEDURE UT_EX_MULT_EMP_ONE_APPL;
 
   procedure create_ex_prod_info;
   procedure create_one_term_acct_for_emp(emp_id       in demo_emp_info.emp_id%type,
@@ -159,11 +163,106 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
 
     UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 2);
   END;
+  
+    /*
+  赎回涉及超过五张申请单（企业）
+  */
+  PROCEDURE UT_EX_EMP_MAX_FIVE_APPL IS
+    enough_red_amt_for_over_five      constant demo_invest_pop_tmp.amt%type := 580;
+  BEGIN
+    UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
+    UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
+    create_one_term_acct_for_emp(emp_id, appl_num_one, term_one_invest_time, default_amount);
+    create_one_term_acct_for_emp(emp_id, appl_num_two, term_two_invest_time, default_amount);
+    create_one_term_acct_for_emp(emp_id, appl_num_three, term_one_invest_time, default_amount);
+    create_one_term_acct_for_emp(emp_id, appl_num_four, term_one_invest_time, default_amount);
+    create_one_term_acct_for_emp(emp_id, appl_num_five, term_one_invest_time, default_amount);
+    create_one_term_acct_for_emp(emp_id, appl_num_six, term_one_invest_time, default_amount);
+
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, enough_red_amt_for_over_five);
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
+                           O_FLAG      => OUT_FLAG,
+                           O_MSG       => OUT_MSG);
+
+    UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 3);
+    UT_PKG_DEMO_COMMON.assert_result_count(6);
+    assert_detail_by_appl(emp_id, appl_num_one, term_one_invest_time, default_amount);
+    assert_detail_by_appl(emp_id, appl_num_two, term_two_invest_time, default_amount);
+    assert_detail_by_appl(emp_id, appl_num_three, term_one_invest_time, default_amount);
+    assert_detail_by_appl(emp_id, appl_num_four, term_one_invest_time, default_amount);
+    assert_detail_by_appl(emp_id, appl_num_five, term_one_invest_time, default_amount);
+    assert_detail_by_appl(emp_id, appl_num_six, term_one_invest_time, enough_red_amt_for_over_five - default_amount * 5);
+  END;
+  
+   PROCEDURE UT_EX_MULT_EMP_ONE_APPL IS
+    ANOTHER_EMP_ID CONSTANT DEMO_EMP_INFO.EMP_ID%TYPE := '0000000002';
+  BEGIN
+    UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
+    UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
+    create_one_term_acct_for_emp(emp_id, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+    create_one_term_acct_for_emp(ANOTHER_EMP_ID, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, one_term_one_appl_red_amt);
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(ANOTHER_EMP_ID, subject_type_emp, one_term_one_appl_red_amt);
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
+                           O_FLAG      => OUT_FLAG,
+                           O_MSG       => OUT_MSG);
+
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
+    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
+    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, ANOTHER_EMP_ID);
+    UT_PKG_DEMO_COMMON.assert_result_count(2);
+    assert_detail_by_appl(emp_id, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+    assert_detail_by_appl(ANOTHER_EMP_ID, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+  END;
+  
+    /*
+  涉及一期，且一期只有一张申请单，一期资产够（个人）
+  */
+  PROCEDURE UT_EX_CO_ONE_TERM_ONE_APPL IS
+  BEGIN
+    UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
+    UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
+    create_one_term_acct_for_co(appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, one_term_one_appl_red_amt);
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
+                           O_FLAG      => OUT_FLAG,
+                           O_MSG       => OUT_MSG);
+
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
+    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_co, emp_id_for_co);
+    UT_PKG_DEMO_COMMON.assert_result_count(1);
+    assert_detail_by_appl(emp_id_for_co, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+  END;
+
+  /*
+  涉及一期，且一期只有一张申请单，一期资产够（个人）
+  */
+  PROCEDURE UT_EX_CO_MULT_TERM_ONE_APPL IS
+    mult_term_one_appl_red_amt        constant demo_invest_pop_tmp.amt%type := 180;
+  BEGIN
+    UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
+    UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
+    create_one_term_acct_for_co(appl_num_one, term_one_invest_time, default_amount);
+    create_one_term_acct_for_co(appl_num_two, term_two_invest_time, default_amount);
+
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, mult_term_one_appl_red_amt);
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
+                           O_FLAG      => OUT_FLAG,
+                           O_MSG       => OUT_MSG);
+
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
+    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_co, emp_id_for_co);
+    UT_PKG_DEMO_COMMON.assert_result_count(2);
+    assert_detail_by_appl(emp_id_for_co, appl_num_one, term_one_invest_time, mult_term_one_appl_red_amt - default_amount);
+    assert_detail_by_appl(emp_id_for_co, appl_num_two, term_two_invest_time, default_amount);
+  END;
 
   /*
   涉及多期，且多期只有多张申请单，多期资产够（企业）
   */
-  PROCEDURE UT_EX_CO_MULT_TERM IS
+  PROCEDURE UT_EX_CO_MULT_TERM_MULT_APPL IS
   BEGIN
     UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
     UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
@@ -182,6 +281,26 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     assert_detail_by_appl(emp_id_for_co, appl_num_one, term_one_invest_time, default_amount);
     assert_detail_by_appl(emp_id_for_co, appl_num_two, term_two_invest_time, default_amount);
     assert_detail_by_appl(emp_id_for_co, appl_num_three, term_one_invest_time, mult_term_mult_appl_red_amt - default_amount * 2);
+  END;
+  
+  /*
+  涉及多期，且多期只有多张申请单，多期资产够（个人）
+  */
+  PROCEDURE UT_EX_CO_MULT_TERM_NOTENOUGH IS
+    not_enough_red_amt                constant demo_invest_pop_tmp.amt%type := 310;
+  BEGIN
+    UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
+    UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
+    create_one_term_acct_for_co(appl_num_one, term_one_invest_time, default_amount);
+    create_one_term_acct_for_co(appl_num_two, term_two_invest_time, default_amount);
+    create_one_term_acct_for_co(appl_num_three, term_one_invest_time, default_amount);
+
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id_for_co, subject_type_co, not_enough_red_amt);
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => INVEST_ID,
+                           O_FLAG      => OUT_FLAG,
+                           O_MSG       => OUT_MSG);
+
+    UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 2);
   END;
 
   /*
@@ -214,6 +333,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     assert_detail_by_appl(emp_id_for_co, appl_num_six, term_one_invest_time, enough_red_amt_for_over_five - default_amount * 5);
   END;
   
+  
   procedure UT_EX_GET_NEXT_RED_TIME_NULL IS
     
   BEGIN
@@ -227,27 +347,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 2);
   END;
   
-  PROCEDURE UT_EX_MULT_EMP_ONE_APPL IS
-    ANOTHER_EMP_ID CONSTANT DEMO_EMP_INFO.EMP_ID%TYPE := '0000000002';
-  BEGIN
-    UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
-    UT_PKG_DEMO_COMMON.create_one_term_for_unit_val;
-    create_one_term_acct_for_emp(emp_id, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
-    create_one_term_acct_for_emp(ANOTHER_EMP_ID, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
-
-    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, one_term_one_appl_red_amt);
-    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(ANOTHER_EMP_ID, subject_type_emp, one_term_one_appl_red_amt);
-    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
-                           O_FLAG      => OUT_FLAG,
-                           O_MSG       => OUT_MSG);
-
-    UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
-    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
-    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, ANOTHER_EMP_ID);
-    UT_PKG_DEMO_COMMON.assert_result_count(2);
-    assert_detail_by_appl(emp_id, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
-    assert_detail_by_appl(ANOTHER_EMP_ID, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
-  END;
+ 
 
   procedure create_ex_prod_info is
   begin
