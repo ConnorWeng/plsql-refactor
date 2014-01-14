@@ -1,6 +1,6 @@
 CREATE OR REPLACE PACKAGE PKG_DEMO IS
 
-  PROC_NAME CONSTANT DB_LOG.PROC_NAME%TYPE := 'PKG_DEMO.PROC_DEAL_POP';
+  PROC_NAME                     CONSTANT DB_LOG.PROC_NAME%TYPE := 'PKG_DEMO.PROC_DEAL_POP';
   EVAL_STATE_FLAG_RECENT_TRADED constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
 
   -- Author  : KFZX-WANGYANG01
@@ -71,6 +71,12 @@ CREATE OR REPLACE PACKAGE PKG_DEMO IS
                                o_flag      in out number,
                                o_msg       in out varchar2);
   FUNCTION FUNC_GET_DONE_OP_DATE(I_INVEST_ID IN VARCHAR2) RETURN VARCHAR2;
+  function FUNC_GET_REDABLE_QUOTIENT(I_QUOTIENT_REMAIN IN NUMBER,
+                                     I_QUOTIENT        IN NUMBER)
+    RETURN NUMBER;
+  function FUNC_GET_REDABLE_AMT(I_QUOTIENT_REMAIN IN NUMBER,
+                                I_QUOTIENT        IN NUMBER,
+                                I_AMT             IN NUMBER) RETURN NUMBER;
 END PKG_DEMO;
 /
 CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
@@ -501,7 +507,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                      AND T2.INVEST_TIME = RS.INVEST_TIME
                      AND T2.AMT > 0
                      AND T2.AMT - NVL(T2.RED_AMT, 0) > 0
-                     order by t2.appl_num desc) LOOP
+                   order by t2.appl_num desc) LOOP
         --对于一期有多张申请单的情况进行倒序获取
         exit when V_REDABLE_TERM_AMT = 0;
         V_REDABLE_APPL_AMT := FUNC_GET_REDABLE_APPL_AMT(RS1.CO_ID,
@@ -575,8 +581,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       return;
     END IF;
   end;
-  
-  FUNCTION FUNC_GET_DONE_OP_DATE(I_INVEST_ID IN VARCHAR2) RETURN VARCHAR2 IS  
+
+  FUNCTION FUNC_GET_DONE_OP_DATE(I_INVEST_ID IN VARCHAR2) RETURN VARCHAR2 IS
     V_DONE_OP_DATE VARCHAR2(10);
   BEGIN
     SELECT EVALUATE_DATE
@@ -585,18 +591,34 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
      WHERE INVEST_ID = I_INVEST_ID
        AND EVAL_STATE_FLAG = EVAL_STATE_FLAG_RECENT_TRADED;
     RETURN V_DONE_OP_DATE;
-  exception 
+  exception
     when NO_DATA_FOUND THEN
       return null;
   END;
-  
+
   FUNCTION FUNC_NOT_EXIST_DONE_OP_DATE(I_INVEST_ID IN VARCHAR2)
     RETURN BOOLEAN IS
     v_done_op_date varchar2(10) := FUNC_GET_DONE_OP_DATE(i_invest_id);
   BEGIN
-    return v_done_op_date is null;   
+    return v_done_op_date is null;
   END;
+
+  function FUNC_GET_REDABLE_QUOTIENT(I_QUOTIENT_REMAIN IN NUMBER,
+                                     I_QUOTIENT        IN NUMBER)
+    RETURN NUMBER IS
   
+  BEGIN
+    RETURN LEAST(I_QUOTIENT_REMAIN, I_QUOTIENT);
+  END;
+
+  function FUNC_GET_REDABLE_AMT(I_QUOTIENT_REMAIN IN NUMBER,
+                                I_QUOTIENT        IN NUMBER,
+                                I_AMT             IN NUMBER) RETURN NUMBER IS
+  
+  BEGIN
+    RETURN FUNC_GET_REDABLE_QUOTIENT(I_QUOTIENT_REMAIN, I_QUOTIENT) / I_QUOTIENT * I_AMT;
+  END;
+
   PROCEDURE PROC_DEAL_POP_UNEX_EMP_AND_CO(I_INVEST_ID IN VARCHAR2) IS
   BEGIN
     INSERT INTO DEMO_INVEST_POP_RESULT_TMP
@@ -605,15 +627,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
              T1.CO_ID,
              T1.SUBJECT_TYPE,
              FUNC_GET_DONE_OP_DATE(T2.INVEST_ID),
-             LEAST(T1.quotient_remain, T2.quotient) / t2.quotient * t2.amt,
-             LEAST(T1.quotient_remain, T2.quotient)
+             FUNC_GET_REDABLE_AMT(T1.quotient_remain, T2.quotient, T2.AMT),
+             FUNC_GET_REDABLE_QUOTIENT(T1.quotient_remain, T2.quotient)
         FROM DEMO_INVEST_POP_TMP T1, V_EMP_CO_INVEST_ACCT T2
        WHERE T1.EMP_ID = T2.EMP_ID
          AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
          AND T2.INVEST_ID = I_INVEST_ID
          AND T1.quotient_remain > 0;
   END;
-
 
   PROCEDURE PROC_DEAL_POP_UNEX(i_invest_id in varchar2,
                                o_flag      in out number,
