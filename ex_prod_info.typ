@@ -5,17 +5,15 @@ create or replace type ex_prod_info under prod_info
 -- Purpose : 产品
 
 -- Attributes
+  red_invest_time varchar2(10),
   constructor function ex_prod_info(I_INVEST_ID IN VARCHAR2)
     return self as result,
-  member FUNCTION FUNC_GET_RED_ABLE(I_RED_INVEST_TIME IN VARCHAR2,
-                                    I_BUY_INVEST_TIME IN VARCHAR2)
+  member FUNCTION FUNC_GET_RED_ABLE(I_BUY_INVEST_TIME IN VARCHAR2)
     RETURN NUMBER,
-  member FUNCTION FUNC_GET_FULL_LCR_DATE(I_RED_DATE IN VARCHAR2)
+  member FUNCTION FUNC_GET_FULL_LCR_DATE RETURN VARCHAR2,
+  member FUNCTION FUNC_GET_RED_PRIORITY(p_invest_time IN VARCHAR2)
     RETURN VARCHAR2,
-  member FUNCTION FUNC_GET_RED_PRIORITY(p_invest_time     IN VARCHAR2,
-                                        p_invest_red_time IN VARCHAR2)
-    RETURN VARCHAR2,
-  member procedure PROC_EX_INIT_CO_OPDATE_REL(I_RED_INVEST_TIME IN VARCHAR2),
+  member procedure PROC_EX_INIT_CO_OPDATE_REL,
   member PROCEDURE PROC_DEAL_POP_EX_TO_TERM_EMP(I_INVEST_TIME IN VARCHAR2),
   member PROCEDURE PROC_DEAL_POP_EX_TO_TERM_CO(I_INVEST_TIME IN VARCHAR2),
   member FUNCTION FUNC_EXIST_QUOTIENT_REMAIN RETURN BOOLEAN,
@@ -33,7 +31,7 @@ create or replace type ex_prod_info under prod_info
                                                  I_INVEST_TIME            IN VARCHAR2,
                                                  I_APPL_NUM               IN NUMBER,
                                                  I_DEAL_POP_DONE_APPL_AMT IN NUMBER),
-  member procedure PROC_DEAL_POP_TO_TERM(I_RED_INVEST_TIME IN VARCHAR2),
+  member procedure PROC_DEAL_POP_TO_TERM,
   member PROCEDURE PROC_DEAL_POP_TO_APPL,
   overriding member PROCEDURE PROC_DEAL_POP(o_flag in out number,
                                             o_msg  in out varchar2),
@@ -50,6 +48,7 @@ create or replace type body ex_prod_info is
     PROC_NAME                     := 'PROC_DEAL_POP';
     EVAL_STATE_FLAG_RECENT_TRADED := 2;
     self.invest_id                := i_invest_id;
+    self.red_invest_time          := self.FUNC_GET_NEXT_RED_TIME;
     return;
   end;
 
@@ -66,8 +65,7 @@ create or replace type body ex_prod_info is
       I_BUY_INVEST_TIME IN VARCHAR2   购买集中确认日
     --返回：0，可以赎回；1，不能赎回
   *********************************************************************/
-  member FUNCTION FUNC_GET_RED_ABLE(I_RED_INVEST_TIME IN VARCHAR2,
-                                    I_BUY_INVEST_TIME IN VARCHAR2)
+  member FUNCTION FUNC_GET_RED_ABLE(I_BUY_INVEST_TIME IN VARCHAR2)
     RETURN NUMBER IS
     V_ISSUE_WAY      DEMO_INVEST_BASIC_INFO.ISSUE_WAY%TYPE;
     v_SELL_MIN_TERM  DEMO_INVEST_BASIC_INFO.Sell_Min_Term%TYPE;
@@ -88,7 +86,7 @@ create or replace type body ex_prod_info is
         FROM v_invest_op_control t
        WHERE t.invest_id = self.invest_id
          and t.op_type in (1, 2)
-         AND DEMO_INVEST_TIME = I_RED_INVEST_TIME;
+         AND DEMO_INVEST_TIME = self.red_invest_time;
     
       SELECT MAX(TERM_NO)
         INTO v_min_TERM_NO
@@ -126,8 +124,7 @@ create or replace type body ex_prod_info is
   --作者：
   --时间：
   /*********************************************************************/
-  member FUNCTION FUNC_GET_FULL_LCR_DATE(I_RED_DATE IN VARCHAR2)
-    RETURN VARCHAR2 IS
+  member FUNCTION FUNC_GET_FULL_LCR_DATE RETURN VARCHAR2 IS
     V_FULL_LCR_DATE VARCHAR2(10);
   BEGIN
     SELECT MAX(T.demo_invest_time)
@@ -139,7 +136,7 @@ create or replace type body ex_prod_info is
               FROM V_INVEST_OP_CONTROL T1
              WHERE T1.INVEST_ID = T.INVEST_ID
                AND T1.OP_TYPE = 4
-               AND T1.demo_invest_time = I_RED_DATE
+               AND T1.demo_invest_time = self.red_invest_time
                AND T1.TERM_NO = T.TERM_NO);
     RETURN V_FULL_LCR_DATE;
   EXCEPTION
@@ -157,12 +154,11 @@ create or replace type body ex_prod_info is
   --p_invest_time           IN  VARCHAR2,     --资产所在的日期
   --p_invest_red_time       IN  VARCHAR2,     --资产赎回的集中确认日
   *********************************************************************/
-  member FUNCTION FUNC_GET_RED_PRIORITY(p_invest_time     IN VARCHAR2,
-                                        p_invest_red_time IN VARCHAR2)
+  member FUNCTION FUNC_GET_RED_PRIORITY(p_invest_time IN VARCHAR2)
     RETURN VARCHAR2 IS
     v_full_lcr_date DEMO_INVEST_OP_CONTROL.invest_time%TYPE;
   BEGIN
-    v_full_lcr_date := self.FUNC_GET_FULL_LCR_DATE(p_invest_red_time);
+    v_full_lcr_date := self.FUNC_GET_FULL_LCR_DATE;
     IF v_full_lcr_date = self.invest_id THEN
       --这一期恰好期满，赎回采用高优先级
       RETURN '9999-12-31';
@@ -174,7 +170,7 @@ create or replace type body ex_prod_info is
       RETURN p_invest_time;
   END FUNC_GET_RED_PRIORITY;
 
-  member procedure PROC_EX_INIT_CO_OPDATE_REL(I_RED_INVEST_TIME IN VARCHAR2) IS
+  member procedure PROC_EX_INIT_CO_OPDATE_REL IS
   begin
     DELETE FROM DEMO_OP_CO;
     INSERT INTO DEMO_OP_CO
@@ -187,7 +183,7 @@ create or replace type body ex_prod_info is
                WHERE SUBJECT_TYPE LIKE '301%')
          AND T1.AMT > 0
          AND T1.INVEST_ID = self.invest_id
-         AND self.FUNC_GET_RED_ABLE(I_RED_INVEST_TIME, T1.INVEST_TIME) = 0 --满足最低赎回期数
+         AND self.FUNC_GET_RED_ABLE(T1.INVEST_TIME) = 0 --满足最低赎回期数
       UNION
       SELECT T1.INVEST_TIME, T1.CO_ID
         FROM DEMO_CO_INVEST_TERM T1
@@ -197,7 +193,7 @@ create or replace type body ex_prod_info is
                WHERE SUBJECT_TYPE NOT LIKE '301%')
          AND T1.AMT > 0
          AND T1.INVEST_ID = self.invest_id
-         AND self.FUNC_GET_RED_ABLE(I_RED_INVEST_TIME, T1.INVEST_TIME) = 0;
+         AND self.FUNC_GET_RED_ABLE(T1.INVEST_TIME) = 0;
   end;
 
   member PROCEDURE PROC_DEAL_POP_EX_TO_TERM_EMP(I_INVEST_TIME IN VARCHAR2) IS
@@ -302,13 +298,12 @@ create or replace type body ex_prod_info is
   
   END;
 
-  member procedure PROC_DEAL_POP_TO_TERM(I_RED_INVEST_TIME IN VARCHAR2) IS
+  member procedure PROC_DEAL_POP_TO_TERM IS
   
   BEGIN
     FOR RS IN (SELECT T1.OP_DATE INVEST_TIME
                  FROM DEMO_OP_CO T1
-                ORDER BY self.FUNC_GET_RED_PRIORITY(T1.OP_DATE,
-                                                    I_RED_INVEST_TIME) DESC) LOOP
+                ORDER BY self.FUNC_GET_RED_PRIORITY(T1.OP_DATE) DESC) LOOP
     
       self.PROC_DEAL_POP_EX_TO_TERM_EMP(RS.INVEST_TIME);
       self.PROC_DEAL_POP_EX_TO_TERM_CO(RS.INVEST_TIME);
@@ -367,13 +362,10 @@ create or replace type body ex_prod_info is
   overriding member PROCEDURE PROC_DEAL_POP(o_flag in out number,
                                             o_msg  in out varchar2) is
     V_MSG VARCHAR2(4000) := NULL;
-  
-    V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE := NULL;
   begin
     self.PROC_INIT_AND_CLEANUP;
-    V_RED_INVEST_TIME := self.FUNC_GET_NEXT_RED_TIME;
   
-    if V_RED_INVEST_TIME is null then
+    if self.red_invest_time is null then
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
                                      '无法获取下一次赎回集中确认日',
                                      self.invest_id,
@@ -382,9 +374,9 @@ create or replace type body ex_prod_info is
       RETURN;
     end if;
   
-    self.PROC_EX_INIT_CO_OPDATE_REL(V_RED_INVEST_TIME);
+    self.PROC_EX_INIT_CO_OPDATE_REL;
   
-    self.PROC_DEAL_POP_TO_TERM(V_RED_INVEST_TIME);
+    self.PROC_DEAL_POP_TO_TERM;
   
     IF self.FUNC_EXIST_QUOTIENT_REMAIN THEN
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
@@ -394,6 +386,7 @@ create or replace type body ex_prod_info is
                                      O_MSG);
       return;
     END IF;
+    
     self.PROC_DEAL_POP_TO_APPL;
   
     IF self.FUNC_IS_RED_TOTAL_AMT_NOTEQ THEN
@@ -440,7 +433,7 @@ create or replace type body ex_prod_info is
            PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(v_plan_id);
     RETURN V_RED_INVEST_TIME;
   END;
-  
+
   member FUNCTION FUNC_IS_APPL_MORE_THEN_FIVE(V_MSG OUT VARCHAR2)
     RETURN BOOLEAN IS
     V_COUNT  NUMBER;
