@@ -67,17 +67,6 @@ CREATE OR REPLACE PACKAGE PKG_DEMO IS
   PROCEDURE PROC_DEAL_POP_EX(i_invest_id in varchar2,
                              o_flag      in out number,
                              o_msg       in out varchar2);
-  PROCEDURE PROC_DEAL_POP_UNEX(i_invest_id in varchar2,
-                               o_flag      in out number,
-                               o_msg       in out varchar2);
-  FUNCTION FUNC_GET_DONE_OP_DATE(I_INVEST_ID IN VARCHAR2) RETURN VARCHAR2;
-  function FUNC_GET_REDABLE_QUOTIENT(I_QUOTIENT_REMAIN IN NUMBER,
-                                     I_QUOTIENT        IN NUMBER)
-    RETURN NUMBER;
-  function FUNC_GET_REDABLE_AMT(I_QUOTIENT_REMAIN IN NUMBER,
-                                I_QUOTIENT        IN NUMBER,
-                                I_AMT             IN NUMBER) RETURN NUMBER;
-  PROCEDURE PROC_DEAL_POP_UNEX_EMP_AND_CO(I_INVEST_ID IN VARCHAR2);
 END PKG_DEMO;
 /
 CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
@@ -193,6 +182,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                           O_FLAG      OUT NUMBER,
                           O_MSG       OUT VARCHAR2) IS
     v_unex_prod_info unex_prod_info;
+    v_ex_prod_info ex_prod_info;
   BEGIN
     O_FLAG := 0;
     O_MSG  := '成功';
@@ -200,7 +190,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     PROC_INIT_AND_CLEANUP;
   
     IF FUNC_IS_EXPERT_LCR(I_INVEST_ID) THEN
-      PROC_DEAL_POP_EX(i_invest_id, o_flag, O_MSG);
+      v_ex_prod_info := ex_prod_info(i_invest_id);
+      v_ex_prod_info.PROC_DEAL_POP_EX(o_flag, O_MSG);
     ELSE
       v_unex_prod_info := unex_prod_info(i_invest_id);
       v_unex_prod_info.PROC_DEAL_POP_UNEX(o_flag, O_MSG);
@@ -585,84 +576,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     END IF;
   end;
 
-  FUNCTION FUNC_GET_DONE_OP_DATE(I_INVEST_ID IN VARCHAR2) RETURN VARCHAR2 IS
-    V_DONE_OP_DATE VARCHAR2(10);
-  BEGIN
-    SELECT EVALUATE_DATE
-      INTO V_DONE_OP_DATE
-      FROM DEMO_INVEST_UNIT_VALUE
-     WHERE INVEST_ID = I_INVEST_ID
-       AND EVAL_STATE_FLAG = EVAL_STATE_FLAG_RECENT_TRADED;
-    RETURN V_DONE_OP_DATE;
-  exception
-    when NO_DATA_FOUND THEN
-      return null;
-  END;
-
-  FUNCTION FUNC_NOT_EXIST_DONE_OP_DATE(I_INVEST_ID IN VARCHAR2)
-    RETURN BOOLEAN IS
-    v_done_op_date varchar2(10) := FUNC_GET_DONE_OP_DATE(i_invest_id);
-  BEGIN
-    return v_done_op_date is null;
-  END;
-
-  function FUNC_GET_REDABLE_QUOTIENT(I_QUOTIENT_REMAIN IN NUMBER,
-                                     I_QUOTIENT        IN NUMBER)
-    RETURN NUMBER IS
-  
-  BEGIN
-    RETURN LEAST(I_QUOTIENT_REMAIN, I_QUOTIENT);
-  END;
-
-  function FUNC_GET_REDABLE_AMT(I_QUOTIENT_REMAIN IN NUMBER,
-                                I_QUOTIENT        IN NUMBER,
-                                I_AMT             IN NUMBER) RETURN NUMBER IS
-  
-  BEGIN
-    RETURN FUNC_GET_REDABLE_QUOTIENT(I_QUOTIENT_REMAIN, I_QUOTIENT) / I_QUOTIENT * I_AMT;
-  END;
-
-  PROCEDURE PROC_DEAL_POP_UNEX_EMP_AND_CO(I_INVEST_ID IN VARCHAR2) IS
-  BEGIN
-    INSERT INTO DEMO_INVEST_POP_RESULT_TMP
-      (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT)
-      SELECT T1.EMP_ID,
-             T1.CO_ID,
-             T1.SUBJECT_TYPE,
-             FUNC_GET_DONE_OP_DATE(T2.INVEST_ID),
-             FUNC_GET_REDABLE_AMT(T1.quotient_remain, T2.quotient, T2.AMT),
-             FUNC_GET_REDABLE_QUOTIENT(T1.quotient_remain, T2.quotient)
-        FROM DEMO_INVEST_POP_TMP T1, V_EMP_CO_INVEST_ACCT T2
-       WHERE T1.EMP_ID = T2.EMP_ID
-         AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
-         AND T2.INVEST_ID = I_INVEST_ID
-         AND T1.quotient_remain > 0;
-  END;
-
-  PROCEDURE PROC_DEAL_POP_UNEX(i_invest_id in varchar2,
-                               o_flag      in out number,
-                               o_msg       in out varchar2) is
-  begin
-    IF FUNC_NOT_EXIST_DONE_OP_DATE(I_INVEST_ID) THEN
-      PROC_SET_O_FLAG_AND_O_MSG(2,
-                                '系统中不存在已完成的集中确认日，无法进行后续操作！',
-                                I_INVEST_ID,
-                                O_FLAG,
-                                O_MSG);
-      RETURN;
-    END IF;
-  
-    PROC_DEAL_POP_UNEX_EMP_AND_CO(I_INVEST_ID);
-  
-    IF FUNC_IS_RED_TOTAL_AMT_NOTEQ THEN
-      PROC_SET_O_FLAG_AND_O_MSG(2,
-                                '赎回份额分配出错！',
-                                I_INVEST_ID,
-                                O_FLAG,
-                                O_MSG);
-      RETURN;
-    END IF;
-  end;
 
 END PKG_DEMO;
 /
