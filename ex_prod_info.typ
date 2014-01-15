@@ -13,9 +13,8 @@ create or replace type ex_prod_info under prod_info
   member FUNCTION FUNC_GET_FULL_LCR_DATE RETURN VARCHAR2,
   member FUNCTION FUNC_GET_RED_PRIORITY(p_invest_time IN VARCHAR2)
     RETURN VARCHAR2,
-  member procedure PROC_EX_INIT_CO_OPDATE_REL,
-  member PROCEDURE PROC_DEAL_POP_EX_TO_TERM_EMP(I_INVEST_TIME IN VARCHAR2),
-  member PROCEDURE PROC_DEAL_POP_EX_TO_TERM_CO(I_INVEST_TIME IN VARCHAR2),
+  member procedure PROC_EX_INIT_OPDATE_REL,
+  member PROCEDURE PROC_DEAL_POP_EX_TO_TERM(I_INVEST_TIME IN VARCHAR2),
   member FUNCTION FUNC_EXIST_QUOTIENT_REMAIN RETURN BOOLEAN,
   member FUNCTION FUNC_IS_TOTAL_TO_TERM_DONE(I_INVEST_TIME IN VARCHAR2)
     RETURN BOOLEAN,
@@ -170,7 +169,7 @@ create or replace type body ex_prod_info is
       RETURN p_invest_time;
   END FUNC_GET_RED_PRIORITY;
 
-  member procedure PROC_EX_INIT_CO_OPDATE_REL IS
+  member procedure PROC_EX_INIT_OPDATE_REL IS
   begin
     DELETE FROM DEMO_OP_CO;
     INSERT INTO DEMO_OP_CO
@@ -184,7 +183,7 @@ create or replace type body ex_prod_info is
          AND self.FUNC_GET_RED_ABLE(T1.INVEST_TIME) = 0;
   end;
 
-  member PROCEDURE PROC_DEAL_POP_EX_TO_TERM_EMP(I_INVEST_TIME IN VARCHAR2) IS
+  member PROCEDURE PROC_DEAL_POP_EX_TO_TERM(I_INVEST_TIME IN VARCHAR2) IS
   
   BEGIN
     INSERT INTO DEMO_INVEST_POP_RESULT_TMP
@@ -195,35 +194,13 @@ create or replace type body ex_prod_info is
              T2.INVEST_TIME,
              LEAST(T1.quotient_remain, T2.AMT), 
              LEAST(T1.quotient_remain, T2.AMT)
-        FROM DEMO_INVEST_POP_TMP T1, DEMO_EMP_INVEST_TERM T2
+        FROM DEMO_INVEST_POP_TMP T1, v_invest_term_acct_emp_and_co T2
        WHERE T1.EMP_ID = T2.EMP_ID
          AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
          AND T2.INVEST_ID = self.invest_id
          AND T2.INVEST_TIME = I_INVEST_TIME
-         AND T2.AMT > 0
-         AND T1.quotient_remain > 0
-         AND T1.EMP_ID <> 'FFFFFFFFFF';
+         AND T1.quotient_remain > 0;
   
-  END;
-  member PROCEDURE PROC_DEAL_POP_EX_TO_TERM_CO(I_INVEST_TIME IN VARCHAR2) IS
-  BEGIN
-    --企业部分
-    INSERT INTO DEMO_INVEST_POP_RESULT_TMP
-      (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT)
-      SELECT T1.EMP_ID,
-             T1.CO_ID,
-             T1.SUBJECT_TYPE,
-             T2.INVEST_TIME,
-             LEAST(T1.quotient_remain, T2.AMT),
-             LEAST(T1.quotient_remain, T2.AMT)
-        FROM DEMO_INVEST_POP_TMP T1, DEMO_CO_INVEST_TERM T2
-       WHERE T1.CO_ID = T2.CO_ID
-         AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
-         AND T2.INVEST_ID = self.invest_id
-         AND T2.INVEST_TIME = I_INVEST_TIME
-         AND T2.AMT > 0
-         AND T1.quotient_remain > 0
-         AND T1.EMP_ID = 'FFFFFFFFFF';
   END;
 
   member FUNCTION FUNC_EXIST_QUOTIENT_REMAIN RETURN BOOLEAN IS
@@ -293,8 +270,7 @@ create or replace type body ex_prod_info is
                  FROM DEMO_OP_CO T1
                 ORDER BY self.FUNC_GET_RED_PRIORITY(T1.OP_DATE) DESC) LOOP
     
-      self.PROC_DEAL_POP_EX_TO_TERM_EMP(RS.INVEST_TIME);
-      self.PROC_DEAL_POP_EX_TO_TERM_CO(RS.INVEST_TIME);
+      self.PROC_DEAL_POP_EX_TO_TERM(RS.INVEST_TIME);
     
       EXIT WHEN FUNC_IS_TOTAL_TO_TERM_DONE(RS.INVEST_TIME);
     END LOOP;
@@ -320,7 +296,6 @@ create or replace type body ex_prod_info is
                      AND T2.AMT > 0
                      AND T2.AMT - NVL(T2.RED_AMT, 0) > 0
                    order by t2.appl_num desc) LOOP
-        --对于一期有多张申请单的情况进行倒序获取
         exit when V_REDABLE_TERM_AMT = 0;
         V_REDABLE_APPL_AMT := self.FUNC_GET_REDABLE_APPL_AMT(RS1.CO_ID,
                                                              RS1.INVEST_TIME,
@@ -362,7 +337,7 @@ create or replace type body ex_prod_info is
       RETURN;
     end if;
   
-    self.PROC_EX_INIT_CO_OPDATE_REL;
+    self.PROC_EX_INIT_OPDATE_REL;
   
     self.PROC_DEAL_POP_TO_TERM;
   
