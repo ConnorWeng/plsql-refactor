@@ -8,6 +8,7 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   PROCEDURE UT_EX_EMP_MULT_TERM_NOTENOUGH;
   PROCEDURE UT_EX_EMP_MAX_FIVE_APPL;
   PROCEDURE UT_EX_MULT_EMP_ONE_APPL;
+  PROCEDURE UT_EX_MULT_EMP_MULT_TERM;
   PROCEDURE UT_EX_CO_ONE_TERM_ONE_APPL;
   PROCEDURE UT_EX_CO_MULT_TERM_ONE_APPL;
   PROCEDURE UT_EX_CO_MULT_TERM_MULT_APPL;
@@ -20,6 +21,11 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                          appl_num     in demo_appl_num_rel.appl_num%type,
                                          invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                          amt          in demo_appl_num_rel.AMT%type);
+    procedure create_one_term_acct_for_emp_m(emp_id       in demo_emp_info.emp_id%type,
+                                           subject_type in demo_emp_invest.subject_type%type,
+                                         appl_num     in demo_appl_num_rel.appl_num%type,
+                                         invest_time  in demo_appl_num_rel.INVEST_TIME%type,
+                                         amt          in demo_appl_num_rel.AMT%type);
   procedure create_one_term_acct_for_co(appl_num     in demo_appl_num_rel.appl_num%type,
                                         invest_time  in demo_appl_num_rel.INVEST_TIME%type,
                                         amt          in demo_appl_num_rel.AMT%type);
@@ -28,6 +34,11 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                     amt          in demo_appl_num_rel.AMT%type);
 
   procedure assert_detail_by_appl(emp_id      in demo_emp_info.emp_id%type,
+                                  yappl_num   in number,
+                                  expected_invest_time in varchar2,
+                                  expected_amt         in number);
+ procedure assert_detail_by_appl_mult_sub(emp_id      in demo_emp_info.emp_id%type,
+                                  subject_type in demo_emp_invest.subject_type%type,
                                   yappl_num   in number,
                                   expected_invest_time in varchar2,
                                   expected_amt         in number);
@@ -194,7 +205,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     assert_detail_by_appl(emp_id, appl_num_six, term_one_invest_time, default_amount);
   END;
   
-   PROCEDURE UT_EX_MULT_EMP_ONE_APPL IS
+  PROCEDURE UT_EX_MULT_EMP_ONE_APPL IS
     ANOTHER_EMP_ID CONSTANT DEMO_EMP_INFO.EMP_ID%TYPE := '0000000002';
   BEGIN
     UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
@@ -214,6 +225,30 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     UT_PKG_DEMO_COMMON.assert_result_count(2);
     assert_detail_by_appl(emp_id, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
     assert_detail_by_appl(ANOTHER_EMP_ID, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+  END;
+  
+  PROCEDURE UT_EX_MULT_EMP_MULT_TERM IS
+    ANOTHER_EMP_ID CONSTANT DEMO_EMP_INFO.EMP_ID%TYPE := '0000000002';
+  BEGIN
+    UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
+    UT_PKG_DEMO_COMMON.create_mult_term_for_unit_val;
+    create_one_term_acct_for_emp(emp_id, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+    create_one_term_acct_for_emp(ANOTHER_EMP_ID, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+    create_one_term_acct_for_emp(emp_id, appl_num_two, term_two_invest_time, one_term_one_appl_red_amt);
+    create_one_term_acct_for_emp(ANOTHER_EMP_ID, appl_num_two, term_two_invest_time, one_term_one_appl_red_amt);
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(emp_id, subject_type_emp, one_term_one_appl_red_amt*2);
+    UT_PKG_DEMO_COMMON.create_invest_pop_parameters(ANOTHER_EMP_ID, subject_type_emp, one_term_one_appl_red_amt*2);
+    pkg_demo.PROC_DEAL_POP(I_INVEST_ID => invest_id,
+                           O_FLAG      => OUT_FLAG,
+                           O_MSG       => OUT_MSG);
+
+    UT_PKG_DEMO_COMMON.assert_return_success(out_flag);
+    UT_PKG_DEMO_COMMON.assert_redemption_obj(subject_type_emp, emp_id);
+    UT_PKG_DEMO_COMMON.assert_result_count(4);
+    assert_detail_by_appl(emp_id, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+    assert_detail_by_appl(emp_id, appl_num_two, term_two_invest_time, one_term_one_appl_red_amt);
+    assert_detail_by_appl(ANOTHER_EMP_ID, appl_num_one, term_one_invest_time, one_term_one_appl_red_amt);
+    assert_detail_by_appl(ANOTHER_EMP_ID, appl_num_two, term_two_invest_time, one_term_one_appl_red_amt);
   END;
   
     /*
@@ -374,6 +409,28 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                               yappl_num || ' and emp_id = ''' || emp_id || '''',
                           AGAINST_VALUE_IN => expected_amt);
   end assert_detail_by_appl;
+  
+  procedure assert_detail_by_appl_mult_sub(emp_id      in demo_emp_info.emp_id%type,
+                                  subject_type in demo_emp_invest.subject_type%type,
+                                  yappl_num   in number,
+                                  expected_invest_time in varchar2,
+                                  expected_amt         in number) is
+  begin
+    utassert.eqqueryvalue(msg_in           => '校验invest_time',
+                          CHECK_QUERY_IN   => 'select invest_time from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
+                                              yappl_num || ' and emp_id = ''' || emp_id || ''' and subject_type = ''' || subject_type || '''',
+                          AGAINST_VALUE_IN => expected_invest_time);
+
+    utassert.eqqueryvalue(msg_in           => '校验quotient',
+                          CHECK_QUERY_IN   => 'select quotient from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
+                                              yappl_num || ' and emp_id = ''' || emp_id || ''' and subject_type = ''' || subject_type || '''',
+                          AGAINST_VALUE_IN => expected_amt);
+
+    utassert.eqqueryvalue(msg_in           => '校验amt',
+                          CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
+                                              yappl_num || ' and emp_id = ''' || emp_id || ''' and subject_type = ''' || subject_type || '''',
+                          AGAINST_VALUE_IN => expected_amt);
+  end;
 
   procedure create_one_term_acct_for_emp(emp_id       in demo_emp_info.emp_id%type,
                                          appl_num     in demo_appl_num_rel.appl_num%type,
@@ -430,6 +487,63 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
          b.amt);
 
   end create_one_term_acct_for_emp;
+  
+  procedure create_one_term_acct_for_emp_m(emp_id       in demo_emp_info.emp_id%type,
+                                           subject_type in demo_emp_invest.subject_type%type,
+                                         appl_num     in demo_appl_num_rel.appl_num%type,
+                                         invest_time  in demo_appl_num_rel.INVEST_TIME%type,
+                                         amt          in demo_appl_num_rel.AMT%type) is
+  begin
+    create_one_appl_num_rel(appl_num, invest_time, amt);
+
+    merge into demo_emp_invest a
+    using (select emp_id       emp_id,
+                  co_id        co_id,
+                  subject_type  subject_type,
+                  invest_id    invest_id,
+                  amt          amt
+             from dual) b
+    on (a.emp_id = b.emp_id and a.co_id = b.co_id and a.subject_type = b.subject_type and a.invest_id = b.invest_id)
+    WHEN MATCHED THEN
+      UPDATE
+         SET A.AMT       = a.AMT + b.amt,
+             a.quotient  = a.quotient + b.amt,
+             a.set_value = a.set_value + b.amt
+    when not matched then
+      insert
+        (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_ID, AMT, QUOTIENT, SET_VALUE)
+      values
+        (b.emp_id,
+         b.co_id,
+         b.subject_type,
+         b.invest_id,
+         b.amt,
+         b.amt,
+         b.amt);
+
+    merge into demo_emp_invest_term a
+    using (select emp_id       emp_id,
+                  co_id        co_id,
+                  subject_type subject_type,
+                  invest_id    invest_id,
+                  invest_time  invest_time,
+                  amt          amt
+             from dual) b
+    on (a.emp_id = b.emp_id and a.co_id = b.co_id and a.subject_type = b.subject_type and a.invest_id = b.invest_id and a.invest_time = b.invest_time)
+    WHEN MATCHED THEN
+      UPDATE SET A.AMT = a.AMT + b.amt
+    when not matched then
+      insert
+        (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_ID, invest_time, AMT)
+      values
+        (b.emp_id,
+         b.co_id,
+         b.subject_type,
+         b.invest_id,
+         b.invest_time,
+         b.amt);
+
+  end create_one_term_acct_for_emp_m;
 
   procedure create_one_appl_num_rel(appl_num     in demo_appl_num_rel.appl_num%type,
                                     invest_time  in demo_appl_num_rel.INVEST_TIME%type,

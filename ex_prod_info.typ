@@ -175,23 +175,11 @@ create or replace type body ex_prod_info is
     DELETE FROM DEMO_OP_CO;
     INSERT INTO DEMO_OP_CO
       (OP_DATE, CO_ID)
-      SELECT T1.INVEST_TIME, T1.CO_ID
-        FROM DEMO_EMP_INVEST_TERM T1
-       WHERE (T1.EMP_ID, T1.SUBJECT_TYPE) IN
-             (SELECT EMP_ID, SUBJECT_TYPE
-                FROM DEMO_INVEST_POP_TMP
-               WHERE SUBJECT_TYPE LIKE '301%')
-         AND T1.AMT > 0
-         AND T1.INVEST_ID = self.invest_id
-         AND self.FUNC_GET_RED_ABLE(T1.INVEST_TIME) = 0 --满足最低赎回期数
-      UNION
-      SELECT T1.INVEST_TIME, T1.CO_ID
-        FROM DEMO_CO_INVEST_TERM T1
-       WHERE (T1.CO_ID, T1.SUBJECT_TYPE) IN
-             (SELECT CO_ID, SUBJECT_TYPE
-                FROM DEMO_INVEST_POP_TMP
-               WHERE SUBJECT_TYPE NOT LIKE '301%')
-         AND T1.AMT > 0
+      SELECT distinct T1.INVEST_TIME, T1.CO_ID
+        FROM v_invest_term_acct_emp_and_co T1
+       WHERE (T1.EMP_ID,t1.co_id, T1.SUBJECT_TYPE) IN
+             (SELECT EMP_ID,co_id, SUBJECT_TYPE
+                FROM DEMO_INVEST_POP_TMP)
          AND T1.INVEST_ID = self.invest_id
          AND self.FUNC_GET_RED_ABLE(T1.INVEST_TIME) = 0;
   end;
@@ -205,7 +193,7 @@ create or replace type body ex_prod_info is
              T1.CO_ID,
              T1.SUBJECT_TYPE,
              T2.INVEST_TIME,
-             LEAST(T1.quotient_remain, T2.AMT), --min(赎回申请金额，余额 - 待赎回金额)
+             LEAST(T1.quotient_remain, T2.AMT), 
              LEAST(T1.quotient_remain, T2.AMT)
         FROM DEMO_INVEST_POP_TMP T1, DEMO_EMP_INVEST_TERM T2
        WHERE T1.EMP_ID = T2.EMP_ID
