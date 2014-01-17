@@ -238,6 +238,7 @@ create or replace type body ex_prod_info is
       return;
     END IF;
   end;
+  
   member function FUNC_GET_PLAN_ID_BY_INVEST_ID return varchar2 is
     V_PLAN_ID DEMO_INVEST_INFO.Plan_Id%type;
   begin
@@ -248,11 +249,10 @@ create or replace type body ex_prod_info is
      WHERE INVEST_ID = self.invest_id;
     return V_PLAN_ID;
   end;
+
   member function FUNC_GET_NEXT_RED_TIME RETURN VARCHAR2 IS
     RED_OP_TYPE CONSTANT NUMBER := 3;
     V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE;
-    --外部包调用子类内部方法，不支持直接放在外部包的方法内，需要分开写。
-    v_plan_id demo_plan_info.plan_id%type := self.func_get_plan_id_by_invest_id;
   BEGIN
     --获取最近一次的集中确认日
     SELECT MIN(T.DEMO_INVEST_TIME)
@@ -261,7 +261,7 @@ create or replace type body ex_prod_info is
      WHERE T.INVEST_ID = self.invest_id
        AND T.OP_TYPE = RED_OP_TYPE
        AND T.DEMO_INVEST_TIME >
-           PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(v_plan_id);
+           PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(self.func_get_plan_id_by_invest_id);
     RETURN V_RED_INVEST_TIME;
   END;
 
