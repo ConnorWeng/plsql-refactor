@@ -1,18 +1,8 @@
 create or replace type ex_prod_info under prod_info
 (
--- Author  : KFZX-WANGYANG01
--- Created : 2013/12/21 12:16:07
--- Purpose : 产品
-
--- Attributes
   red_invest_time varchar2(10),
   constructor function ex_prod_info(I_INVEST_ID IN VARCHAR2)
     return self as result,
-  member FUNCTION FUNC_GET_RED_ABLE(I_BUY_INVEST_TIME IN VARCHAR2)
-    RETURN NUMBER,
-  member FUNCTION FUNC_GET_FULL_LCR_DATE RETURN VARCHAR2,
-  member FUNCTION FUNC_GET_RED_PRIORITY(p_invest_time IN VARCHAR2)
-    RETURN VARCHAR2,
   member procedure PROC_EX_INIT_OPDATE_REL,
   member PROCEDURE PROC_DEAL_POP_EX_TO_TERM(I_INVEST_TIME IN VARCHAR2),
   member FUNCTION FUNC_EXIST_QUOTIENT_REMAIN RETURN BOOLEAN,
@@ -51,124 +41,6 @@ create or replace type body ex_prod_info is
     return;
   end;
 
-  /*********************************************************************
-    --名称:FUNC_GET_RED_ABLE
-    --描述:判断是否可赎回
-    --功能:判断是否可赎回
-    --模块:交易管理-集中确认
-    --作者:
-    --时间:
-    --参数:
-      I_INVEST_ID       IN VARCHAR2,  投资组合代码
-      I_RED_INVEST_TIME IN VARCHAR2,  赎回集中确认日
-      I_BUY_INVEST_TIME IN VARCHAR2   购买集中确认日
-    --返回：0，可以赎回；1，不能赎回
-  *********************************************************************/
-  member FUNCTION FUNC_GET_RED_ABLE(I_BUY_INVEST_TIME IN VARCHAR2)
-    RETURN NUMBER IS
-    V_ISSUE_WAY      DEMO_INVEST_BASIC_INFO.ISSUE_WAY%TYPE;
-    v_SELL_MIN_TERM  DEMO_INVEST_BASIC_INFO.Sell_Min_Term%TYPE;
-    v_OPEN_SELL_TERM DEMO_INVEST_BASIC_INFO.OPEN_SELL_TERM%TYPE;
-    v_max_TERM_NO    DEMO_INVEST_OP_CONTROL.term_no%TYPE;
-    v_min_TERM_NO    DEMO_INVEST_OP_CONTROL.term_no%TYPE;
-  
-  BEGIN
-    SELECT ISSUE_WAY, SELL_MIN_TERM, OPEN_SELL_TERM
-      INTO V_ISSUE_WAY, v_SELL_MIN_TERM, v_OPEN_SELL_TERM
-      FROM DEMO_INVEST_BASIC_INFO T
-     WHERE T.INVEST_ID = self.invest_id;
-  
-    IF V_ISSUE_WAY = 4 THEN
-      --结转型
-      SELECT max(TERM_NO)
-        INTO v_max_TERM_NO
-        FROM v_invest_op_control t
-       WHERE t.invest_id = self.invest_id
-         and t.op_type in (1, 2)
-         AND DEMO_INVEST_TIME = self.red_invest_time;
-    
-      SELECT MAX(TERM_NO)
-        INTO v_min_TERM_NO
-        FROM v_invest_op_control t
-       WHERE t.invest_id = self.invest_id
-         and t.op_type in (1, 2)
-         AND DEMO_INVEST_TIME = I_BUY_INVEST_TIME;
-    
-      IF v_max_TERM_NO IS NULL OR v_min_TERM_NO IS NULL THEN
-        RETURN 1;
-      END IF;
-    
-      IF MOD((v_max_TERM_NO - v_min_TERM_NO - v_SELL_MIN_TERM),
-             v_OPEN_SELL_TERM) = 0 and
-         v_max_TERM_NO - v_min_TERM_NO - v_SELL_MIN_TERM >= 0 THEN
-        RETURN 0;
-      ELSE
-        RETURN 1;
-      END IF;
-    ELSE
-      --其他
-      RETURN 0;
-    END IF;
-  
-  EXCEPTION
-    WHEN OTHERS THEN
-      RETURN 1;
-  END FUNC_GET_RED_ABLE;
-
-  /*********************************************************************/
-  --存储过程名称： FUNC_GET_FULL_LCR_DATE
-  --存储过程描述： 根据根据赎回日期，获取对应的期满赎回日期
-  --功能：         根据根据赎回日期，获取对应的期满赎回日期
-  --功能模块：
-  --作者：
-  --时间：
-  /*********************************************************************/
-  member FUNCTION FUNC_GET_FULL_LCR_DATE RETURN VARCHAR2 IS
-    V_FULL_LCR_DATE VARCHAR2(10);
-  BEGIN
-    SELECT MAX(T.demo_invest_time)
-      INTO V_FULL_LCR_DATE
-      FROM V_INVEST_OP_CONTROL T
-     WHERE T.INVEST_ID = self.invest_id
-       AND T.OP_TYPE IN (1, 2)
-       AND EXISTS (SELECT 1
-              FROM V_INVEST_OP_CONTROL T1
-             WHERE T1.INVEST_ID = T.INVEST_ID
-               AND T1.OP_TYPE = 4
-               AND T1.demo_invest_time = self.red_invest_time
-               AND T1.TERM_NO = T.TERM_NO);
-    RETURN V_FULL_LCR_DATE;
-  EXCEPTION
-    WHEN OTHERS THEN
-      RETURN NULL;
-  END FUNC_GET_FULL_LCR_DATE;
-  /*********************************************************************
-  --存储过程名称： PROC_GET_RED_PRIORITY
-  --存储过程描述： 获取如意人生赎回期数优先级
-  --功能模块：     如意人生赎回
-  --作者：
-  --时间：
-  --参数说明：
-  --p_invest_id             IN  VARCHAR2,     --投资组合编码
-  --p_invest_time           IN  VARCHAR2,     --资产所在的日期
-  --p_invest_red_time       IN  VARCHAR2,     --资产赎回的集中确认日
-  *********************************************************************/
-  member FUNCTION FUNC_GET_RED_PRIORITY(p_invest_time IN VARCHAR2)
-    RETURN VARCHAR2 IS
-    v_full_lcr_date DEMO_INVEST_OP_CONTROL.invest_time%TYPE;
-  BEGIN
-    v_full_lcr_date := self.FUNC_GET_FULL_LCR_DATE;
-    IF v_full_lcr_date = self.invest_id THEN
-      --这一期恰好期满，赎回采用高优先级
-      RETURN '9999-12-31';
-    END IF;
-    RETURN p_invest_time;
-  
-  EXCEPTION
-    WHEN OTHERS THEN
-      RETURN p_invest_time;
-  END FUNC_GET_RED_PRIORITY;
-
   member procedure PROC_EX_INIT_OPDATE_REL IS
   begin
     DELETE FROM DEMO_OP_CO;
@@ -180,7 +52,7 @@ create or replace type body ex_prod_info is
              (SELECT EMP_ID,co_id, SUBJECT_TYPE
                 FROM DEMO_INVEST_POP_TMP)
          AND T1.INVEST_ID = self.invest_id
-         AND self.FUNC_GET_RED_ABLE(T1.INVEST_TIME) = 0;
+         AND PKG_DEMO.FUNC_GET_RED_ABLE(invest_id, red_invest_time, T1.INVEST_TIME) = 0;
   end;
 
   member PROCEDURE PROC_DEAL_POP_EX_TO_TERM(I_INVEST_TIME IN VARCHAR2) IS
@@ -268,7 +140,7 @@ create or replace type body ex_prod_info is
   BEGIN
     FOR RS IN (SELECT T1.OP_DATE INVEST_TIME
                  FROM DEMO_OP_CO T1
-                ORDER BY self.FUNC_GET_RED_PRIORITY(T1.OP_DATE) DESC) LOOP
+                ORDER BY PKG_DEMO.FUNC_GET_RED_PRIORITY(invest_id, T1.OP_DATE, red_invest_time) DESC) LOOP
     
       self.PROC_DEAL_POP_EX_TO_TERM(RS.INVEST_TIME);
     
