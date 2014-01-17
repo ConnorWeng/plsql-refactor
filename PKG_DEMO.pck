@@ -81,11 +81,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   PROCEDURE PROC_DEAL_POP(I_INVEST_ID IN VARCHAR2,
                           O_FLAG      OUT NUMBER,
                           O_MSG       OUT VARCHAR2) IS
-    v_prod_info prod_info;
+    v_prod_info prod_info := prod_info.create_prod_info(i_invest_id);
   BEGIN
     O_FLAG := 0;
     O_MSG  := '成功';
-    v_prod_info := prod_info.create_prod_info(i_invest_id);
     v_prod_info.PROC_DEAL_POP(O_FLAG,O_MSG);
   
   EXCEPTION
