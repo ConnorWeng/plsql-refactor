@@ -1,7 +1,6 @@
 CREATE OR REPLACE PACKAGE PKG_DEMO IS
 
   PROC_NAME                     CONSTANT DB_LOG.PROC_NAME%TYPE := 'PKG_DEMO.PROC_DEAL_POP';
-  EVAL_STATE_FLAG_RECENT_TRADED constant demo_invest_unit_value.EVAL_STATE_FLAG%type := 2;
 
   -- Author  : KFZX-WANGYANG01
   -- Created : 2011-9-8 18:00:15
