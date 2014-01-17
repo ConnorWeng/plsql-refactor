@@ -331,7 +331,6 @@ create or replace type body ex_prod_info is
     if self.red_invest_time is null then
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
                                      '无法获取下一次赎回集中确认日',
-                                     self.invest_id,
                                      O_FLAG,
                                      O_MSG);
       RETURN;
@@ -344,7 +343,6 @@ create or replace type body ex_prod_info is
     IF self.FUNC_EXIST_QUOTIENT_REMAIN THEN
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
                                      '进行后进先出处理时，资产不足',
-                                     self.invest_id,
                                      O_FLAG,
                                      O_MSG);
       return;
@@ -355,7 +353,6 @@ create or replace type body ex_prod_info is
     IF self.FUNC_IS_RED_TOTAL_AMT_NOTEQ THEN
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
                                      '赎回份额分配出错',
-                                     self.invest_id,
                                      O_FLAG,
                                      O_MSG);
       return;
@@ -364,7 +361,6 @@ create or replace type body ex_prod_info is
     IF self.FUNC_IS_APPL_MORE_THEN_FIVE(V_MSG) THEN
       self.PROC_SET_O_FLAG_AND_O_MSG(3,
                                      V_MSG,
-                                     self.invest_id,
                                      O_FLAG,
                                      O_MSG);
       return;
@@ -429,3 +425,16 @@ create or replace type body ex_prod_info is
   END;
 end;
 /
+
+set serveroutput on
+/
+
+BEGIN
+  utSuite.add ('UT_PKG_DEMO_PROC_POP_DEAL');
+  utPackage.add ('UT_PKG_DEMO_PROC_POP_DEAL', 'UT_PKG_DEMO_PROC_POP_DEAL_EX');
+  utPackage.add ('UT_PKG_DEMO_PROC_POP_DEAL', 'UT_PKG_DEMO_PROC_POP_DEAL_UNEX');
+  utPLSQL.runsuite ('UT_PKG_DEMO_PROC_POP_DEAL', per_method_setup_in => TRUE);
+END;
+/
+
+select last_status from ut_suite where name = 'UT_PKG_DEMO_PROC_POP_DEAL';

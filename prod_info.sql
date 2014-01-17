@@ -11,7 +11,6 @@ create or replace type prod_info as object
                                  o_msg  in out varchar2),
   member PROCEDURE PROC_SET_O_FLAG_AND_O_MSG(V_FLAG   IN NUMBER,
                                              V_MSG    IN VARCHAR2,
-                                             V_PARAMS IN VARCHAR2,
                                              O_FLAG   IN OUT NUMBER,
                                              O_MSG    IN OUT VARCHAR2),
   member FUNCTION FUNC_IS_RED_TOTAL_AMT_NOTEQ RETURN BOOLEAN,
@@ -40,7 +39,6 @@ create or replace type body prod_info is
   end;
   member PROCEDURE PROC_SET_O_FLAG_AND_O_MSG(V_FLAG   IN NUMBER,
                                              V_MSG    IN VARCHAR2,
-                                             V_PARAMS IN VARCHAR2,
                                              O_FLAG   IN OUT NUMBER,
                                              O_MSG    IN OUT VARCHAR2) IS
   
@@ -49,7 +47,7 @@ create or replace type body prod_info is
     O_MSG  := V_MSG;
     PACK_LOG.LOG(PROC_NAME,
                  NULL,
-                 O_MSG || '|' || V_PARAMS,
+                 O_MSG || '|' || invest_id,
                  PACK_LOG.WARN_LEVEL);
   
   END;
@@ -75,3 +73,16 @@ create or replace type body prod_info is
 
 end;
 /
+
+set serveroutput on
+/
+
+BEGIN
+  utSuite.add ('UT_PKG_DEMO_PROC_POP_DEAL');
+  utPackage.add ('UT_PKG_DEMO_PROC_POP_DEAL', 'UT_PKG_DEMO_PROC_POP_DEAL_EX');
+  utPackage.add ('UT_PKG_DEMO_PROC_POP_DEAL', 'UT_PKG_DEMO_PROC_POP_DEAL_UNEX');
+  utPLSQL.runsuite ('UT_PKG_DEMO_PROC_POP_DEAL', per_method_setup_in => TRUE);
+END;
+/
+
+select last_status from ut_suite where name = 'UT_PKG_DEMO_PROC_POP_DEAL';
