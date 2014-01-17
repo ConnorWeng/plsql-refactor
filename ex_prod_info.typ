@@ -2,7 +2,7 @@ create or replace type ex_prod_info under prod_info
 (
 -- Author  : KFZX-WANGYANG01
 -- Created : 2013/12/21 12:16:07
--- Purpose : ²úÆ·
+-- Purpose : äº§å“
 
 -- Attributes
   red_invest_time varchar2(10),
@@ -52,17 +52,17 @@ create or replace type body ex_prod_info is
   end;
 
   /*********************************************************************
-    --Ãû³Æ:FUNC_GET_RED_ABLE
-    --ÃèÊö:ÅÐ¶ÏÊÇ·ñ¿ÉÊê»Ø
-    --¹¦ÄÜ:ÅÐ¶ÏÊÇ·ñ¿ÉÊê»Ø
-    --Ä£¿é:½»Ò×¹ÜÀí-¼¯ÖÐÈ·ÈÏ
-    --×÷Õß:
-    --Ê±¼ä:
-    --²ÎÊý:
-      I_INVEST_ID       IN VARCHAR2,  Í¶×Ê×éºÏ´úÂë
-      I_RED_INVEST_TIME IN VARCHAR2,  Êê»Ø¼¯ÖÐÈ·ÈÏÈÕ
-      I_BUY_INVEST_TIME IN VARCHAR2   ¹ºÂò¼¯ÖÐÈ·ÈÏÈÕ
-    --·µ»Ø£º0£¬¿ÉÒÔÊê»Ø£»1£¬²»ÄÜÊê»Ø
+    --åç§°:FUNC_GET_RED_ABLE
+    --æè¿°:åˆ¤æ–­æ˜¯å¦å¯èµŽå›ž
+    --åŠŸèƒ½:åˆ¤æ–­æ˜¯å¦å¯èµŽå›ž
+    --æ¨¡å—:äº¤æ˜“ç®¡ç†-é›†ä¸­ç¡®è®¤
+    --ä½œè€…:
+    --æ—¶é—´:
+    --å‚æ•°:
+      I_INVEST_ID       IN VARCHAR2,  æŠ•èµ„ç»„åˆä»£ç 
+      I_RED_INVEST_TIME IN VARCHAR2,  èµŽå›žé›†ä¸­ç¡®è®¤æ—¥
+      I_BUY_INVEST_TIME IN VARCHAR2   è´­ä¹°é›†ä¸­ç¡®è®¤æ—¥
+    --è¿”å›žï¼š0ï¼Œå¯ä»¥èµŽå›žï¼›1ï¼Œä¸èƒ½èµŽå›ž
   *********************************************************************/
   member FUNCTION FUNC_GET_RED_ABLE(I_BUY_INVEST_TIME IN VARCHAR2)
     RETURN NUMBER IS
@@ -79,7 +79,7 @@ create or replace type body ex_prod_info is
      WHERE T.INVEST_ID = self.invest_id;
   
     IF V_ISSUE_WAY = 4 THEN
-      --½á×ªÐÍ
+      --ç»“è½¬åž‹
       SELECT max(TERM_NO)
         INTO v_max_TERM_NO
         FROM v_invest_op_control t
@@ -106,7 +106,7 @@ create or replace type body ex_prod_info is
         RETURN 1;
       END IF;
     ELSE
-      --ÆäËû
+      --å…¶ä»–
       RETURN 0;
     END IF;
   
@@ -116,12 +116,12 @@ create or replace type body ex_prod_info is
   END FUNC_GET_RED_ABLE;
 
   /*********************************************************************/
-  --´æ´¢¹ý³ÌÃû³Æ£º FUNC_GET_FULL_LCR_DATE
-  --´æ´¢¹ý³ÌÃèÊö£º ¸ù¾Ý¸ù¾ÝÊê»ØÈÕÆÚ£¬»ñÈ¡¶ÔÓ¦µÄÆÚÂúÊê»ØÈÕÆÚ
-  --¹¦ÄÜ£º         ¸ù¾Ý¸ù¾ÝÊê»ØÈÕÆÚ£¬»ñÈ¡¶ÔÓ¦µÄÆÚÂúÊê»ØÈÕÆÚ
-  --¹¦ÄÜÄ£¿é£º
-  --×÷Õß£º
-  --Ê±¼ä£º
+  --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š FUNC_GET_FULL_LCR_DATE
+  --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š æ ¹æ®æ ¹æ®èµŽå›žæ—¥æœŸï¼ŒèŽ·å–å¯¹åº”çš„æœŸæ»¡èµŽå›žæ—¥æœŸ
+  --åŠŸèƒ½ï¼š         æ ¹æ®æ ¹æ®èµŽå›žæ—¥æœŸï¼ŒèŽ·å–å¯¹åº”çš„æœŸæ»¡èµŽå›žæ—¥æœŸ
+  --åŠŸèƒ½æ¨¡å—ï¼š
+  --ä½œè€…ï¼š
+  --æ—¶é—´ï¼š
   /*********************************************************************/
   member FUNCTION FUNC_GET_FULL_LCR_DATE RETURN VARCHAR2 IS
     V_FULL_LCR_DATE VARCHAR2(10);
@@ -143,15 +143,15 @@ create or replace type body ex_prod_info is
       RETURN NULL;
   END FUNC_GET_FULL_LCR_DATE;
   /*********************************************************************
-  --´æ´¢¹ý³ÌÃû³Æ£º PROC_GET_RED_PRIORITY
-  --´æ´¢¹ý³ÌÃèÊö£º »ñÈ¡ÈçÒâÈËÉúÊê»ØÆÚÊýÓÅÏÈ¼¶
-  --¹¦ÄÜÄ£¿é£º     ÈçÒâÈËÉúÊê»Ø
-  --×÷Õß£º
-  --Ê±¼ä£º
-  --²ÎÊýËµÃ÷£º
-  --p_invest_id             IN  VARCHAR2,     --Í¶×Ê×éºÏ±àÂë
-  --p_invest_time           IN  VARCHAR2,     --×Ê²úËùÔÚµÄÈÕÆÚ
-  --p_invest_red_time       IN  VARCHAR2,     --×Ê²úÊê»ØµÄ¼¯ÖÐÈ·ÈÏÈÕ
+  --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š PROC_GET_RED_PRIORITY
+  --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š èŽ·å–å¦‚æ„äººç”ŸèµŽå›žæœŸæ•°ä¼˜å…ˆçº§
+  --åŠŸèƒ½æ¨¡å—ï¼š     å¦‚æ„äººç”ŸèµŽå›ž
+  --ä½œè€…ï¼š
+  --æ—¶é—´ï¼š
+  --å‚æ•°è¯´æ˜Žï¼š
+  --p_invest_id             IN  VARCHAR2,     --æŠ•èµ„ç»„åˆç¼–ç 
+  --p_invest_time           IN  VARCHAR2,     --èµ„äº§æ‰€åœ¨çš„æ—¥æœŸ
+  --p_invest_red_time       IN  VARCHAR2,     --èµ„äº§èµŽå›žçš„é›†ä¸­ç¡®è®¤æ—¥
   *********************************************************************/
   member FUNCTION FUNC_GET_RED_PRIORITY(p_invest_time IN VARCHAR2)
     RETURN VARCHAR2 IS
@@ -159,7 +159,7 @@ create or replace type body ex_prod_info is
   BEGIN
     v_full_lcr_date := self.FUNC_GET_FULL_LCR_DATE;
     IF v_full_lcr_date = self.invest_id THEN
-      --ÕâÒ»ÆÚÇ¡ºÃÆÚÂú£¬Êê»Ø²ÉÓÃ¸ßÓÅÏÈ¼¶
+      --è¿™ä¸€æœŸæ°å¥½æœŸæ»¡ï¼ŒèµŽå›žé‡‡ç”¨é«˜ä¼˜å…ˆçº§
       RETURN '9999-12-31';
     END IF;
     RETURN p_invest_time;
@@ -330,7 +330,7 @@ create or replace type body ex_prod_info is
   
     if self.red_invest_time is null then
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
-                                     'ÎÞ·¨»ñÈ¡ÏÂÒ»´ÎÊê»Ø¼¯ÖÐÈ·ÈÏÈÕ',
+                                     'æ— æ³•èŽ·å–ä¸‹ä¸€æ¬¡èµŽå›žé›†ä¸­ç¡®è®¤æ—¥',
                                      self.invest_id,
                                      O_FLAG,
                                      O_MSG);
@@ -343,7 +343,7 @@ create or replace type body ex_prod_info is
   
     IF self.FUNC_EXIST_QUOTIENT_REMAIN THEN
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
-                                     '½øÐÐºó½øÏÈ³ö´¦ÀíÊ±£¬×Ê²ú²»×ã',
+                                     'è¿›è¡ŒåŽè¿›å…ˆå‡ºå¤„ç†æ—¶ï¼Œèµ„äº§ä¸è¶³',
                                      self.invest_id,
                                      O_FLAG,
                                      O_MSG);
@@ -354,7 +354,7 @@ create or replace type body ex_prod_info is
   
     IF self.FUNC_IS_RED_TOTAL_AMT_NOTEQ THEN
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
-                                     'Êê»Ø·Ý¶î·ÖÅä³ö´í',
+                                     'èµŽå›žä»½é¢åˆ†é…å‡ºé”™',
                                      self.invest_id,
                                      O_FLAG,
                                      O_MSG);
@@ -373,7 +373,7 @@ create or replace type body ex_prod_info is
   member function FUNC_GET_PLAN_ID_BY_INVEST_ID return varchar2 is
     V_PLAN_ID DEMO_INVEST_INFO.Plan_Id%type;
   begin
-    --»ñÈ¡¼Æ»®±àÂë
+    --èŽ·å–è®¡åˆ’ç¼–ç 
     SELECT PLAN_ID
       INTO V_PLAN_ID
       FROM DEMO_INVEST_INFO
@@ -383,10 +383,10 @@ create or replace type body ex_prod_info is
   member function FUNC_GET_NEXT_RED_TIME RETURN VARCHAR2 IS
     RED_OP_TYPE CONSTANT NUMBER := 3;
     V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE;
-    --Íâ²¿°üµ÷ÓÃ×ÓÀàÄÚ²¿·½·¨£¬²»Ö§³ÖÖ±½Ó·ÅÔÚÍâ²¿°üµÄ·½·¨ÄÚ£¬ÐèÒª·Ö¿ªÐ´¡£
+    --å¤–éƒ¨åŒ…è°ƒç”¨å­ç±»å†…éƒ¨æ–¹æ³•ï¼Œä¸æ”¯æŒç›´æŽ¥æ”¾åœ¨å¤–éƒ¨åŒ…çš„æ–¹æ³•å†…ï¼Œéœ€è¦åˆ†å¼€å†™ã€‚
     v_plan_id demo_plan_info.plan_id%type := self.func_get_plan_id_by_invest_id;
   BEGIN
-    --»ñÈ¡×î½üÒ»´ÎµÄ¼¯ÖÐÈ·ÈÏÈÕ
+    --èŽ·å–æœ€è¿‘ä¸€æ¬¡çš„é›†ä¸­ç¡®è®¤æ—¥
     SELECT MIN(T.DEMO_INVEST_TIME)
       INTO V_RED_INVEST_TIME
       FROM V_INVEST_OP_CONTROL T
@@ -419,8 +419,8 @@ create or replace type body ex_prod_info is
   
     SELECT DECODE(V_EMP_ID,
                   'FFFFFFFFFF',
-                  'ÆóÒµ£º' || PKG_DEMO_COMMON.FUNC_GET_COFNAMEBYID(V_CO_ID),
-                  'Ô±¹¤£º' || V_EMP_ID) || 'Éú³ÉÉêÇëµ¥³¬¹ý5Ìõ'
+                  'ä¼ä¸šï¼š' || PKG_DEMO_COMMON.FUNC_GET_COFNAMEBYID(V_CO_ID),
+                  'å‘˜å·¥ï¼š' || V_EMP_ID) || 'ç”Ÿæˆç”³è¯·å•è¶…è¿‡5æ¡'
       INTO V_MSG
       FROM DUAL;
   

@@ -52,7 +52,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_COMMON IS
     insert into demo_plan_info
       (PLAN_ID, PLAN_NAME, PLAN_TIME)
     values
-      (plan_id, '计划名称', '2013-12-01');
+      (plan_id, '璁″垝鍚嶇О', '2013-12-01');
   end create_plan_info;
 
   procedure create_prod_info(buy_way in demo_invest_basic_info.BUY_WAY%type) is
@@ -62,7 +62,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_COMMON IS
     insert into demo_invest_info
       (PLAN_ID, INVEST_ID, INVEST_NAME)
     values
-      (plan_id, invest_id, '组合名称');
+      (plan_id, invest_id, '缁勫悎鍚嶇О');
 
     insert into demo_invest_basic_info
       (FPPS_INVEST_ID,
@@ -132,7 +132,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_COMMON IS
 
   procedure assert_out_flag(out_flag number, expected_out_flag number) is
   begin
-    utassert.eq(msg_in          => '校验程序返回标志',
+    utassert.eq(msg_in          => '鏍￠獙绋嬪簭杩斿洖鏍囧織',
                 check_this_in   => out_flag,
                 against_this_in => expected_out_flag);
   end assert_out_flag;
@@ -145,20 +145,20 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_COMMON IS
   procedure assert_redemption_obj(expected_subject_type in demo_emp_invest.subject_type%type,
                                   expected_emp_id       in demo_emp_invest.emp_id%type) is
   begin
-    utassert.eqqueryvalue(msg_in           => '校验co_id',
+    utassert.eqqueryvalue(msg_in           => '鏍￠獙co_id',
                           CHECK_QUERY_IN   => 'select distinct co_id from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => co_id);
-    utassert.eqqueryvalue(msg_in           => '校验emp_id',
+    utassert.eqqueryvalue(msg_in           => '鏍￠獙emp_id',
                           CHECK_QUERY_IN   => 'select distinct emp_id from demo_invest_pop_result_tmp where emp_id = ''' || expected_emp_id || '''',
                           AGAINST_VALUE_IN => expected_emp_id);
-    utassert.eqqueryvalue(msg_in           => '校验subject_type',
+    utassert.eqqueryvalue(msg_in           => '鏍￠獙subject_type',
                           CHECK_QUERY_IN   => 'select distinct subject_type from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => expected_subject_type);
   end assert_redemption_obj;
 
   procedure assert_result_count(expected_count number) is
   begin
-    utassert.eqqueryvalue(msg_in           => '校验tablecount',
+    utassert.eqqueryvalue(msg_in           => '鏍￠獙tablecount',
                           CHECK_QUERY_IN   => 'select count(1) from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => expected_count);
   end;
@@ -170,3 +170,4 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_COMMON IS
 
 END UT_PKG_DEMO_COMMON;
 /
+

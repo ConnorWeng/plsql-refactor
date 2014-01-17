@@ -54,7 +54,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   END;
 
   /*
-  ¾»Öµ±¨¼ÛÐÍ£¬¸öÈËÊê»Ø
+  å‡€å€¼æŠ¥ä»·åž‹ï¼Œä¸ªäººèµŽå›ž
   */
   PROCEDURE UT_UNEX_EMP_ENOUGH IS
   BEGIN
@@ -73,7 +73,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   END;
 
   /*
-  ¾»Öµ±¨¼ÛÐÍ£¬ÆóÒµÊê»Ø
+  å‡€å€¼æŠ¥ä»·åž‹ï¼Œä¼ä¸šèµŽå›ž
   */
   PROCEDURE UT_UNEX_CO_ENOUGH IS
   BEGIN
@@ -92,7 +92,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   END;
 
   /*
-  ¾»Öµ±¨¼ÛÐÍ£¬ÆóÒµÊê»Ø,²»¹»
+  å‡€å€¼æŠ¥ä»·åž‹ï¼Œä¼ä¸šèµŽå›ž,ä¸å¤Ÿ
   */
   PROCEDURE UT_UNEX_CO_NOTENOUGH IS
   BEGIN
@@ -107,7 +107,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 2);
   END;
   
-  /*¾»Öµ±¨¼ÛÐÍ²úÆ·£¬²»´æÔÚÒÑÍê³ÉµÄ¼¯ÖÐÈ·ÈÏÈÕ*/
+  /*å‡€å€¼æŠ¥ä»·åž‹äº§å“ï¼Œä¸å­˜åœ¨å·²å®Œæˆçš„é›†ä¸­ç¡®è®¤æ—¥*/
   PROCEDURE UT_UNEX_NOT_EXIST_DONE_OP_DATE IS
   BEGIN
     UT_PKG_DEMO_COMMON.create_one_item_for_unit_value(UT_PKG_DEMO_COMMON.term_one_invest_time, UT_PKG_DEMO_COMMON.eval_state_flag_not_excuted);
@@ -147,13 +147,19 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   procedure assert_quotient_and_amt(expected_red_quotient demo_invest_pop_result_tmp.QUOTIENT%type,
                                     expected_amt demo_invest_pop_result_tmp.AMT%type) is
   begin
-    utassert.eqqueryvalue(msg_in           => 'Ð£Ñéquotient',
+    utassert.eqqueryvalue(msg_in           => 'æ ¡éªŒquotient',
                           CHECK_QUERY_IN   => 'select quotient from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => expected_red_quotient);
-    utassert.eqqueryvalue(msg_in           => 'Ð£Ñéamt',
+    utassert.eqqueryvalue(msg_in           => 'æ ¡éªŒamt',
                           CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp',
                           AGAINST_VALUE_IN => expected_amt);
   end;
 
 END UT_PKG_DEMO_PROC_POP_DEAL_UNEX;
+/
+
+set serveroutput on
+/
+
+exec utplsql.run ('UT_PKG_DEMO_PROC_POP_DEAL_UNEX', per_method_setup_in => TRUE)
 /

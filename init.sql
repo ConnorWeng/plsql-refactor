@@ -13,26 +13,26 @@ create table DB_LOG
 );
 -- Add comments to the table 
 comment on table DB_LOG
-  is 'Êı¾İ¿âÈÕÖ¾ĞÅÏ¢±í';
+  is 'æ•°æ®åº“æ—¥å¿—ä¿¡æ¯è¡¨';
 -- Add comments to the columns 
 comment on column DB_LOG.id
   is 'ID';
 comment on column DB_LOG.proc_name
-  is '³ÌĞòÃû';
+  is 'ç¨‹åºå';
 comment on column DB_LOG.info
-  is 'ÕªÒª';
+  is 'æ‘˜è¦';
 comment on column DB_LOG.log_level
-  is 'ÈÕÖ¾µÈ¼¶';
+  is 'æ—¥å¿—ç­‰çº§';
 comment on column DB_LOG.time_stamp
-  is 'Ê±¼ä´Á';
+  is 'æ—¶é—´æˆ³';
 comment on column DB_LOG.error_backtrace
-  is '´íÎó»ØËİ';
+  is 'é”™è¯¯å›æº¯';
 comment on column DB_LOG.err_stack
-  is '´íÎó¶ÑÕ»';
+  is 'é”™è¯¯å †æ ˆ';
 comment on column DB_LOG.step_no
-  is '²½Öè';
+  is 'æ­¥éª¤';
 comment on column DB_LOG.log_date
-  is 'ÈÕÖ¾ÈÕÆÚ';
+  is 'æ—¥å¿—æ—¥æœŸ';
 -- Create/Recreate indexes 
 create index IDX_DB_LOG_1 on DB_LOG (PROC_NAME, LOG_DATE);
 create index IDX_DB_LOG_2 on DB_LOG (LOG_DATE, LOG_LEVEL);
@@ -46,14 +46,14 @@ create table demo_PLAN_INFO
 );
 -- Add comments to the table 
 comment on table demo_PLAN_INFO
-  is '¼Æ»®»ù±¾ĞÅÏ¢±í';
+  is 'è®¡åˆ’åŸºæœ¬ä¿¡æ¯è¡¨';
 -- Add comments to the columns 
 comment on column demo_PLAN_INFO.plan_id
-  is '¼Æ»®±àÂë';
+  is 'è®¡åˆ’ç¼–ç ';
 comment on column demo_PLAN_INFO.plan_name
-  is '¼Æ»®Ãû³Æ';
+  is 'è®¡åˆ’åç§°';
 comment on column demo_PLAN_INFO.plan_time
-  is '¼Æ»®µ±Ç°Ê±¼ä';
+  is 'è®¡åˆ’å½“å‰æ—¶é—´';
 -- Create/Recreate primary, unique and foreign key constraints 
 alter table demo_PLAN_INFO
   add constraint PK_demo_PLAN_INFO primary key (PLAN_ID);
@@ -72,20 +72,20 @@ create table DEMO_INVEST_OP_CONTROL
 );
 -- Add comments to the table 
 comment on table DEMO_INVEST_OP_CONTROL
-  is '½»Ò×¿ØÖÆ±í';
+  is 'äº¤æ˜“æ§åˆ¶è¡¨';
 -- Add comments to the columns 
 comment on column DEMO_INVEST_OP_CONTROL.invest_id
-  is '×éºÏ±àÂë';
+  is 'ç»„åˆç¼–ç ';
 comment on column DEMO_INVEST_OP_CONTROL.op_type
-  is 'ÒµÎñÖÖÀà£¨1£ºÈÏ¹º 2£º¹ºÂò 3£ºÊê»Ø 4£º·Öºì 5£ºµ½ÆÚ 6£ºÇ¿¼õ 7£ºÇ¿Ôö£©';
+  is 'ä¸šåŠ¡ç§ç±»ï¼ˆ1ï¼šè®¤è´­ 2ï¼šè´­ä¹° 3ï¼šèµå› 4ï¼šåˆ†çº¢ 5ï¼šåˆ°æœŸ 6ï¼šå¼ºå‡ 7ï¼šå¼ºå¢ï¼‰';
 comment on column DEMO_INVEST_OP_CONTROL.term_no
-  is 'ÒµÎñÖÖÀàÆÚ´ÎºÅ';
+  is 'ä¸šåŠ¡ç§ç±»æœŸæ¬¡å·';
 comment on column DEMO_INVEST_OP_CONTROL.invest_time
-  is 'È·ÈÏÈÕÆÚ';
+  is 'ç¡®è®¤æ—¥æœŸ';
 comment on column DEMO_INVEST_OP_CONTROL.lcr_way
-  is 'ÊÕÒæ¼ÆËã·½Ê½£¨1.±¨¼Û 2.Äê»¯ 3.¹Ì¶¨ÊÕÒæ 4.Ï¢Óà£©';
+  is 'æ”¶ç›Šè®¡ç®—æ–¹å¼ï¼ˆ1.æŠ¥ä»· 2.å¹´åŒ– 3.å›ºå®šæ”¶ç›Š 4.æ¯ä½™ï¼‰';
 comment on column DEMO_INVEST_OP_CONTROL.unit_value_date
-  is '¾»ÖµÊ¹ÓÃÈÕÆÚ';
+  is 'å‡€å€¼ä½¿ç”¨æ—¥æœŸ';
 -- Create/Recreate primary, unique and foreign key constraints 
 alter table DEMO_INVEST_OP_CONTROL
   add constraint PK_DEMO_INVEST_OP_CONTROL primary key (INVEST_ID, INVEST_TIME, OP_TYPE)
@@ -105,18 +105,18 @@ create global temporary table DEMO_INVEST_POP_TMP
 on commit preserve rows;
 -- Add comments to the table 
 comment on table DEMO_INVEST_POP_TMP
-  is 'ºó½øÏÈ³öµ÷ÕûÁÙÊ±±í';
+  is 'åè¿›å…ˆå‡ºè°ƒæ•´ä¸´æ—¶è¡¨';
 -- Add comments to the columns 
 comment on column DEMO_INVEST_POP_TMP.emp_id
-  is '¸öÈË±àÂë';
+  is 'ä¸ªäººç¼–ç ';
 comment on column DEMO_INVEST_POP_TMP.co_id
-  is 'ÆóÒµ±àÂë';
+  is 'ä¼ä¸šç¼–ç ';
 comment on column DEMO_INVEST_POP_TMP.subject_type
-  is '¿ÆÄ¿';
+  is 'ç§‘ç›®';
 comment on column DEMO_INVEST_POP_TMP.amt
-  is '½ğ¶î';
+  is 'é‡‘é¢';
 comment on column DEMO_INVEST_POP_TMP.amt_remain
-  is 'Ê£Óà½ğ¶î';
+  is 'å‰©ä½™é‡‘é¢';
 -- Create/Recreate indexes 
 create unique index IDX_DEMO_INVEST_POP_TMP_1 on DEMO_INVEST_POP_TMP (EMP_ID, CO_ID, SUBJECT_TYPE);
 
@@ -134,22 +134,22 @@ create global temporary table DEMO_INVEST_POP_RESULT_TMP
 on commit preserve rows;
 -- Add comments to the table 
 comment on table DEMO_INVEST_POP_RESULT_TMP
-  is 'ºó½øÏÈ³öµ÷³öÃ÷Ï¸ÁÙÊ±±í';
+  is 'åè¿›å…ˆå‡ºè°ƒå‡ºæ˜ç»†ä¸´æ—¶è¡¨';
 -- Add comments to the columns 
 comment on column DEMO_INVEST_POP_RESULT_TMP.emp_id
-  is '¸öÈË±àÂë';
+  is 'ä¸ªäººç¼–ç ';
 comment on column DEMO_INVEST_POP_RESULT_TMP.co_id
-  is 'ÆóÒµ±àÂë';
+  is 'ä¼ä¸šç¼–ç ';
 comment on column DEMO_INVEST_POP_RESULT_TMP.subject_type
-  is '¿ÆÄ¿';
+  is 'ç§‘ç›®';
 comment on column DEMO_INVEST_POP_RESULT_TMP.invest_time
-  is '¼¯ÖĞÈ·ÈÏÂòÈëÈÕÆÚ';
+  is 'é›†ä¸­ç¡®è®¤ä¹°å…¥æ—¥æœŸ';
 comment on column DEMO_INVEST_POP_RESULT_TMP.amt
-  is '½ğ¶î';
+  is 'é‡‘é¢';
 comment on column DEMO_INVEST_POP_RESULT_TMP.quotient
-  is '·İ¶î';
+  is 'ä»½é¢';
 comment on column DEMO_INVEST_POP_RESULT_TMP.yappl_num
-  is 'Ô­ÉêÇëµ¥ºÅ';
+  is 'åŸç”³è¯·å•å·';
 -- Create/Recreate indexes 
 create unique index IDX_DEMO_INVEST_POP_RESULT_1 on DEMO_INVEST_POP_RESULT_TMP (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, YAPPL_NUM);
 
@@ -179,48 +179,48 @@ create table DEMO_INVEST_BASIC_INFO
 );
 -- Add comments to the table 
 comment on table DEMO_INVEST_BASIC_INFO
-  is '²úÆ·ÊôĞÔ±í';
+  is 'äº§å“å±æ€§è¡¨';
 -- Add comments to the columns 
 comment on column DEMO_INVEST_BASIC_INFO.fpps_invest_id
-  is '²úÆ·´úÂë';
+  is 'äº§å“ä»£ç ';
 comment on column DEMO_INVEST_BASIC_INFO.invest_id
-  is 'Í¶×Ê×éºÏ±àÂë';
+  is 'æŠ•èµ„ç»„åˆç¼–ç ';
 comment on column DEMO_INVEST_BASIC_INFO.issue_dept
-  is '²úÆ··¢ĞĞ²¿ÃÅ';
+  is 'äº§å“å‘è¡Œéƒ¨é—¨';
 comment on column DEMO_INVEST_BASIC_INFO.invest_state
-  is '²úÆ·×´Ì¬£¨1.·¢ĞĞ 2.·¢ĞĞ³É¹¦ 3.·¢ĞĞÊ§°Ü 9.µ½ÆÚ£©';
+  is 'äº§å“çŠ¶æ€ï¼ˆ1.å‘è¡Œ 2.å‘è¡ŒæˆåŠŸ 3.å‘è¡Œå¤±è´¥ 9.åˆ°æœŸï¼‰';
 comment on column DEMO_INVEST_BASIC_INFO.issue_begin_date
-  is '·¢ĞĞ¿ªÊ¼ÈÕ';
+  is 'å‘è¡Œå¼€å§‹æ—¥';
 comment on column DEMO_INVEST_BASIC_INFO.issue_end_date
-  is '·¢ĞĞ½áÊøÈÕ';
+  is 'å‘è¡Œç»“æŸæ—¥';
 comment on column DEMO_INVEST_BASIC_INFO.invest_end_date
-  is '²úÆ·µ½ÆÚÈÕ';
+  is 'äº§å“åˆ°æœŸæ—¥';
 comment on column DEMO_INVEST_BASIC_INFO.issue_way
-  is '·¢ĞĞ·½Ê½£¨1.ÆÚ´Î·¢ĞĞ  4.²úÆ·ÄÚ¹ö¶¯£¨½á×ª£©£©';
+  is 'å‘è¡Œæ–¹å¼ï¼ˆ1.æœŸæ¬¡å‘è¡Œ  4.äº§å“å†…æ»šåŠ¨ï¼ˆç»“è½¬ï¼‰ï¼‰';
 comment on column DEMO_INVEST_BASIC_INFO.buy_way
-  is 'ÊÇ·ñ·¢ĞĞ¼ÛÂòÂô£¨0.ÊÇ 1.·ñ£©';
+  is 'æ˜¯å¦å‘è¡Œä»·ä¹°å–ï¼ˆ0.æ˜¯ 1.å¦ï¼‰';
 comment on column DEMO_INVEST_BASIC_INFO.sell_order
-  is 'Êê»ØºËÏúË³Ğò£¨1-ÏÈ½øÏÈ³ö 2-ÏÈ½øºó³ö 3-°´ÉêÇëµ¥±àºÅ£©';
+  is 'èµå›æ ¸é”€é¡ºåºï¼ˆ1-å…ˆè¿›å…ˆå‡º 2-å…ˆè¿›åå‡º 3-æŒ‰ç”³è¯·å•ç¼–å·ï¼‰';
 comment on column DEMO_INVEST_BASIC_INFO.sell_min_term
-  is 'ÌáÇ°Êê»Ø×îµÍ³ÖÓĞÆÚÊı';
+  is 'æå‰èµå›æœ€ä½æŒæœ‰æœŸæ•°';
 comment on column DEMO_INVEST_BASIC_INFO.open_sell_term
-  is '¿ª·ÅÊê»ØÖÜÆÚ';
+  is 'å¼€æ”¾èµå›å‘¨æœŸ';
 comment on column DEMO_INVEST_BASIC_INFO.issu_min
-  is '·¢ĞĞÆÚµ¥±Ê×îµÍ¹ºÂò½ğ¶î';
+  is 'å‘è¡ŒæœŸå•ç¬”æœ€ä½è´­ä¹°é‡‘é¢';
 comment on column DEMO_INVEST_BASIC_INFO.buy_pa_amt
-  is '´æĞøÆÚµ¥±Ê×îµÍ¹ºÂò½ğ¶î';
+  is 'å­˜ç»­æœŸå•ç¬”æœ€ä½è´­ä¹°é‡‘é¢';
 comment on column DEMO_INVEST_BASIC_INFO.buy_add_amt_issu
-  is '×·¼ÓÈÏ¹º×îµÍ½ğ¶î';
+  is 'è¿½åŠ è®¤è´­æœ€ä½é‡‘é¢';
 comment on column DEMO_INVEST_BASIC_INFO.buy_level_issu
-  is 'µ¥±ÊÈÏ¹ºÏŞ¶î';
+  is 'å•ç¬”è®¤è´­é™é¢';
 comment on column DEMO_INVEST_BASIC_INFO.buy_level_pa
-  is 'µ¥±ÊÉê¹ºÏŞ¶î';
+  is 'å•ç¬”ç”³è´­é™é¢';
 comment on column DEMO_INVEST_BASIC_INFO.buy_add_amt_pa
-  is '×·¼ÓÉê¹º×îµÍ½ğ¶î';
+  is 'è¿½åŠ ç”³è´­æœ€ä½é‡‘é¢';
 comment on column DEMO_INVEST_BASIC_INFO.sell_value
-  is '·¢ĞĞ¼Û¸ñ';
+  is 'å‘è¡Œä»·æ ¼';
 comment on column DEMO_INVEST_BASIC_INFO.prod_share_type
-  is '²úÆ··Öºì·½Ê½';
+  is 'äº§å“åˆ†çº¢æ–¹å¼';
 -- Create/Recreate primary, unique and foreign key constraints 
 alter table DEMO_INVEST_BASIC_INFO
   add constraint PK_DEMO_INVEST_BASIC_INFO primary key (INVEST_ID)
@@ -236,14 +236,14 @@ create table DEMO_INVEST_INFO
 );
 -- Add comments to the table 
 comment on table DEMO_INVEST_INFO
-  is '×éºÏĞÅÏ¢±í';
+  is 'ç»„åˆä¿¡æ¯è¡¨';
 -- Add comments to the columns 
 comment on column DEMO_INVEST_INFO.plan_id
-  is '¼Æ»®±àÂë';
+  is 'è®¡åˆ’ç¼–ç ';
 comment on column DEMO_INVEST_INFO.invest_id
-  is 'Í¶×Ê×éºÏ´úÂë';
+  is 'æŠ•èµ„ç»„åˆä»£ç ';
 comment on column DEMO_INVEST_INFO.invest_name
-  is 'Í¶×Ê×éºÏÃû³Æ';
+  is 'æŠ•èµ„ç»„åˆåç§°';
 -- Create/Recreate primary, unique and foreign key constraints 
 alter table DEMO_INVEST_INFO
   add constraint PK_DEMO_INVEST_INFO primary key (INVEST_ID)
@@ -277,16 +277,16 @@ create table DEMO_CO_INFO
 );
 -- Add comments to the table 
 comment on table DEMO_CO_INFO
-  is 'ÆóÒµÕË»§ĞÅÏ¢±í';
+  is 'ä¼ä¸šè´¦æˆ·ä¿¡æ¯è¡¨';
 -- Add comments to the columns 
 comment on column DEMO_CO_INFO.co_id
-  is 'ÆóÒµÕË»§±àºÅ';
+  is 'ä¼ä¸šè´¦æˆ·ç¼–å·';
 comment on column DEMO_CO_INFO.sup_co
-  is 'ÉÏ¼¶ÕË»§±àºÅ';
+  is 'ä¸Šçº§è´¦æˆ·ç¼–å·';
 comment on column DEMO_CO_INFO.plan_id
-  is '¼Æ»®±àºÅ';
+  is 'è®¡åˆ’ç¼–å·';
 comment on column DEMO_CO_INFO.co_fname
-  is 'ÆóÒµÈ«³Æ';
+  is 'ä¼ä¸šå…¨ç§°';
 
 -- Create/Recreate primary, unique and foreign key constraints 
 alter table DEMO_CO_INFO
@@ -306,16 +306,16 @@ create table DEMO_EMP_INFO
 );
 -- Add comments to the table 
 comment on table DEMO_EMP_INFO
-  is '¸öÈËÕË»§ĞÅÏ¢±í';
+  is 'ä¸ªäººè´¦æˆ·ä¿¡æ¯è¡¨';
 -- Add comments to the columns 
 comment on column DEMO_EMP_INFO.emp_client_id
-  is '¸öÈËĞÅÏ¢±àÂë';
+  is 'ä¸ªäººä¿¡æ¯ç¼–ç ';
 comment on column DEMO_EMP_INFO.emp_id
-  is '¸öÈËÕË»§±àÂë';
+  is 'ä¸ªäººè´¦æˆ·ç¼–ç ';
 comment on column DEMO_EMP_INFO.co_id
-  is 'ÆóÒµÕË»§±àÂë';
+  is 'ä¼ä¸šè´¦æˆ·ç¼–ç ';
 comment on column DEMO_EMP_INFO.acct_state
-  is 'ÕË»§×´Ì¬';
+  is 'è´¦æˆ·çŠ¶æ€';
 -- Create/Recreate primary, unique and foreign key constraints 
 alter table DEMO_EMP_INFO
   add constraint PK_DEMO_EMP_INFO primary key (EMP_ID)
@@ -334,18 +334,18 @@ create global temporary table DEMO_OP_CO
 on commit preserve rows;
 -- Add comments to the table 
 comment on table DEMO_OP_CO
-  is 'µ±Ç°ÆóÒµÏÂ¼¶¿ÉÒÔ²Ù×÷µÄÆóÒµ';
+  is 'å½“å‰ä¼ä¸šä¸‹çº§å¯ä»¥æ“ä½œçš„ä¼ä¸š';
 -- Add comments to the columns 
 comment on column DEMO_OP_CO.co_id
-  is 'ÆóÒµ±àÂë';
+  is 'ä¼ä¸šç¼–ç ';
 comment on column DEMO_OP_CO.l1_co_id
-  is 'Ò»¼¶ÆóÒµ±àÂë';
+  is 'ä¸€çº§ä¼ä¸šç¼–ç ';
 comment on column DEMO_OP_CO.sys_time
-  is 'ÏµÍ³Ê±¼ä';
+  is 'ç³»ç»Ÿæ—¶é—´';
 comment on column DEMO_OP_CO.plan_id
-  is '¼Æ»®±àÂë';
+  is 'è®¡åˆ’ç¼–ç ';
 comment on column DEMO_OP_CO.op_date
-  is '²Ù×÷Ê±¼ä';
+  is 'æ“ä½œæ—¶é—´';
 
 -- Create table
 create table DEMO_EMP_INVEST_TERM
@@ -360,22 +360,22 @@ create table DEMO_EMP_INVEST_TERM
 );
 -- Add comments to the table 
 comment on table DEMO_EMP_INVEST_TERM
-  is '¸öÈË´æĞîÆÚÊıÍ¶×Ê×Ê²úÓà¶î±í';
+  is 'ä¸ªäººå­˜è“„æœŸæ•°æŠ•èµ„èµ„äº§ä½™é¢è¡¨';
 -- Add comments to the columns 
 comment on column DEMO_EMP_INVEST_TERM.emp_id
-  is '¸öÈËÕË»§±àÂë';
+  is 'ä¸ªäººè´¦æˆ·ç¼–ç ';
 comment on column DEMO_EMP_INVEST_TERM.co_id
-  is 'ËùÊôÆóÒµ±àÂë';
+  is 'æ‰€å±ä¼ä¸šç¼–ç ';
 comment on column DEMO_EMP_INVEST_TERM.subject_type
-  is '¿ÆÄ¿';
+  is 'ç§‘ç›®';
 comment on column DEMO_EMP_INVEST_TERM.invest_id
-  is 'Í¶×Ê×éºÏ±àÂë';
+  is 'æŠ•èµ„ç»„åˆç¼–ç ';
 comment on column DEMO_EMP_INVEST_TERM.invest_time
-  is '¼¯ÖĞÈ·ÈÏÂòÈëÈÕÆÚ';
+  is 'é›†ä¸­ç¡®è®¤ä¹°å…¥æ—¥æœŸ';
 comment on column DEMO_EMP_INVEST_TERM.amt
-  is 'Í¶Èë×Ü½ğ¶î';
+  is 'æŠ•å…¥æ€»é‡‘é¢';
 comment on column DEMO_EMP_INVEST_TERM.update_time
-  is '×î½ü¸üĞÂÏµÍ³Ê±¼ä';
+  is 'æœ€è¿‘æ›´æ–°ç³»ç»Ÿæ—¶é—´';
 -- Create/Recreate primary, unique and foreign key constraints 
 alter table DEMO_EMP_INVEST_TERM
   add constraint PK_DEMO_EMP_INVEST_TERM primary key (EMP_ID, SUBJECT_TYPE, INVEST_ID, INVEST_TIME)
@@ -395,20 +395,20 @@ create table DEMO_CO_INVEST_TERM
 );
 -- Add comments to the table 
 comment on table DEMO_CO_INVEST_TERM
-  is 'ÆóÒµ´æĞîÆÚÊıÍ¶×Ê×Ê²úÓà¶î±í';
+  is 'ä¼ä¸šå­˜è“„æœŸæ•°æŠ•èµ„èµ„äº§ä½™é¢è¡¨';
 -- Add comments to the columns 
 comment on column DEMO_CO_INVEST_TERM.co_id
-  is 'ËùÊôÆóÒµ±àÂë';
+  is 'æ‰€å±ä¼ä¸šç¼–ç ';
 comment on column DEMO_CO_INVEST_TERM.subject_type
-  is '¿ÆÄ¿';
+  is 'ç§‘ç›®';
 comment on column DEMO_CO_INVEST_TERM.invest_id
-  is 'Í¶×Ê×éºÏ±àÂë';
+  is 'æŠ•èµ„ç»„åˆç¼–ç ';
 comment on column DEMO_CO_INVEST_TERM.invest_time
-  is '¼¯ÖĞÈ·ÈÏÂòÈëÈÕÆÚ';
+  is 'é›†ä¸­ç¡®è®¤ä¹°å…¥æ—¥æœŸ';
 comment on column DEMO_CO_INVEST_TERM.amt
-  is 'Í¶Èë×Ü½ğ¶î';
+  is 'æŠ•å…¥æ€»é‡‘é¢';
 comment on column DEMO_CO_INVEST_TERM.update_time
-  is '×î½ü¸üĞÂÏµÍ³Ê±¼ä';
+  is 'æœ€è¿‘æ›´æ–°ç³»ç»Ÿæ—¶é—´';
 -- Create/Recreate primary, unique and foreign key constraints 
 alter table DEMO_CO_INVEST_TERM
   add constraint PK_DEMO_CO_INVEST_TERM primary key (CO_ID, SUBJECT_TYPE, INVEST_ID, INVEST_TIME)
@@ -426,20 +426,20 @@ create table DEMO_APPL_NUM_REL
 );
 -- Add comments to the table 
 comment on table DEMO_APPL_NUM_REL
-  is 'ÉêÇëµ¥±àºÅ¹ØÏµ±í';
+  is 'ç”³è¯·å•ç¼–å·å…³ç³»è¡¨';
 -- Add comments to the columns 
 comment on column DEMO_APPL_NUM_REL.co_id
-  is 'ÆóÒµ±àÂë';
+  is 'ä¼ä¸šç¼–ç ';
 comment on column DEMO_APPL_NUM_REL.invest_id
-  is 'Í¶×Ê×éºÏ±àºÅ';
+  is 'æŠ•èµ„ç»„åˆç¼–å·';
 comment on column DEMO_APPL_NUM_REL.appl_num
-  is 'ÉêÇëµ¥±àºÅ';
+  is 'ç”³è¯·å•ç¼–å·';
 comment on column DEMO_APPL_NUM_REL.invest_time
-  is 'ÂòÈëÈ·ÈÏÈÕ';
+  is 'ä¹°å…¥ç¡®è®¤æ—¥';
 comment on column DEMO_APPL_NUM_REL.amt
-  is '×Ü±¾½ğ';
+  is 'æ€»æœ¬é‡‘';
 comment on column DEMO_APPL_NUM_REL.red_amt
-  is '´ıÊê»Ø½ğ¶î';
+  is 'å¾…èµå›é‡‘é¢';
 -- Create/Recreate primary, unique and foreign key constraints 
 alter table DEMO_APPL_NUM_REL
   add constraint PK_DEMO_APPL_NUM_REL primary key (APPL_NUM)
@@ -466,32 +466,32 @@ create table DEMO_INVEST_UNIT_VALUE
 );
 -- Add comments to the table 
 comment on table DEMO_INVEST_UNIT_VALUE
-  is 'Í¶×Ê×éºÏµ¥Î»¾»Öµ±í';
+  is 'æŠ•èµ„ç»„åˆå•ä½å‡€å€¼è¡¨';
 -- Add comments to the columns 
 comment on column DEMO_INVEST_UNIT_VALUE.invest_id
-  is 'Í¶×Ê×éºÏ±àºÅ';
+  is 'æŠ•èµ„ç»„åˆç¼–å·';
 comment on column DEMO_INVEST_UNIT_VALUE.evaluate_date
-  is '¹ÀÖµÈÕÆÚ';
+  is 'ä¼°å€¼æ—¥æœŸ';
 comment on column DEMO_INVEST_UNIT_VALUE.plan_id
-  is '¼Æ»®±àÂë';
+  is 'è®¡åˆ’ç¼–ç ';
 comment on column DEMO_INVEST_UNIT_VALUE.next_eval_date
-  is 'ÏÂ´Î¹ÀÖµÈÕÆÚ';
+  is 'ä¸‹æ¬¡ä¼°å€¼æ—¥æœŸ';
 comment on column DEMO_INVEST_UNIT_VALUE.net_amt
-  is '»ù½ğ²Æ²ú¾»Öµ';
+  is 'åŸºé‡‘è´¢äº§å‡€å€¼';
 comment on column DEMO_INVEST_UNIT_VALUE.net_amt_inc_rate
-  is '¾»ÖµÔö³¤ÂÊ';
+  is 'å‡€å€¼å¢é•¿ç‡';
 comment on column DEMO_INVEST_UNIT_VALUE.unit_value
-  is 'Ã¿·İ½ğ¶î';
+  is 'æ¯ä»½é‡‘é¢';
 comment on column DEMO_INVEST_UNIT_VALUE.op_date
-  is '»ã×ÜÈÕ';
+  is 'æ±‡æ€»æ—¥';
 comment on column DEMO_INVEST_UNIT_VALUE.eval_state_flag
-  is '¶¨¼ÛÈÕµ±Ç°×´Ì¬±êÖ¾';
+  is 'å®šä»·æ—¥å½“å‰çŠ¶æ€æ ‡å¿—';
 comment on column DEMO_INVEST_UNIT_VALUE.last_set_value
-  is '¿çÔÂ»ã×ÜÔÂÄ©×Ê²úÇé¿ö';
+  is 'è·¨æœˆæ±‡æ€»æœˆæœ«èµ„äº§æƒ…å†µ';
 comment on column DEMO_INVEST_UNIT_VALUE.is_reported
-  is 'ÊÇ·ñÒÑÉú³É¼à¿Ø½á¹û»ã×Ü±í£¨0.Î´Éú³É£¬1.ÒÑÉú³É£©';
+  is 'æ˜¯å¦å·²ç”Ÿæˆç›‘æ§ç»“æœæ±‡æ€»è¡¨ï¼ˆ0.æœªç”Ÿæˆï¼Œ1.å·²ç”Ÿæˆï¼‰';
 comment on column DEMO_INVEST_UNIT_VALUE.quotient
-  is '×Ê²ú·İ¶î';
+  is 'èµ„äº§ä»½é¢';
 -- Create/Recreate primary, unique and foreign key constraints 
 alter table DEMO_INVEST_UNIT_VALUE
   add constraint PK_DEMO_INVEST_UNIT_VALUE primary key (INVEST_ID, EVALUATE_DATE)
@@ -515,24 +515,24 @@ create table DEMO_EMP_INVEST
 );
 -- Add comments to the table 
 comment on table DEMO_EMP_INVEST
-  is '¸öÈËÕË»§Í¶×Ê×Ê²ú±í';
+  is 'ä¸ªäººè´¦æˆ·æŠ•èµ„èµ„äº§è¡¨';
 -- Add comments to the columns 
 comment on column DEMO_EMP_INVEST.emp_id
-  is '¸öÈËÕË»§±àÂë';
+  is 'ä¸ªäººè´¦æˆ·ç¼–ç ';
 comment on column DEMO_EMP_INVEST.co_id
-  is 'ËùÊôÆóÒµ±àÂë';
+  is 'æ‰€å±ä¼ä¸šç¼–ç ';
 comment on column DEMO_EMP_INVEST.subject_type
-  is '¿ÆÄ¿';
+  is 'ç§‘ç›®';
 comment on column DEMO_EMP_INVEST.invest_id
-  is 'Í¶×Ê×éºÏ±àÂë';
+  is 'æŠ•èµ„ç»„åˆç¼–ç ';
 comment on column DEMO_EMP_INVEST.amt
-  is 'Í¶Èë×Ü½ğ¶î';
+  is 'æŠ•å…¥æ€»é‡‘é¢';
 comment on column DEMO_EMP_INVEST.quotient
-  is 'ÀÛ¼Æ·İ¶î';
+  is 'ç´¯è®¡ä»½é¢';
 comment on column DEMO_EMP_INVEST.set_value
-  is '¾»Öµ';
+  is 'å‡€å€¼';
 comment on column DEMO_EMP_INVEST.update_time
-  is '×î½ü¸üĞÂÏµÍ³Ê±¼ä';
+  is 'æœ€è¿‘æ›´æ–°ç³»ç»Ÿæ—¶é—´';
 -- Create/Recreate primary, unique and foreign key constraints 
 alter table DEMO_EMP_INVEST
   add constraint PK_DEMO_EMP_INVEST primary key (EMP_ID, SUBJECT_TYPE, INVEST_ID)
@@ -554,22 +554,22 @@ create table DEMO_CO_INVEST
 tablespace OAM_MAIN_DATA;
 -- Add comments to the table 
 comment on table DEMO_CO_INVEST
-  is 'ÆóÒµÍ¶×Ê×Ê²ú±í';
+  is 'ä¼ä¸šæŠ•èµ„èµ„äº§è¡¨';
 -- Add comments to the columns 
 comment on column DEMO_CO_INVEST.co_id
-  is 'ÆóÒµ±àÂë';
+  is 'ä¼ä¸šç¼–ç ';
 comment on column DEMO_CO_INVEST.subject_type
-  is '¿ÆÄ¿';
+  is 'ç§‘ç›®';
 comment on column DEMO_CO_INVEST.invest_id
-  is 'Í¶×Ê×éºÏ±àÂë';
+  is 'æŠ•èµ„ç»„åˆç¼–ç ';
 comment on column DEMO_CO_INVEST.amt
-  is 'Í¶Èë×Ü½ğ¶î';
+  is 'æŠ•å…¥æ€»é‡‘é¢';
 comment on column DEMO_CO_INVEST.quotient
-  is 'ÀÛ¼Æ·İ¶î';
+  is 'ç´¯è®¡ä»½é¢';
 comment on column DEMO_CO_INVEST.set_value
-  is '¾»Öµ';
+  is 'å‡€å€¼';
 comment on column DEMO_CO_INVEST.update_time
-  is '×î½ü¸üĞÂÏµÍ³Ê±¼ä';
+  is 'æœ€è¿‘æ›´æ–°ç³»ç»Ÿæ—¶é—´';
 -- Create/Recreate primary, unique and foreign key constraints 
 alter table DEMO_CO_INVEST
   add constraint PK_DEMO_CO_INVEST primary key (CO_ID, SUBJECT_TYPE, INVEST_ID)

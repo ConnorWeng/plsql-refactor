@@ -1,61 +1,61 @@
 CREATE OR REPLACE PACKAGE PKG_DEMO_COMMON IS
   /***********************************************************
-    --´æ´¢¹ý³ÌÃû£º    FUNC_IS_EXPERT_LCR
-    --´æ´¢¹ý³ÌÃèÊö£º  ÅÐ¶ÏÊÇ·ñÊÇÔ¤ÆÚÊÕÒæÐÍ
-    --¹¦ÄÜ£º          ÅÐ¶ÏÊÇ·ñÊÇÔ¤ÆÚÊÕÒæÐÍ
-    --¹¦ÄÜÄ£¿é£º      ¹«¹²Ä£¿é¹ÜÀí
-    --´´½¨ÈËÔ±£º      Ò¶µ¤
-    --´´½¨Ê±¼ä£º      2011-08-22
-    --²ÎÊýËµÃ÷£º
-    --p_invest_id      Í¶×Ê×éºÏ±àÂë
-    --·µ»Ø0±íÊ¾ÊÇÔ¤ÆÚÊÕÒæÐÍ 1±íÊ¾ÊÇ¾»Öµ±¨¼ÛÐÍ
+    --å­˜å‚¨è¿‡ç¨‹åï¼š    FUNC_IS_EXPERT_LCR
+    --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š  åˆ¤æ–­æ˜¯å¦æ˜¯é¢„æœŸæ”¶ç›Šåž‹
+    --åŠŸèƒ½ï¼š          åˆ¤æ–­æ˜¯å¦æ˜¯é¢„æœŸæ”¶ç›Šåž‹
+    --åŠŸèƒ½æ¨¡å—ï¼š      å…¬å…±æ¨¡å—ç®¡ç†
+    --åˆ›å»ºäººå‘˜ï¼š      å¶ä¸¹
+    --åˆ›å»ºæ—¶é—´ï¼š      2011-08-22
+    --å‚æ•°è¯´æ˜Žï¼š
+    --p_invest_id      æŠ•èµ„ç»„åˆç¼–ç 
+    --è¿”å›ž0è¡¨ç¤ºæ˜¯é¢„æœŸæ”¶ç›Šåž‹ 1è¡¨ç¤ºæ˜¯å‡€å€¼æŠ¥ä»·åž‹
   ***********************************************************/
   FUNCTION FUNC_IS_EXPERT_LCR(p_invest_id VARCHAR2) RETURN NUMBER;
 
     /*********************************************************************
-    --Ãû³Æ:FUNC_GET_PLANNAMEBYID
-    --ÃèÊö:¸ù¾Ý¼Æ»®¡¢ÆóÒµ¡¢Ô±¹¤±àÂë»ñÈ¡¼Æ»®Ãû³Æ
-    --¹¦ÄÜ:¸ù¾Ý¼Æ»®¡¢ÆóÒµ¡¢Ô±¹¤±àÂë»ñÈ¡¼Æ»®Ãû³Æ
-    --Ä£¿é:¹«¹²
-    --×÷Õß:zhangym
-    --Ê±¼ä:2011-10-28
-    --²ÎÊý:
-      ID IN VARCHAR2  --¼Æ»®¡¢ÆóÒµ¡¢Ô±¹¤±àÂë
+    --åç§°:FUNC_GET_PLANNAMEBYID
+    --æè¿°:æ ¹æ®è®¡åˆ’ã€ä¼ä¸šã€å‘˜å·¥ç¼–ç èŽ·å–è®¡åˆ’åç§°
+    --åŠŸèƒ½:æ ¹æ®è®¡åˆ’ã€ä¼ä¸šã€å‘˜å·¥ç¼–ç èŽ·å–è®¡åˆ’åç§°
+    --æ¨¡å—:å…¬å…±
+    --ä½œè€…:zhangym
+    --æ—¶é—´:2011-10-28
+    --å‚æ•°:
+      ID IN VARCHAR2  --è®¡åˆ’ã€ä¼ä¸šã€å‘˜å·¥ç¼–ç 
   *********************************************************************/
   FUNCTION FUNC_GET_PLANNAMEBYID(ID IN VARCHAR2) RETURN VARCHAR2;
   /*********************************************************************
-    --Ãû³Æ:FUNC_GET_PLANTIMEBYID
-    --ÃèÊö:¸ù¾Ý¼Æ»®¡¢ÆóÒµ¡¢Ô±¹¤±àÂë»ñÈ¡¼Æ»®Ê±¼ä
-    --¹¦ÄÜ:¸ù¾Ý¼Æ»®¡¢ÆóÒµ¡¢Ô±¹¤±àÂë»ñÈ¡¼Æ»®Ê±¼ä
-    --Ä£¿é:¹«¹²
-    --×÷Õß:zhangym
-    --Ê±¼ä:2011-10-28
-    --²ÎÊý:
-      ID IN VARCHAR2  --¼Æ»®¡¢ÆóÒµ¡¢Ô±¹¤±àÂë
+    --åç§°:FUNC_GET_PLANTIMEBYID
+    --æè¿°:æ ¹æ®è®¡åˆ’ã€ä¼ä¸šã€å‘˜å·¥ç¼–ç èŽ·å–è®¡åˆ’æ—¶é—´
+    --åŠŸèƒ½:æ ¹æ®è®¡åˆ’ã€ä¼ä¸šã€å‘˜å·¥ç¼–ç èŽ·å–è®¡åˆ’æ—¶é—´
+    --æ¨¡å—:å…¬å…±
+    --ä½œè€…:zhangym
+    --æ—¶é—´:2011-10-28
+    --å‚æ•°:
+      ID IN VARCHAR2  --è®¡åˆ’ã€ä¼ä¸šã€å‘˜å·¥ç¼–ç 
   *********************************************************************/
   FUNCTION FUNC_GET_PLANTIMEBYID(ID IN VARCHAR2) RETURN VARCHAR2;
     /*********************************************************************/
-    --´æ´¢¹ý³ÌÃû³Æ£º FUNC_GET_COFNAMEBYID
-    --´æ´¢¹ý³ÌÃèÊö£º ¸ù¾Ýid»ñÈ¡ÆóÒµÈ«³Æ
-    --¹¦ÄÜ£º         ¸ù¾Ýid»ñÈ¡ÆóÒµÈ«³Æ
-    --¹¦ÄÜÄ£¿é£º
-    --×÷Õß£º         Ö£Ã÷µÏ
-    --Ê±¼ä£º         2010-05-15
+    --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š FUNC_GET_COFNAMEBYID
+    --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š æ ¹æ®idèŽ·å–ä¼ä¸šå…¨ç§°
+    --åŠŸèƒ½ï¼š         æ ¹æ®idèŽ·å–ä¼ä¸šå…¨ç§°
+    --åŠŸèƒ½æ¨¡å—ï¼š
+    --ä½œè€…ï¼š         éƒ‘æ˜Žè¿ª
+    --æ—¶é—´ï¼š         2010-05-15
     /*********************************************************************/
     FUNCTION FUNC_GET_COFNAMEBYID(id IN VARCHAR2) RETURN VARCHAR2;
 END PKG_DEMO_COMMON;
 /
 CREATE OR REPLACE PACKAGE BODY PKG_DEMO_COMMON IS
   /***********************************************************
-    --´æ´¢¹ý³ÌÃû£º    FUNC_IS_EXPERT_LCR
-    --´æ´¢¹ý³ÌÃèÊö£º  ÅÐ¶ÏÊÇ·ñÊÇÔ¤ÆÚÊÕÒæÐÍ
-    --¹¦ÄÜ£º          ÅÐ¶ÏÊÇ·ñÊÇÔ¤ÆÚÊÕÒæÐÍ
-    --¹¦ÄÜÄ£¿é£º      ¹«¹²Ä£¿é¹ÜÀí
-    --´´½¨ÈËÔ±£º      Ò¶µ¤
-    --´´½¨Ê±¼ä£º      2011-08-22
-    --²ÎÊýËµÃ÷£º
-    --p_invest_id      Í¶×Ê×éºÏ±àÂë
-    --·µ»Ø0±íÊ¾ÊÇÔ¤ÆÚÊÕÒæÐÍ 1±íÊ¾ÊÇ¾»Öµ±¨¼ÛÐÍ
+    --å­˜å‚¨è¿‡ç¨‹åï¼š    FUNC_IS_EXPERT_LCR
+    --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š  åˆ¤æ–­æ˜¯å¦æ˜¯é¢„æœŸæ”¶ç›Šåž‹
+    --åŠŸèƒ½ï¼š          åˆ¤æ–­æ˜¯å¦æ˜¯é¢„æœŸæ”¶ç›Šåž‹
+    --åŠŸèƒ½æ¨¡å—ï¼š      å…¬å…±æ¨¡å—ç®¡ç†
+    --åˆ›å»ºäººå‘˜ï¼š      å¶ä¸¹
+    --åˆ›å»ºæ—¶é—´ï¼š      2011-08-22
+    --å‚æ•°è¯´æ˜Žï¼š
+    --p_invest_id      æŠ•èµ„ç»„åˆç¼–ç 
+    --è¿”å›ž0è¡¨ç¤ºæ˜¯é¢„æœŸæ”¶ç›Šåž‹ 1è¡¨ç¤ºæ˜¯å‡€å€¼æŠ¥ä»·åž‹
   ***********************************************************/
   FUNCTION FUNC_IS_EXPERT_LCR(p_invest_id VARCHAR2) RETURN NUMBER IS
     v_count NUMBER;
@@ -79,14 +79,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO_COMMON IS
   END FUNC_IS_EXPERT_LCR;
 
     /*********************************************************************
-    --Ãû³Æ:FUNC_GET_PLANNAMEBYID
-    --ÃèÊö:¸ù¾Ý¼Æ»®¡¢ÆóÒµ¡¢Ô±¹¤±àÂë»ñÈ¡¼Æ»®Ãû³Æ
-    --¹¦ÄÜ:¸ù¾Ý¼Æ»®¡¢ÆóÒµ¡¢Ô±¹¤±àÂë»ñÈ¡¼Æ»®Ãû³Æ
-    --Ä£¿é:¹«¹²
-    --×÷Õß:zhangym
-    --Ê±¼ä:2011-10-28
-    --²ÎÊý:
-      ID IN VARCHAR2  --¼Æ»®¡¢ÆóÒµ¡¢Ô±¹¤±àÂë
+    --åç§°:FUNC_GET_PLANNAMEBYID
+    --æè¿°:æ ¹æ®è®¡åˆ’ã€ä¼ä¸šã€å‘˜å·¥ç¼–ç èŽ·å–è®¡åˆ’åç§°
+    --åŠŸèƒ½:æ ¹æ®è®¡åˆ’ã€ä¼ä¸šã€å‘˜å·¥ç¼–ç èŽ·å–è®¡åˆ’åç§°
+    --æ¨¡å—:å…¬å…±
+    --ä½œè€…:zhangym
+    --æ—¶é—´:2011-10-28
+    --å‚æ•°:
+      ID IN VARCHAR2  --è®¡åˆ’ã€ä¼ä¸šã€å‘˜å·¥ç¼–ç 
   *********************************************************************/
   FUNCTION FUNC_GET_PLANNAMEBYID(ID IN VARCHAR2) RETURN VARCHAR2 IS
     V_PLAN_NAME DEMO_PLAN_INFO.PLAN_NAME%TYPE := NULL;
@@ -117,14 +117,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO_COMMON IS
       RETURN '';
   END FUNC_GET_PLANNAMEBYID;
   /*********************************************************************
-    --Ãû³Æ:FUNC_GET_PLANTIMEBYID
-    --ÃèÊö:¸ù¾Ý¼Æ»®¡¢ÆóÒµ¡¢Ô±¹¤±àÂë»ñÈ¡¼Æ»®Ê±¼ä
-    --¹¦ÄÜ:¸ù¾Ý¼Æ»®¡¢ÆóÒµ¡¢Ô±¹¤±àÂë»ñÈ¡¼Æ»®Ê±¼ä
-    --Ä£¿é:¹«¹²
-    --×÷Õß:zhangym
-    --Ê±¼ä:2011-10-28
-    --²ÎÊý:
-      ID IN VARCHAR2  --¼Æ»®¡¢ÆóÒµ¡¢Ô±¹¤±àÂë
+    --åç§°:FUNC_GET_PLANTIMEBYID
+    --æè¿°:æ ¹æ®è®¡åˆ’ã€ä¼ä¸šã€å‘˜å·¥ç¼–ç èŽ·å–è®¡åˆ’æ—¶é—´
+    --åŠŸèƒ½:æ ¹æ®è®¡åˆ’ã€ä¼ä¸šã€å‘˜å·¥ç¼–ç èŽ·å–è®¡åˆ’æ—¶é—´
+    --æ¨¡å—:å…¬å…±
+    --ä½œè€…:zhangym
+    --æ—¶é—´:2011-10-28
+    --å‚æ•°:
+      ID IN VARCHAR2  --è®¡åˆ’ã€ä¼ä¸šã€å‘˜å·¥ç¼–ç 
   *********************************************************************/
   FUNCTION FUNC_GET_PLANTIMEBYID(ID IN VARCHAR2) RETURN VARCHAR2 IS
     V_PLAN_TIME DEMO_PLAN_INFO.PLAN_TIME%TYPE := NULL;
@@ -155,12 +155,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO_COMMON IS
       RETURN '';
   END FUNC_GET_PLANTIMEBYID;
     /*********************************************************************/
-    --´æ´¢¹ý³ÌÃû³Æ£º FUNC_GET_COFNAMEBYID
-    --´æ´¢¹ý³ÌÃèÊö£º ¸ù¾Ýid»ñÈ¡ÆóÒµÈ«³Æ
-    --¹¦ÄÜ£º         ¸ù¾Ýid»ñÈ¡ÆóÒµÈ«³Æ
-    --¹¦ÄÜÄ£¿é£º
-    --×÷Õß£º         Ö£Ã÷µÏ
-    --Ê±¼ä£º         2010-05-15
+    --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š FUNC_GET_COFNAMEBYID
+    --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š æ ¹æ®idèŽ·å–ä¼ä¸šå…¨ç§°
+    --åŠŸèƒ½ï¼š         æ ¹æ®idèŽ·å–ä¼ä¸šå…¨ç§°
+    --åŠŸèƒ½æ¨¡å—ï¼š
+    --ä½œè€…ï¼š         éƒ‘æ˜Žè¿ª
+    --æ—¶é—´ï¼š         2010-05-15
     /*********************************************************************/
     FUNCTION FUNC_GET_COFNAMEBYID(id IN VARCHAR2) RETURN VARCHAR2
     IS

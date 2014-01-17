@@ -1,36 +1,36 @@
 CREATE OR REPLACE PACKAGE PACK_LOG AS
 
-  START_STEP CONSTANT DB_LOG.STEP_NO%TYPE := '0';  --¿ªÊ¼²½µã
-  END_STEP   CONSTANT DB_LOG.STEP_NO%TYPE := '-1'; --½áÊø²½µã
+  START_STEP CONSTANT DB_LOG.STEP_NO%TYPE := '0';  --å¼€å§‹æ­¥ç‚¹
+  END_STEP   CONSTANT DB_LOG.STEP_NO%TYPE := '-1'; --ç»“æŸæ­¥ç‚¹
 
-  START_MSG  CONSTANT VARCHAR2(10) := '¿ªÊ¼£¡'; --¿ªÊ¼ÐÅÏ¢
-  END_MSG    CONSTANT VARCHAR2(10) := '½áÊø£¡'; --½áÊøÐÅÏ¢
+  START_MSG  CONSTANT VARCHAR2(10) := 'å¼€å§‹ï¼'; --å¼€å§‹ä¿¡æ¯
+  END_MSG    CONSTANT VARCHAR2(10) := 'ç»“æŸï¼'; --ç»“æŸä¿¡æ¯
 
-  DEBUG_LEVEL CONSTANT DB_LOG.LOG_LEVEL%TYPE := '2'; --µ÷ÊÔÇé¿ö
-  INFO_LEVEL  CONSTANT DB_LOG.LOG_LEVEL%TYPE := '3'; --Õý³£Çé¿ö
-  WARN_LEVEL  CONSTANT DB_LOG.LOG_LEVEL%TYPE := '4'; --Êý¾Ý´íÎó£¬¿ÉÔ¤Öª´íÎó
-  ERR_LEVEL   CONSTANT DB_LOG.LOG_LEVEL%TYPE := '5'; --Òì³£´íÎó£¬Î´Öª´íÎó
+  DEBUG_LEVEL CONSTANT DB_LOG.LOG_LEVEL%TYPE := '2'; --è°ƒè¯•æƒ…å†µ
+  INFO_LEVEL  CONSTANT DB_LOG.LOG_LEVEL%TYPE := '3'; --æ­£å¸¸æƒ…å†µ
+  WARN_LEVEL  CONSTANT DB_LOG.LOG_LEVEL%TYPE := '4'; --æ•°æ®é”™è¯¯ï¼Œå¯é¢„çŸ¥é”™è¯¯
+  ERR_LEVEL   CONSTANT DB_LOG.LOG_LEVEL%TYPE := '5'; --å¼‚å¸¸é”™è¯¯ï¼ŒæœªçŸ¥é”™è¯¯
 
-  PROCEDURE LOG(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- ´æ´¢¹ý³ÌÃû
-                IN_STEPNO   IN DB_LOG.STEP_NO%TYPE,   -- ²½ÖèÃû
-                IN_INFO     IN DB_LOG.INFO%TYPE,      -- ÈÕÖ¾¼¶±ð
-                IN_LEVEL    IN DB_LOG.LOG_LEVEL%TYPE);-- ¼¶±ð
+  PROCEDURE LOG(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- å­˜å‚¨è¿‡ç¨‹å
+                IN_STEPNO   IN DB_LOG.STEP_NO%TYPE,   -- æ­¥éª¤å
+                IN_INFO     IN DB_LOG.INFO%TYPE,      -- æ—¥å¿—çº§åˆ«
+                IN_LEVEL    IN DB_LOG.LOG_LEVEL%TYPE);-- çº§åˆ«
 
-  PROCEDURE DEBUG(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- ´æ´¢¹ý³ÌÃû
-                  IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- ²½ÖèÃû
-                  IN_INFO     IN DB_LOG.INFO%TYPE); --ÈÕÖ¾¼¶±ð
+  PROCEDURE DEBUG(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- å­˜å‚¨è¿‡ç¨‹å
+                  IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- æ­¥éª¤å
+                  IN_INFO     IN DB_LOG.INFO%TYPE); --æ—¥å¿—çº§åˆ«
 
-  PROCEDURE INFO(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- ´æ´¢¹ý³ÌÃû
-                 IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- ²½ÖèÃû
-                 IN_INFO     IN DB_LOG.INFO%TYPE); --ÈÕÖ¾¼¶±ð
+  PROCEDURE INFO(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- å­˜å‚¨è¿‡ç¨‹å
+                 IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- æ­¥éª¤å
+                 IN_INFO     IN DB_LOG.INFO%TYPE); --æ—¥å¿—çº§åˆ«
 
-  PROCEDURE WARN(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- ´æ´¢¹ý³ÌÃû
-                 IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- ²½ÖèÃû
-                 IN_INFO     IN DB_LOG.INFO%TYPE); --ÈÕÖ¾¼¶±ð
+  PROCEDURE WARN(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- å­˜å‚¨è¿‡ç¨‹å
+                 IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- æ­¥éª¤å
+                 IN_INFO     IN DB_LOG.INFO%TYPE); --æ—¥å¿—çº§åˆ«
 
-  PROCEDURE ERROR(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- ´æ´¢¹ý³ÌÃû
-                 IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- ²½ÖèÃû
-                 IN_INFO     IN DB_LOG.INFO%TYPE); --ÈÕÖ¾¼¶±ð
+  PROCEDURE ERROR(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- å­˜å‚¨è¿‡ç¨‹å
+                 IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- æ­¥éª¤å
+                 IN_INFO     IN DB_LOG.INFO%TYPE); --æ—¥å¿—çº§åˆ«
 
 END;
 /
@@ -39,10 +39,10 @@ CREATE OR REPLACE PACKAGE BODY PACK_LOG AS
 
   LOGGING_EXCEPTION EXCEPTION;
 
-  PROCEDURE LOG(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- ´æ´¢¹ý³ÌÃû
-                IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- ²½ÖèÃû
-                IN_INFO     IN DB_LOG.INFO%TYPE, --ÈÕÖ¾¼¶±ð
-                IN_LEVEL    IN DB_LOG.LOG_LEVEL%TYPE -- ¼¶±ð
+  PROCEDURE LOG(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- å­˜å‚¨è¿‡ç¨‹å
+                IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- æ­¥éª¤å
+                IN_INFO     IN DB_LOG.INFO%TYPE, --æ—¥å¿—çº§åˆ«
+                IN_LEVEL    IN DB_LOG.LOG_LEVEL%TYPE -- çº§åˆ«
                 ) IS
     PRAGMA AUTONOMOUS_TRANSACTION;
     V_ERRSTACK VARCHAR2(4000):=null;
@@ -90,10 +90,10 @@ CREATE OR REPLACE PACKAGE BODY PACK_LOG AS
       RAISE LOGGING_EXCEPTION;
   END;
 
-  --µ÷ÊÔÈÕÖ¾
-  PROCEDURE DEBUG(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- ´æ´¢¹ý³ÌÃû
-                  IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- ²½ÖèÃû
-                  IN_INFO     IN DB_LOG.INFO%TYPE --ÈÕÖ¾¼¶±ð
+  --è°ƒè¯•æ—¥å¿—
+  PROCEDURE DEBUG(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- å­˜å‚¨è¿‡ç¨‹å
+                  IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- æ­¥éª¤å
+                  IN_INFO     IN DB_LOG.INFO%TYPE --æ—¥å¿—çº§åˆ«
                   ) IS
   BEGIN
     PACK_LOG.LOG(IN_PROCNAME,
@@ -102,10 +102,10 @@ CREATE OR REPLACE PACKAGE BODY PACK_LOG AS
                  PACK_LOG.DEBUG_LEVEL);
   END;
 
-  --Õý³£ÈÕÖ¾
-  PROCEDURE INFO(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- ´æ´¢¹ý³ÌÃû
-                 IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- ²½ÖèÃû
-                 IN_INFO     IN DB_LOG.INFO%TYPE --ÈÕÖ¾¼¶±ð
+  --æ­£å¸¸æ—¥å¿—
+  PROCEDURE INFO(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- å­˜å‚¨è¿‡ç¨‹å
+                 IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- æ­¥éª¤å
+                 IN_INFO     IN DB_LOG.INFO%TYPE --æ—¥å¿—çº§åˆ«
                  ) IS
   BEGIN
     PACK_LOG.LOG(IN_PROCNAME,
@@ -114,10 +114,10 @@ CREATE OR REPLACE PACKAGE BODY PACK_LOG AS
                  PACK_LOG.INFO_LEVEL);
   END;
 
-  --¾¯¸æÈÕÖ¾
-  PROCEDURE WARN(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- ´æ´¢¹ý³ÌÃû
-                 IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- ²½ÖèÃû
-                 IN_INFO     IN DB_LOG.INFO%TYPE --ÈÕÖ¾¼¶±ð
+  --è­¦å‘Šæ—¥å¿—
+  PROCEDURE WARN(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- å­˜å‚¨è¿‡ç¨‹å
+                 IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- æ­¥éª¤å
+                 IN_INFO     IN DB_LOG.INFO%TYPE --æ—¥å¿—çº§åˆ«
                  ) IS
   BEGIN
     PACK_LOG.LOG(IN_PROCNAME,
@@ -126,10 +126,10 @@ CREATE OR REPLACE PACKAGE BODY PACK_LOG AS
                  PACK_LOG.WARN_LEVEL);
   END;
 
-  --´íÎóÈÕÖ¾
-  PROCEDURE ERROR(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- ´æ´¢¹ý³ÌÃû
-                 IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- ²½ÖèÃû
-                 IN_INFO     IN DB_LOG.INFO%TYPE --ÈÕÖ¾¼¶±ð
+  --é”™è¯¯æ—¥å¿—
+  PROCEDURE ERROR(IN_PROCNAME IN DB_LOG.PROC_NAME%TYPE, -- å­˜å‚¨è¿‡ç¨‹å
+                 IN_STEPNO   IN DB_LOG.STEP_NO%TYPE, -- æ­¥éª¤å
+                 IN_INFO     IN DB_LOG.INFO%TYPE --æ—¥å¿—çº§åˆ«
                  ) IS
   BEGIN
     PACK_LOG.LOG(IN_PROCNAME,

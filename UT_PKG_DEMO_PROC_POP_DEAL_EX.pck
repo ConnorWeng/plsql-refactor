@@ -89,7 +89,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
 
   /*
-  Éæ¼°Ò»ÆÚ£¬ÇÒÒ»ÆÚÖ»ÓÐÒ»ÕÅÉêÇëµ¥£¬Ò»ÆÚ×Ê²ú¹»£¨¸öÈË£©
+  æ¶‰åŠä¸€æœŸï¼Œä¸”ä¸€æœŸåªæœ‰ä¸€å¼ ç”³è¯·å•ï¼Œä¸€æœŸèµ„äº§å¤Ÿï¼ˆä¸ªäººï¼‰
   */
   PROCEDURE UT_EX_EMP_ONE_TERM_ONE_APPL IS
   BEGIN
@@ -109,7 +109,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
 
   /*
-  Éæ¼°Ò»ÆÚ£¬ÇÒÒ»ÆÚÖ»ÓÐÒ»ÕÅÉêÇëµ¥£¬Ò»ÆÚ×Ê²ú¹»£¨¸öÈË£©
+  æ¶‰åŠä¸€æœŸï¼Œä¸”ä¸€æœŸåªæœ‰ä¸€å¼ ç”³è¯·å•ï¼Œä¸€æœŸèµ„äº§å¤Ÿï¼ˆä¸ªäººï¼‰
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_ONE_APPL IS
     mult_term_one_appl_red_amt        constant demo_invest_pop_tmp.amt%type := 180;
@@ -132,7 +132,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
 
   /*
-  Éæ¼°¶àÆÚ£¬ÇÒ¶àÆÚÖ»ÓÐ¶àÕÅÉêÇëµ¥£¬¶àÆÚ×Ê²ú¹»£¨¸öÈË£©
+  æ¶‰åŠå¤šæœŸï¼Œä¸”å¤šæœŸåªæœ‰å¤šå¼ ç”³è¯·å•ï¼Œå¤šæœŸèµ„äº§å¤Ÿï¼ˆä¸ªäººï¼‰
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_MULT_APPL IS
   BEGIN
@@ -156,7 +156,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
 
   /*
-  Éæ¼°¶àÆÚ£¬ÇÒ¶àÆÚÖ»ÓÐ¶àÕÅÉêÇëµ¥£¬¶àÆÚ×Ê²ú¹»£¨¸öÈË£©
+  æ¶‰åŠå¤šæœŸï¼Œä¸”å¤šæœŸåªæœ‰å¤šå¼ ç”³è¯·å•ï¼Œå¤šæœŸèµ„äº§å¤Ÿï¼ˆä¸ªäººï¼‰
   */
   PROCEDURE UT_EX_EMP_MULT_TERM_NOTENOUGH IS
     not_enough_red_amt                constant demo_invest_pop_tmp.amt%type := 310;
@@ -176,7 +176,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
   
     /*
-  Êê»ØÉæ¼°³¬¹ýÎåÕÅÉêÇëµ¥£¨ÆóÒµ£©
+  èµŽå›žæ¶‰åŠè¶…è¿‡äº”å¼ ç”³è¯·å•ï¼ˆä¼ä¸šï¼‰
   */
   PROCEDURE UT_EX_EMP_MAX_FIVE_APPL IS
     enough_red_amt_for_over_five      constant demo_invest_pop_tmp.amt%type := 580;
@@ -252,7 +252,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
   
     /*
-  Éæ¼°Ò»ÆÚ£¬ÇÒÒ»ÆÚÖ»ÓÐÒ»ÕÅÉêÇëµ¥£¬Ò»ÆÚ×Ê²ú¹»£¨¸öÈË£©
+  æ¶‰åŠä¸€æœŸï¼Œä¸”ä¸€æœŸåªæœ‰ä¸€å¼ ç”³è¯·å•ï¼Œä¸€æœŸèµ„äº§å¤Ÿï¼ˆä¸ªäººï¼‰
   */
   PROCEDURE UT_EX_CO_ONE_TERM_ONE_APPL IS
   BEGIN
@@ -272,7 +272,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
 
   /*
-  Éæ¼°Ò»ÆÚ£¬ÇÒÒ»ÆÚÖ»ÓÐÒ»ÕÅÉêÇëµ¥£¬Ò»ÆÚ×Ê²ú¹»£¨¸öÈË£©
+  æ¶‰åŠä¸€æœŸï¼Œä¸”ä¸€æœŸåªæœ‰ä¸€å¼ ç”³è¯·å•ï¼Œä¸€æœŸèµ„äº§å¤Ÿï¼ˆä¸ªäººï¼‰
   */
   PROCEDURE UT_EX_CO_MULT_TERM_ONE_APPL IS
     mult_term_one_appl_red_amt        constant demo_invest_pop_tmp.amt%type := 180;
@@ -295,7 +295,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
 
   /*
-  Éæ¼°¶àÆÚ£¬ÇÒ¶àÆÚÖ»ÓÐ¶àÕÅÉêÇëµ¥£¬¶àÆÚ×Ê²ú¹»£¨ÆóÒµ£©
+  æ¶‰åŠå¤šæœŸï¼Œä¸”å¤šæœŸåªæœ‰å¤šå¼ ç”³è¯·å•ï¼Œå¤šæœŸèµ„äº§å¤Ÿï¼ˆä¼ä¸šï¼‰
   */
   PROCEDURE UT_EX_CO_MULT_TERM_MULT_APPL IS
   BEGIN
@@ -319,7 +319,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
   
   /*
-  Éæ¼°¶àÆÚ£¬ÇÒ¶àÆÚÖ»ÓÐ¶àÕÅÉêÇëµ¥£¬¶àÆÚ×Ê²ú¹»£¨¸öÈË£©
+  æ¶‰åŠå¤šæœŸï¼Œä¸”å¤šæœŸåªæœ‰å¤šå¼ ç”³è¯·å•ï¼Œå¤šæœŸèµ„äº§å¤Ÿï¼ˆä¸ªäººï¼‰
   */
   PROCEDURE UT_EX_CO_MULT_TERM_NOTENOUGH IS
     not_enough_red_amt                constant demo_invest_pop_tmp.amt%type := 310;
@@ -339,7 +339,7 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   END;
 
   /*
-  Êê»ØÉæ¼°³¬¹ýÎåÕÅÉêÇëµ¥£¨ÆóÒµ£©
+  èµŽå›žæ¶‰åŠè¶…è¿‡äº”å¼ ç”³è¯·å•ï¼ˆä¼ä¸šï¼‰
   */
   PROCEDURE UT_EX_CO_MAX_FIVE_APPL IS
     enough_red_amt_for_over_five      constant demo_invest_pop_tmp.amt%type := 580;
@@ -394,17 +394,17 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                   expected_invest_time in varchar2,
                                   expected_amt         in number) is
   begin
-    utassert.eqqueryvalue(msg_in           => 'Ð£Ñéinvest_time',
+    utassert.eqqueryvalue(msg_in           => 'æ ¡éªŒinvest_time',
                           CHECK_QUERY_IN   => 'select invest_time from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
                                               yappl_num || ' and emp_id = ''' || emp_id || '''',
                           AGAINST_VALUE_IN => expected_invest_time);
 
-    utassert.eqqueryvalue(msg_in           => 'Ð£Ñéquotient',
+    utassert.eqqueryvalue(msg_in           => 'æ ¡éªŒquotient',
                           CHECK_QUERY_IN   => 'select quotient from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
                                               yappl_num || ' and emp_id = ''' || emp_id || '''',
                           AGAINST_VALUE_IN => expected_amt);
 
-    utassert.eqqueryvalue(msg_in           => 'Ð£Ñéamt',
+    utassert.eqqueryvalue(msg_in           => 'æ ¡éªŒamt',
                           CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
                                               yappl_num || ' and emp_id = ''' || emp_id || '''',
                           AGAINST_VALUE_IN => expected_amt);
@@ -416,17 +416,17 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
                                   expected_invest_time in varchar2,
                                   expected_amt         in number) is
   begin
-    utassert.eqqueryvalue(msg_in           => 'Ð£Ñéinvest_time',
+    utassert.eqqueryvalue(msg_in           => 'æ ¡éªŒinvest_time',
                           CHECK_QUERY_IN   => 'select invest_time from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
                                               yappl_num || ' and emp_id = ''' || emp_id || ''' and subject_type = ''' || subject_type || '''',
                           AGAINST_VALUE_IN => expected_invest_time);
 
-    utassert.eqqueryvalue(msg_in           => 'Ð£Ñéquotient',
+    utassert.eqqueryvalue(msg_in           => 'æ ¡éªŒquotient',
                           CHECK_QUERY_IN   => 'select quotient from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
                                               yappl_num || ' and emp_id = ''' || emp_id || ''' and subject_type = ''' || subject_type || '''',
                           AGAINST_VALUE_IN => expected_amt);
 
-    utassert.eqqueryvalue(msg_in           => 'Ð£Ñéamt',
+    utassert.eqqueryvalue(msg_in           => 'æ ¡éªŒamt',
                           CHECK_QUERY_IN   => 'select amt from demo_invest_pop_result_tmp where YAPPL_NUM = ' ||
                                               yappl_num || ' and emp_id = ''' || emp_id || ''' and subject_type = ''' || subject_type || '''',
                           AGAINST_VALUE_IN => expected_amt);
@@ -605,4 +605,10 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   end create_one_term_acct_for_co;
 
 END UT_PKG_DEMO_PROC_POP_DEAL_EX;
+/
+
+set serveroutput on
+/
+
+exec utplsql.run ('UT_PKG_DEMO_PROC_POP_DEAL_EX', per_method_setup_in => TRUE)
 /

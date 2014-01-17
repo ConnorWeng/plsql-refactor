@@ -7,56 +7,56 @@ CREATE OR REPLACE PACKAGE PKG_DEMO IS
   -- Created : 2011-9-8 18:00:15
   -- Purpose :
   /*********************************************************************
-  --´æ´¢¹ý³ÌÃû³Æ£º PROC_DEAL_POP
-  --´æ´¢¹ý³ÌÃèÊö£º ×Ê²úºó½øÏÈ³ö²ð·Ö´¦Àí
-  --¹¦ÄÜ£º         ÔÚDEMO_INVEST_POP_TMPÖÐ´æÈëÐèÒª½øÐÐºó½øÏÈ³öµÄÒµÎñ¶ÔÏóºÍÐèÒªÌáÈ¡µÄ×Ü½ð¶î
-                   ³ÌÐòÔÚDEMO_INVEST_POP_RESULT_TMPÖÐ·µ»Øºó½øÏÈ³öµÄ½á¹û
-  --¹¦ÄÜÄ£¿é£º     Í¨ÓÃ
-  --×÷Õß£º
-  --Ê±¼ä£º
-  --I_INVEST_ID IN VARCHAR2,  Í¶×Ê×éºÏ´úÂë
-    O_FLAG      OUT NUMBER,   ´íÎó´úÂë
-    O_MSG       OUT VARCHAR2  ´íÎóÐÅÏ¢
+  --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š PROC_DEAL_POP
+  --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š èµ„äº§åŽè¿›å…ˆå‡ºæ‹†åˆ†å¤„ç†
+  --åŠŸèƒ½ï¼š         åœ¨DEMO_INVEST_POP_TMPä¸­å­˜å…¥éœ€è¦è¿›è¡ŒåŽè¿›å…ˆå‡ºçš„ä¸šåŠ¡å¯¹è±¡å’Œéœ€è¦æå–çš„æ€»é‡‘é¢
+                   ç¨‹åºåœ¨DEMO_INVEST_POP_RESULT_TMPä¸­è¿”å›žåŽè¿›å…ˆå‡ºçš„ç»“æžœ
+  --åŠŸèƒ½æ¨¡å—ï¼š     é€šç”¨
+  --ä½œè€…ï¼š
+  --æ—¶é—´ï¼š
+  --I_INVEST_ID IN VARCHAR2,  æŠ•èµ„ç»„åˆä»£ç 
+    O_FLAG      OUT NUMBER,   é”™è¯¯ä»£ç 
+    O_MSG       OUT VARCHAR2  é”™è¯¯ä¿¡æ¯
   *********************************************************************/
   PROCEDURE PROC_DEAL_POP(I_INVEST_ID IN VARCHAR2,
                           O_FLAG      OUT NUMBER,
                           O_MSG       OUT VARCHAR2);
   /*********************************************************************
-    --Ãû³Æ:FUNC_GET_RED_ABLE
-    --ÃèÊö:ÅÐ¶ÏÊÇ·ñ¿ÉÊê»Ø
-    --¹¦ÄÜ:ÅÐ¶ÏÊÇ·ñ¿ÉÊê»Ø
-    --Ä£¿é:½»Ò×¹ÜÀí-¼¯ÖÐÈ·ÈÏ
-    --×÷Õß:
-    --Ê±¼ä:
-    --²ÎÊý:
-      I_INVEST_ID           IN VARCHAR2, --Í¶×Ê×éºÏ
-      I_RED_INVEST_TIME     IN VARCHAR2, --±¾´ÎÊê»Ø¼¯ÖÐÈ·ÈÏÈÕ
-      I_BUY_INVEST_TIME     IN VARCHAR2  --¹ºÂò¼¯ÖÐÈ·ÈÏÈÕ
-    --·µ»Ø£º0£¬¿ÉÒÔÊê»Ø£»1£¬²»ÄÜÊê»Ø
+    --åç§°:FUNC_GET_RED_ABLE
+    --æè¿°:åˆ¤æ–­æ˜¯å¦å¯èµŽå›ž
+    --åŠŸèƒ½:åˆ¤æ–­æ˜¯å¦å¯èµŽå›ž
+    --æ¨¡å—:äº¤æ˜“ç®¡ç†-é›†ä¸­ç¡®è®¤
+    --ä½œè€…:
+    --æ—¶é—´:
+    --å‚æ•°:
+      I_INVEST_ID           IN VARCHAR2, --æŠ•èµ„ç»„åˆ
+      I_RED_INVEST_TIME     IN VARCHAR2, --æœ¬æ¬¡èµŽå›žé›†ä¸­ç¡®è®¤æ—¥
+      I_BUY_INVEST_TIME     IN VARCHAR2  --è´­ä¹°é›†ä¸­ç¡®è®¤æ—¥
+    --è¿”å›žï¼š0ï¼Œå¯ä»¥èµŽå›žï¼›1ï¼Œä¸èƒ½èµŽå›ž
   *********************************************************************/
   FUNCTION FUNC_GET_RED_ABLE(I_INVEST_ID       IN VARCHAR2,
                              I_RED_INVEST_TIME IN VARCHAR2,
                              I_BUY_INVEST_TIME IN VARCHAR2) RETURN NUMBER;
   /*********************************************************************/
-  --´æ´¢¹ý³ÌÃû³Æ£º FUNC_GET_FULL_LCR_DATE
-  --´æ´¢¹ý³ÌÃèÊö£º ¸ù¾Ý¸ù¾ÝÊê»ØÈÕÆÚ£¬»ñÈ¡¶ÔÓ¦µÄÆÚÂúÊê»ØÈÕÆÚ
-  --¹¦ÄÜ£º         ¸ù¾Ý¸ù¾ÝÊê»ØÈÕÆÚ£¬»ñÈ¡¶ÔÓ¦µÄÆÚÂúÊê»ØÈÕÆÚ
-  --¹¦ÄÜÄ£¿é£º
-  --×÷Õß£º
-  --Ê±¼ä£º
+  --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š FUNC_GET_FULL_LCR_DATE
+  --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š æ ¹æ®æ ¹æ®èµŽå›žæ—¥æœŸï¼ŒèŽ·å–å¯¹åº”çš„æœŸæ»¡èµŽå›žæ—¥æœŸ
+  --åŠŸèƒ½ï¼š         æ ¹æ®æ ¹æ®èµŽå›žæ—¥æœŸï¼ŒèŽ·å–å¯¹åº”çš„æœŸæ»¡èµŽå›žæ—¥æœŸ
+  --åŠŸèƒ½æ¨¡å—ï¼š
+  --ä½œè€…ï¼š
+  --æ—¶é—´ï¼š
   /*********************************************************************/
   FUNCTION FUNC_GET_FULL_LCR_DATE(I_INVEST_ID IN VARCHAR2,
                                   I_RED_DATE  IN VARCHAR2) RETURN VARCHAR2;
   /*********************************************************************
-  --´æ´¢¹ý³ÌÃû³Æ£º PROC_GET_RED_PRIORITY
-  --´æ´¢¹ý³ÌÃèÊö£º »ñÈ¡ÈçÒâÈËÉúÊê»ØÆÚÊýÓÅÏÈ¼¶
-  --¹¦ÄÜÄ£¿é£º     ÈçÒâÈËÉúÊê»Ø
-  --×÷Õß£º
-  --Ê±¼ä£º
-  --²ÎÊýËµÃ÷£º
-  --p_invest_id             IN  VARCHAR2,     --Í¶×Ê×éºÏ±àÂë
-  --p_invest_time           IN  VARCHAR2,     --×Ê²úËùÔÚµÄÈÕÆÚ
-  --p_invest_red_time       IN  VARCHAR2,     --×Ê²úÊê»ØµÄ¼¯ÖÐÈ·ÈÏÈÕ
+  --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š PROC_GET_RED_PRIORITY
+  --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š èŽ·å–å¦‚æ„äººç”ŸèµŽå›žæœŸæ•°ä¼˜å…ˆçº§
+  --åŠŸèƒ½æ¨¡å—ï¼š     å¦‚æ„äººç”ŸèµŽå›ž
+  --ä½œè€…ï¼š
+  --æ—¶é—´ï¼š
+  --å‚æ•°è¯´æ˜Žï¼š
+  --p_invest_id             IN  VARCHAR2,     --æŠ•èµ„ç»„åˆç¼–ç 
+  --p_invest_time           IN  VARCHAR2,     --èµ„äº§æ‰€åœ¨çš„æ—¥æœŸ
+  --p_invest_red_time       IN  VARCHAR2,     --èµ„äº§èµŽå›žçš„é›†ä¸­ç¡®è®¤æ—¥
   *********************************************************************/
   FUNCTION FUNC_GET_RED_PRIORITY(p_invest_id       IN VARCHAR2,
                                  p_invest_time     IN VARCHAR2,
@@ -68,16 +68,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   
 
   /*********************************************************************
-  --´æ´¢¹ý³ÌÃû³Æ£º PROC_DEAL_POP
-  --´æ´¢¹ý³ÌÃèÊö£º ×Ê²úºó½øÏÈ³ö²ð·Ö´¦Àí
-  --¹¦ÄÜ£º         ÔÚDEMO_INVEST_POP_TMPÖÐ´æÈëÐèÒª½øÐÐºó½øÏÈ³öµÄÒµÎñ¶ÔÏóºÍÐèÒªÌáÈ¡µÄ×Ü½ð¶î
-                   ³ÌÐòÔÚDEMO_INVEST_POP_RESULT_TMPÖÐ·µ»Øºó½øÏÈ³öµÄ½á¹û
-  --¹¦ÄÜÄ£¿é£º     Í¨ÓÃ
-  --×÷Õß£º
-  --Ê±¼ä£º
-  --I_INVEST_ID IN VARCHAR2,  Í¶×Ê×éºÏ´úÂë
-    O_FLAG      OUT NUMBER,   ´íÎó´úÂë
-    O_MSG       OUT VARCHAR2  ´íÎóÐÅÏ¢
+  --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š PROC_DEAL_POP
+  --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š èµ„äº§åŽè¿›å…ˆå‡ºæ‹†åˆ†å¤„ç†
+  --åŠŸèƒ½ï¼š         åœ¨DEMO_INVEST_POP_TMPä¸­å­˜å…¥éœ€è¦è¿›è¡ŒåŽè¿›å…ˆå‡ºçš„ä¸šåŠ¡å¯¹è±¡å’Œéœ€è¦æå–çš„æ€»é‡‘é¢
+                   ç¨‹åºåœ¨DEMO_INVEST_POP_RESULT_TMPä¸­è¿”å›žåŽè¿›å…ˆå‡ºçš„ç»“æžœ
+  --åŠŸèƒ½æ¨¡å—ï¼š     é€šç”¨
+  --ä½œè€…ï¼š
+  --æ—¶é—´ï¼š
+  --I_INVEST_ID IN VARCHAR2,  æŠ•èµ„ç»„åˆä»£ç 
+    O_FLAG      OUT NUMBER,   é”™è¯¯ä»£ç 
+    O_MSG       OUT VARCHAR2  é”™è¯¯ä¿¡æ¯
   *********************************************************************/
   PROCEDURE PROC_DEAL_POP(I_INVEST_ID IN VARCHAR2,
                           O_FLAG      OUT NUMBER,
@@ -85,14 +85,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     v_prod_info prod_info;
   BEGIN
     O_FLAG := 0;
-    O_MSG  := '³É¹¦';
+    O_MSG  := 'æˆåŠŸ';
     v_prod_info := prod_info.create_prod_info(i_invest_id);
     v_prod_info.PROC_DEAL_POP(O_FLAG,O_MSG);
   
   EXCEPTION
     WHEN OTHERS THEN
       O_FLAG := 1;
-      O_MSG  := '½øÐÐºó½øÏÈ³ö´¦ÀíÊ±Òì³££¡';
+      O_MSG  := 'è¿›è¡ŒåŽè¿›å…ˆå‡ºå¤„ç†æ—¶å¼‚å¸¸ï¼';
     
       PACK_LOG.LOG(PROC_NAME,
                    null,
@@ -101,17 +101,17 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
                    PACK_LOG.ERR_LEVEL);
   END PROC_DEAL_POP;
   /*********************************************************************
-    --Ãû³Æ:FUNC_GET_RED_ABLE
-    --ÃèÊö:ÅÐ¶ÏÊÇ·ñ¿ÉÊê»Ø
-    --¹¦ÄÜ:ÅÐ¶ÏÊÇ·ñ¿ÉÊê»Ø
-    --Ä£¿é:½»Ò×¹ÜÀí-¼¯ÖÐÈ·ÈÏ
-    --×÷Õß:
-    --Ê±¼ä:
-    --²ÎÊý:
-      I_INVEST_ID       IN VARCHAR2,  Í¶×Ê×éºÏ´úÂë
-      I_RED_INVEST_TIME IN VARCHAR2,  Êê»Ø¼¯ÖÐÈ·ÈÏÈÕ
-      I_BUY_INVEST_TIME IN VARCHAR2   ¹ºÂò¼¯ÖÐÈ·ÈÏÈÕ
-    --·µ»Ø£º0£¬¿ÉÒÔÊê»Ø£»1£¬²»ÄÜÊê»Ø
+    --åç§°:FUNC_GET_RED_ABLE
+    --æè¿°:åˆ¤æ–­æ˜¯å¦å¯èµŽå›ž
+    --åŠŸèƒ½:åˆ¤æ–­æ˜¯å¦å¯èµŽå›ž
+    --æ¨¡å—:äº¤æ˜“ç®¡ç†-é›†ä¸­ç¡®è®¤
+    --ä½œè€…:
+    --æ—¶é—´:
+    --å‚æ•°:
+      I_INVEST_ID       IN VARCHAR2,  æŠ•èµ„ç»„åˆä»£ç 
+      I_RED_INVEST_TIME IN VARCHAR2,  èµŽå›žé›†ä¸­ç¡®è®¤æ—¥
+      I_BUY_INVEST_TIME IN VARCHAR2   è´­ä¹°é›†ä¸­ç¡®è®¤æ—¥
+    --è¿”å›žï¼š0ï¼Œå¯ä»¥èµŽå›žï¼›1ï¼Œä¸èƒ½èµŽå›ž
   *********************************************************************/
   FUNCTION FUNC_GET_RED_ABLE(I_INVEST_ID       IN VARCHAR2,
                              I_RED_INVEST_TIME IN VARCHAR2,
@@ -129,7 +129,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
      WHERE T.INVEST_ID = I_INVEST_ID;
   
     IF V_ISSUE_WAY = 4 THEN
-      --½á×ªÐÍ
+      --ç»“è½¬åž‹
       SELECT max(TERM_NO)
         INTO v_max_TERM_NO
         FROM v_invest_op_control t
@@ -156,7 +156,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
         RETURN 1;
       END IF;
     ELSE
-      --ÆäËû
+      --å…¶ä»–
       RETURN 0;
     END IF;
   
@@ -166,12 +166,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
   END FUNC_GET_RED_ABLE;
 
   /*********************************************************************/
-  --´æ´¢¹ý³ÌÃû³Æ£º FUNC_GET_FULL_LCR_DATE
-  --´æ´¢¹ý³ÌÃèÊö£º ¸ù¾Ý¸ù¾ÝÊê»ØÈÕÆÚ£¬»ñÈ¡¶ÔÓ¦µÄÆÚÂúÊê»ØÈÕÆÚ
-  --¹¦ÄÜ£º         ¸ù¾Ý¸ù¾ÝÊê»ØÈÕÆÚ£¬»ñÈ¡¶ÔÓ¦µÄÆÚÂúÊê»ØÈÕÆÚ
-  --¹¦ÄÜÄ£¿é£º
-  --×÷Õß£º
-  --Ê±¼ä£º
+  --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š FUNC_GET_FULL_LCR_DATE
+  --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š æ ¹æ®æ ¹æ®èµŽå›žæ—¥æœŸï¼ŒèŽ·å–å¯¹åº”çš„æœŸæ»¡èµŽå›žæ—¥æœŸ
+  --åŠŸèƒ½ï¼š         æ ¹æ®æ ¹æ®èµŽå›žæ—¥æœŸï¼ŒèŽ·å–å¯¹åº”çš„æœŸæ»¡èµŽå›žæ—¥æœŸ
+  --åŠŸèƒ½æ¨¡å—ï¼š
+  --ä½œè€…ï¼š
+  --æ—¶é—´ï¼š
   /*********************************************************************/
   FUNCTION FUNC_GET_FULL_LCR_DATE(I_INVEST_ID IN VARCHAR2,
                                   I_RED_DATE  IN VARCHAR2) RETURN VARCHAR2 IS
@@ -194,15 +194,15 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       RETURN NULL;
   END FUNC_GET_FULL_LCR_DATE;
   /*********************************************************************
-  --´æ´¢¹ý³ÌÃû³Æ£º PROC_GET_RED_PRIORITY
-  --´æ´¢¹ý³ÌÃèÊö£º »ñÈ¡ÈçÒâÈËÉúÊê»ØÆÚÊýÓÅÏÈ¼¶
-  --¹¦ÄÜÄ£¿é£º     ÈçÒâÈËÉúÊê»Ø
-  --×÷Õß£º
-  --Ê±¼ä£º
-  --²ÎÊýËµÃ÷£º
-  --p_invest_id             IN  VARCHAR2,     --Í¶×Ê×éºÏ±àÂë
-  --p_invest_time           IN  VARCHAR2,     --×Ê²úËùÔÚµÄÈÕÆÚ
-  --p_invest_red_time       IN  VARCHAR2,     --×Ê²úÊê»ØµÄ¼¯ÖÐÈ·ÈÏÈÕ
+  --å­˜å‚¨è¿‡ç¨‹åç§°ï¼š PROC_GET_RED_PRIORITY
+  --å­˜å‚¨è¿‡ç¨‹æè¿°ï¼š èŽ·å–å¦‚æ„äººç”ŸèµŽå›žæœŸæ•°ä¼˜å…ˆçº§
+  --åŠŸèƒ½æ¨¡å—ï¼š     å¦‚æ„äººç”ŸèµŽå›ž
+  --ä½œè€…ï¼š
+  --æ—¶é—´ï¼š
+  --å‚æ•°è¯´æ˜Žï¼š
+  --p_invest_id             IN  VARCHAR2,     --æŠ•èµ„ç»„åˆç¼–ç 
+  --p_invest_time           IN  VARCHAR2,     --èµ„äº§æ‰€åœ¨çš„æ—¥æœŸ
+  --p_invest_red_time       IN  VARCHAR2,     --èµ„äº§èµŽå›žçš„é›†ä¸­ç¡®è®¤æ—¥
   *********************************************************************/
   FUNCTION FUNC_GET_RED_PRIORITY(p_invest_id       IN VARCHAR2,
                                  p_invest_time     IN VARCHAR2,
@@ -213,7 +213,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
     v_full_lcr_date := PKG_DEMO.FUNC_GET_FULL_LCR_DATE(p_invest_id,
                                                        p_invest_red_time);
     IF v_full_lcr_date = p_invest_time THEN
-      --ÕâÒ»ÆÚÇ¡ºÃÆÚÂú£¬Êê»Ø²ÉÓÃ¸ßÓÅÏÈ¼¶
+      --è¿™ä¸€æœŸæ°å¥½æœŸæ»¡ï¼ŒèµŽå›žé‡‡ç”¨é«˜ä¼˜å…ˆçº§
       RETURN '9999-12-31';
     END IF;
     RETURN p_invest_time;
@@ -223,7 +223,18 @@ CREATE OR REPLACE PACKAGE BODY PKG_DEMO IS
       RETURN p_invest_time;
   END FUNC_GET_RED_PRIORITY;
 
-
-
 END PKG_DEMO;
 /
+
+set serveroutput on
+/
+
+BEGIN
+  utSuite.add ('UT_PKG_DEMO_PROC_POP_DEAL');
+  utPackage.add ('UT_PKG_DEMO_PROC_POP_DEAL', 'UT_PKG_DEMO_PROC_POP_DEAL_EX');
+  utPackage.add ('UT_PKG_DEMO_PROC_POP_DEAL', 'UT_PKG_DEMO_PROC_POP_DEAL_UNEX');
+  utPLSQL.runsuite ('UT_PKG_DEMO_PROC_POP_DEAL', per_method_setup_in => TRUE);
+END;
+/
+
+select last_status from ut_suite where name = 'UT_PKG_DEMO_PROC_POP_DEAL';

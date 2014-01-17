@@ -1,6 +1,6 @@
 create or replace type unex_prod_info under prod_info
 (
--- Purpose : ¾»Öµ±¨¼Û²úÆ·
+-- Purpose : å‡€å€¼æŠ¥ä»·äº§å“
   constructor function unex_prod_info(I_INVEST_ID IN VARCHAR2)
     return self as result,
   member FUNCTION FUNC_GET_DONE_OP_DATE RETURN VARCHAR2,
@@ -53,7 +53,7 @@ create or replace type body unex_prod_info is
     self.PROC_INIT_AND_CLEANUP;
     IF FUNC_NOT_EXIST_DONE_OP_DATE THEN
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
-                                     'ÏµÍ³ÖĞ²»´æÔÚÒÑÍê³ÉµÄ¼¯ÖĞÈ·ÈÏÈÕ£¬ÎŞ·¨½øĞĞºóĞø²Ù×÷£¡',
+                                     'ç³»ç»Ÿä¸­ä¸å­˜åœ¨å·²å®Œæˆçš„é›†ä¸­ç¡®è®¤æ—¥ï¼Œæ— æ³•è¿›è¡Œåç»­æ“ä½œï¼',
                                      self.invest_id,
                                      O_FLAG,
                                      O_MSG);
@@ -64,7 +64,7 @@ create or replace type body unex_prod_info is
   
     IF self.FUNC_IS_RED_TOTAL_AMT_NOTEQ THEN
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
-                                     'Êê»Ø·İ¶î·ÖÅä³ö´í£¡',
+                                     'èµå›ä»½é¢åˆ†é…å‡ºé”™ï¼',
                                      self.invest_id,
                                      O_FLAG,
                                      O_MSG);
