@@ -7,7 +7,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   PROCEDURE UT_UNEX_CO_NOTENOUGH;
   PROCEDURE UT_UNEX_NOT_EXIST_DONE_OP_DATE;
 
-  procedure create_unex_prod_info;
   procedure create_emp_invest_info(original_amt demo_emp_invest.QUOTIENT%type,
                                    original_quotient demo_emp_invest.AMT%type);
   procedure create_co_invest_info(original_amt demo_emp_invest.QUOTIENT%type,
@@ -39,11 +38,11 @@ END UT_PKG_DEMO_PROC_POP_DEAL_UNEX;
 CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
   PROCEDURE UT_SETUP IS
   BEGIN
+    PKG_DEMO_COMMON.ret_of_func_is_expert_lcr := UT_PKG_DEMO_COMMON.False;
+
     OUT_FLAG := -1;
     op_control_purchase_term_no := 1;
 
-    UT_PKG_DEMO_COMMON.create_plan_info;
-    create_unex_prod_info;
     UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_one_invest_time, op_control_purchase_term_no);
     UT_PKG_DEMO_COMMON.create_red_pur_for_op_ctl(red_term_invest_time, op_control_purchase_term_no);
     
@@ -121,11 +120,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_UNEX IS
     UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 2);
   END;
 
-  procedure create_unex_prod_info is
-  begin
-    UT_PKG_DEMO_COMMON.create_prod_info(UT_PKG_DEMO_COMMON.False);
-  end create_unex_prod_info;
-
   procedure create_emp_invest_info(original_amt demo_emp_invest.QUOTIENT%type,
                                    original_quotient demo_emp_invest.AMT%type) is
   begin
@@ -163,3 +157,5 @@ set serveroutput on
 
 exec utplsql.run ('UT_PKG_DEMO_PROC_POP_DEAL_UNEX', per_method_setup_in => TRUE)
 /
+
+select last_status from ut_package where name = 'UT_PKG_DEMO_PROC_POP_DEAL_UNEX';

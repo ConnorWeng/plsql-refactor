@@ -16,7 +16,6 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
   PROCEDURE UT_EX_CO_MAX_FIVE_APPL;
   PROCEDURE UT_EX_GET_NEXT_RED_TIME_NULL;
 
-  procedure create_ex_prod_info;
   procedure create_one_term_acct_for_emp(emp_id       in demo_emp_info.emp_id%type,
                                          appl_num     in demo_appl_num_rel.appl_num%type,
                                          invest_time  in demo_appl_num_rel.INVEST_TIME%type,
@@ -61,13 +60,22 @@ CREATE OR REPLACE PACKAGE UT_PKG_DEMO_PROC_POP_DEAL_EX IS
 END UT_PKG_DEMO_PROC_POP_DEAL_EX;
 /
 CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
+  PROCEDURE create_invest_info is
+  begin
+    insert into demo_invest_info
+      (PLAN_ID, INVEST_ID, INVEST_NAME)
+    values
+      (UT_PKG_DEMO_COMMON.plan_id, invest_id, '组合名称');
+  end;
+
   PROCEDURE UT_SETUP IS
   BEGIN
+    PKG_DEMO_COMMON.ret_of_func_is_expert_lcr := UT_PKG_DEMO_COMMON.True;
+
+    create_invest_info;
+
     OUT_FLAG := -1;
     op_control_purchase_term_no := 1;
-
-    UT_PKG_DEMO_COMMON.create_plan_info;
-    create_ex_prod_info;
 
     UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_one_invest_time, op_control_purchase_term_no);
     UT_PKG_DEMO_COMMON.create_one_purchase_for_op_ctl(term_two_invest_time, op_control_purchase_term_no);
@@ -372,13 +380,6 @@ CREATE OR REPLACE PACKAGE BODY UT_PKG_DEMO_PROC_POP_DEAL_EX IS
     UT_PKG_DEMO_COMMON.assert_out_flag(out_flag, 2);
   END;
   
- 
-
-  procedure create_ex_prod_info is
-  begin
-    UT_PKG_DEMO_COMMON.create_prod_info(UT_PKG_DEMO_COMMON.True);
-  end create_ex_prod_info;
-
   procedure assert_detail_by_appl(emp_id      in demo_emp_info.emp_id%type,
                                   yappl_num   in number,
                                   expected_invest_time in varchar2,
@@ -523,3 +524,5 @@ set serveroutput on
 
 exec utplsql.run ('UT_PKG_DEMO_PROC_POP_DEAL_EX', per_method_setup_in => TRUE)
 /
+
+select last_status from ut_package where name = 'UT_PKG_DEMO_PROC_POP_DEAL_EX';

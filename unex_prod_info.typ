@@ -1,6 +1,5 @@
 create or replace type unex_prod_info under prod_info
 (
--- Purpose : 净值报价产品
   constructor function unex_prod_info(I_INVEST_ID IN VARCHAR2)
     return self as result,
   member FUNCTION FUNC_GET_DONE_OP_DATE RETURN VARCHAR2,
