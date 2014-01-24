@@ -1,0 +1,17 @@
+truncate table DB_LOG;
+truncate table demo_PLAN_INFO;
+truncate table DEMO_INVEST_OP_CONTROL;
+truncate table DEMO_INVEST_POP_TMP;
+truncate table DEMO_INVEST_POP_RESULT_TMP;
+truncate table DEMO_INVEST_BASIC_INFO;
+truncate table DEMO_INVEST_BASIC_INFO;
+truncate table DEMO_INVEST_INFO;
+truncate table DEMO_CO_INFO;
+truncate table DEMO_EMP_INFO;
+truncate table DEMO_OP_CO;
+truncate table DEMO_EMP_INVEST_TERM;
+truncate table DEMO_CO_INVEST_TERM;
+truncate table DEMO_APPL_NUM_REL;
+truncate table DEMO_INVEST_UNIT_VALUE;
+truncate table DEMO_EMP_INVEST;
+truncate table DEMO_CO_INVEST;
