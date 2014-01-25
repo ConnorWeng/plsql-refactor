@@ -112,8 +112,6 @@ create or replace type body ex_prod_info is
                                             o_msg  in out varchar2) is
     V_MSG VARCHAR2(4000) := NULL;
   begin
-    self.PROC_INIT_AND_CLEANUP;
-  
     if self.red_invest_time is null then
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
                                      '无法获取下一次赎回集中确认日',
@@ -121,6 +119,8 @@ create or replace type body ex_prod_info is
                                      O_MSG);
       RETURN;
     end if;
+  
+    self.PROC_INIT_AND_CLEANUP;
   
     self.PROC_EX_INIT_OPDATE_REL;
   
@@ -152,30 +152,28 @@ create or replace type body ex_prod_info is
       return;
     END IF;
   end;
+
   member function FUNC_GET_PLAN_ID_BY_INVEST_ID return varchar2 is
     V_PLAN_ID DEMO_INVEST_INFO.Plan_Id%type;
   begin
-    --获取计划编码
     SELECT PLAN_ID
       INTO V_PLAN_ID
       FROM DEMO_INVEST_INFO
      WHERE INVEST_ID = self.invest_id;
     return V_PLAN_ID;
   end;
+
   member function FUNC_GET_NEXT_RED_TIME RETURN VARCHAR2 IS
     RED_OP_TYPE CONSTANT NUMBER := 3;
     V_RED_INVEST_TIME DEMO_INVEST_OP_CONTROL.INVEST_TIME%TYPE;
-    --外部包调用子类内部方法，不支持直接放在外部包的方法内，需要分开写。
-    v_plan_id demo_plan_info.plan_id%type := self.func_get_plan_id_by_invest_id;
   BEGIN
-    --获取最近一次的集中确认日
     SELECT MIN(T.DEMO_INVEST_TIME)
       INTO V_RED_INVEST_TIME
       FROM V_INVEST_OP_CONTROL T
      WHERE T.INVEST_ID = self.invest_id
        AND T.OP_TYPE = RED_OP_TYPE
        AND T.DEMO_INVEST_TIME >
-           PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(v_plan_id);
+           PKG_DEMO_COMMON.FUNC_GET_PLANTIMEBYID(self.func_get_plan_id_by_invest_id);
     RETURN V_RED_INVEST_TIME;
   END;
 
