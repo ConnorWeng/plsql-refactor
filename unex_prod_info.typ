@@ -88,6 +88,19 @@ create or replace type body unex_prod_info is
   BEGIN
     INSERT INTO DEMO_INVEST_POP_RESULT_TMP
       (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT)
+      with EMP_CO_INVEST_ACCT as
+       (SELECT EMP_ID, CO_ID, INVEST_ID, SUBJECT_TYPE, QUOTIENT, AMT
+          FROM DEMO_EMP_INVEST
+         WHERE quotient > 0
+        UNION
+        SELECT 'FFFFFFFFFF' EMP_ID,
+               CO_ID,
+               INVEST_ID,
+               SUBJECT_TYPE,
+               QUOTIENT,
+               AMT
+          FROM DEMO_CO_INVEST
+         WHERE quotient > 0)
       SELECT T1.EMP_ID,
              T1.CO_ID,
              T1.SUBJECT_TYPE,
@@ -96,11 +109,12 @@ create or replace type body unex_prod_info is
                                        T2.quotient,
                                        T2.AMT),
              self.FUNC_GET_REDABLE_QUOTIENT(T1.quotient_remain, T2.quotient)
-        FROM DEMO_INVEST_POP_TMP T1, V_EMP_CO_INVEST_ACCT T2
+        FROM DEMO_INVEST_POP_TMP T1, EMP_CO_INVEST_ACCT T2
        WHERE T1.EMP_ID = T2.EMP_ID
          AND T1.SUBJECT_TYPE = T2.SUBJECT_TYPE
          AND T2.INVEST_ID = self.invest_id
          AND T1.quotient_remain > 0;
+  
   END;
 
 end;
