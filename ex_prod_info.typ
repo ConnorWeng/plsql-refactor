@@ -136,15 +136,16 @@ create or replace type body ex_prod_info is
   END;
 
   member procedure PROC_DEAL_POP_TO_TERM IS
-  
+    v_invest_term invest_term; 
   BEGIN
     FOR RS IN (SELECT T1.OP_DATE INVEST_TIME
                  FROM DEMO_OP_CO T1
                 ORDER BY PKG_DEMO.FUNC_GET_RED_PRIORITY(invest_id, T1.OP_DATE, red_invest_time) DESC) LOOP
     
-      self.PROC_DEAL_POP_EX_TO_TERM(RS.INVEST_TIME);
-    
-      EXIT WHEN FUNC_IS_TOTAL_TO_TERM_DONE(RS.INVEST_TIME);
+      v_invest_term := invest_term(self.invest_id, rs.invest_time); 
+      v_invest_term.PROC_DEAL_POP_EX_TO_TERM;
+      
+      EXIT WHEN v_invest_term.FUNC_IS_TOTAL_TO_TERM_DONE;
     END LOOP;
   
   END;
