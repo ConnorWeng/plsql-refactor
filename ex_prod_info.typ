@@ -5,7 +5,7 @@ create or replace type ex_prod_info under prod_info
     return self as result,
   member procedure PROC_EX_INIT_OPDATE_REL,
   member FUNCTION FUNC_EXIST_QUOTIENT_REMAIN RETURN BOOLEAN,
-  member procedure PROC_DEAL_POP_TO_TERM,
+  member function PROC_DEAL_POP_TO_TERM_SUCCESS return boolean,
   member PROCEDURE PROC_DEAL_POP_TO_APPL,
   overriding member PROCEDURE PROC_DEAL_POP(o_flag in out number,
                                             o_msg  in out varchar2),
@@ -50,7 +50,7 @@ create or replace type body ex_prod_info is
     RETURN V_COUNT > 0;
   END;
 
-  member procedure PROC_DEAL_POP_TO_TERM IS
+  member function PROC_DEAL_POP_TO_TERM_SUCCESS return boolean IS
     v_invest_term invest_term;
   BEGIN
     FOR RS IN (SELECT T1.OP_DATE INVEST_TIME
@@ -58,11 +58,14 @@ create or replace type body ex_prod_info is
                 ORDER BY PKG_DEMO.FUNC_GET_RED_PRIORITY(invest_id, T1.OP_DATE, red_invest_time) DESC) LOOP
     
       v_invest_term := invest_term(self.invest_id, rs.invest_time);
-      v_invest_term.PROC_DEAL_POP_EX_TO_TERM;
+      v_invest_term.PROC_DEAL_POP;
     
-      EXIT WHEN v_invest_term.FUNC_IS_TOTAL_TO_TERM_DONE;
+      if NOT self.FUNC_EXIST_QUOTIENT_REMAIN then
+        return TRUE;
+      end if;
     END LOOP;
   
+    return FALSE;
   END;
 
   member PROCEDURE PROC_DEAL_POP_TO_APPL IS
@@ -124,9 +127,7 @@ create or replace type body ex_prod_info is
   
     self.PROC_EX_INIT_OPDATE_REL;
   
-    self.PROC_DEAL_POP_TO_TERM;
-  
-    IF self.FUNC_EXIST_QUOTIENT_REMAIN THEN
+    IF NOT self.PROC_DEAL_POP_TO_TERM_SUCCESS THEN
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
                                      '进行后进先出处理时，资产不足',
                                      O_FLAG,

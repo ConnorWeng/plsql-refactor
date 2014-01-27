@@ -2,16 +2,21 @@ create or replace type invest_term as object
 (
   invest_id   varchar2(6),
   invest_time varchar2(10),
-  member PROCEDURE PROC_DEAL_POP_EX_TO_TERM,
-  member FUNCTION FUNC_IS_TOTAL_TO_TERM_DONE RETURN BOOLEAN,
-  member FUNCTION FUNC_EXIST_QUOTIENT_REMAIN RETURN BOOLEAN
-
+  member PROCEDURE PROC_DEAL_POP,
+  member PROCEDURE create_results,
+  member PROCEDURE update_quotient_remain
 )
 /
 create or replace type body invest_term is
-  member PROCEDURE PROC_DEAL_POP_EX_TO_TERM IS
-  
+  member PROCEDURE PROC_DEAL_POP IS
   BEGIN
+    create_results;
+
+    update_quotient_remain;
+  END;
+
+  member PROCEDURE create_results is
+  begin
     INSERT INTO DEMO_INVEST_POP_RESULT_TMP
       (EMP_ID, CO_ID, SUBJECT_TYPE, INVEST_TIME, AMT, QUOTIENT)
       SELECT T1.EMP_ID,
@@ -26,28 +31,29 @@ create or replace type body invest_term is
          AND T2.INVEST_ID = self.invest_id
          AND T2.INVEST_TIME = self.invest_time
          AND T1.quotient_remain > 0;
-  
-  END;
-  member FUNCTION FUNC_IS_TOTAL_TO_TERM_DONE RETURN BOOLEAN IS
-  BEGIN
+  end;
+
+  member PROCEDURE update_quotient_remain is
+  begin
     MERGE INTO DEMO_INVEST_POP_TMP A
     USING DEMO_INVEST_POP_RESULT_TMP B
     ON (A.EMP_ID = B.EMP_ID AND A.SUBJECT_TYPE = B.SUBJECT_TYPE AND A.CO_ID = B.CO_ID AND B.INVEST_TIME = self.invest_time)
     WHEN MATCHED THEN
       UPDATE SET A.quotient_remain = A.quotient_remain - B.quotient;
-  
-    RETURN NOT FUNC_EXIST_QUOTIENT_REMAIN;
-  END;
-  member FUNCTION FUNC_EXIST_QUOTIENT_REMAIN RETURN BOOLEAN IS
-    V_COUNT NUMBER;
-  BEGIN
-    SELECT COUNT(1)
-      INTO V_COUNT
-      FROM DEMO_INVEST_POP_TMP
-     WHERE quotient_remain > 0
-       AND ROWNUM = 1;
-    RETURN V_COUNT > 0;
-  END;
+  end;
 
 end;
 /
+
+set serveroutput on
+/
+
+BEGIN
+  utSuite.add ('UT_PKG_DEMO_PROC_POP_DEAL');
+  utPackage.add ('UT_PKG_DEMO_PROC_POP_DEAL', 'UT_PKG_DEMO_PROC_POP_DEAL_EX');
+  utPackage.add ('UT_PKG_DEMO_PROC_POP_DEAL', 'UT_PKG_DEMO_PROC_POP_DEAL_UNEX');
+  utPLSQL.runsuite ('UT_PKG_DEMO_PROC_POP_DEAL', per_method_setup_in => TRUE);
+END;
+/
+
+select last_status from ut_suite where name = 'UT_PKG_DEMO_PROC_POP_DEAL';
