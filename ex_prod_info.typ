@@ -3,10 +3,10 @@ create or replace type ex_prod_info under prod_info
   red_invest_time varchar2(10),
   constructor function ex_prod_info(I_INVEST_ID IN VARCHAR2)
     return self as result,
-  member procedure PROC_INIT_OPDATE_REL,
+  member procedure PROC_INIT_TERM_DATE,
   member FUNCTION FUNC_EXIST_QUOTIENT_REMAIN RETURN BOOLEAN,
-  member function FUNC_DEAL_POP_TO_TERM_SUCCESS return boolean,
-  member PROCEDURE PROC_DEAL_POP_TO_APPL,
+  member function FUNC_DEAL_POP_TO_TERM_SUCCESS RETURN BOOLEAN,
+  member function PROC_DEAL_POP_TO_APPL_SUCCESS RETURN BOOLEAN,
   overriding member PROCEDURE PROC_DEAL_POP(o_flag in out number,
                                             o_msg  in out varchar2),
   member function FUNC_GET_PLAN_ID_BY_INVEST_ID return varchar2,
@@ -26,7 +26,7 @@ create or replace type body ex_prod_info is
     return;
   end;
 
-  member procedure PROC_INIT_OPDATE_REL IS
+  member procedure PROC_INIT_TERM_DATE IS
   begin
     DELETE FROM DEMO_OP_CO;
     INSERT INTO DEMO_OP_CO
@@ -36,7 +36,9 @@ create or replace type body ex_prod_info is
        WHERE (T1.EMP_ID, t1.co_id, T1.SUBJECT_TYPE) IN
              (SELECT EMP_ID, co_id, SUBJECT_TYPE FROM DEMO_INVEST_POP_TMP)
          AND T1.INVEST_ID = self.invest_id
-         AND PKG_DEMO.FUNC_GET_RED_ABLE(invest_id, red_invest_time, T1.INVEST_TIME) = 0;
+         AND PKG_DEMO.FUNC_GET_RED_ABLE(invest_id,
+                                        red_invest_time,
+                                        T1.INVEST_TIME) = 0;
   end;
 
   member FUNCTION FUNC_EXIST_QUOTIENT_REMAIN RETURN BOOLEAN IS
@@ -50,34 +52,36 @@ create or replace type body ex_prod_info is
     RETURN V_COUNT > 0;
   END;
 
-  member function FUNC_DEAL_POP_TO_TERM_SUCCESS return boolean IS
+  member function FUNC_DEAL_POP_TO_TERM_SUCCESS RETURN BOOLEAN IS
     v_invest_term invest_term;
   BEGIN
     FOR RS IN (SELECT T1.OP_DATE INVEST_TIME
                  FROM DEMO_OP_CO T1
-                ORDER BY PKG_DEMO.FUNC_GET_RED_PRIORITY(invest_id, T1.OP_DATE, red_invest_time) DESC) LOOP
-
+                ORDER BY PKG_DEMO.FUNC_GET_RED_PRIORITY(invest_id,
+                                                        T1.OP_DATE,
+                                                        red_invest_time) DESC) LOOP
+    
       v_invest_term := invest_term(self.invest_id, rs.invest_time);
       v_invest_term.PROC_DEAL_POP;
-
+    
       if NOT self.FUNC_EXIST_QUOTIENT_REMAIN then
         return TRUE;
       end if;
     END LOOP;
-
+  
     return FALSE;
   END;
-  
-  member PROCEDURE PROC_DEAL_POP_TO_APPL IS
-    V_REDABLE_TERM_AMT       NUMBER(17, 2);
-    v_invest_appl            invest_appl;
+
+  member function PROC_DEAL_POP_TO_APPL_SUCCESS RETURN BOOLEAN IS
+    V_REDABLE_TERM_AMT NUMBER(17, 2);
+    v_invest_appl      invest_appl;
   BEGIN
     FOR RS IN (SELECT *
                  FROM DEMO_INVEST_POP_RESULT_TMP T1
                 WHERE T1.YAPPL_NUM IS NULL) LOOP
-
+    
       V_REDABLE_TERM_AMT := RS.AMT;
-
+    
       FOR RS1 IN (SELECT *
                     FROM DEMO_APPL_NUM_REL T2
                    WHERE T2.CO_ID = RS.CO_ID
@@ -92,13 +96,17 @@ create or replace type body ex_prod_info is
                                           rs1.appl_num,
                                           rs1.amt,
                                           rs1.red_amt);
-        V_REDABLE_TERM_AMT := v_invest_appl.FUNC_SPLIT_TERM_AMT_TO_APPL(V_REDABLE_TERM_AMT,RS.EMP_ID,RS.SUBJECT_TYPE);
-        
+        V_REDABLE_TERM_AMT := v_invest_appl.FUNC_SPLIT_TERM_AMT_TO_APPL(V_REDABLE_TERM_AMT,
+                                                                        RS.EMP_ID,
+                                                                        RS.SUBJECT_TYPE);
+      
       END LOOP;
     END LOOP;
-
+  
     DELETE FROM DEMO_INVEST_POP_RESULT_TMP WHERE YAPPL_NUM IS NULL;
-
+  
+    RETURN self.FUNC_IS_RED_TOTAL_AMT_NOTEQ;
+  
   END;
 
   overriding member PROCEDURE PROC_DEAL_POP(o_flag in out number,
@@ -112,11 +120,11 @@ create or replace type body ex_prod_info is
                                      O_MSG);
       RETURN;
     end if;
-
+  
     self.PROC_INIT_AND_CLEANUP;
-
-    self.PROC_INIT_OPDATE_REL;
-
+  
+    self.PROC_INIT_TERM_DATE;
+  
     IF NOT self.FUNC_DEAL_POP_TO_TERM_SUCCESS THEN
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
                                      '进行后进先出处理时，资产不足',
@@ -124,22 +132,15 @@ create or replace type body ex_prod_info is
                                      O_MSG);
       return;
     END IF;
-
-    self.PROC_DEAL_POP_TO_APPL;
-
-    IF self.FUNC_IS_RED_TOTAL_AMT_NOTEQ THEN
-      self.PROC_SET_O_FLAG_AND_O_MSG(2,
-                                     '赎回份额分配出错',
-                                     O_FLAG,
-                                     O_MSG);
+  
+  
+    IF self.PROC_DEAL_POP_TO_APPL_SUCCESS THEN
+      self.PROC_SET_O_FLAG_AND_O_MSG(2, '赎回份额分配出错', O_FLAG, O_MSG);
       return;
     END IF;
-
+  
     IF self.FUNC_IS_APPL_MORE_THEN_FIVE(V_MSG) THEN
-      self.PROC_SET_O_FLAG_AND_O_MSG(3,
-                                     V_MSG,
-                                     O_FLAG,
-                                     O_MSG);
+      self.PROC_SET_O_FLAG_AND_O_MSG(3, V_MSG, O_FLAG, O_MSG);
       return;
     END IF;
   end;
@@ -175,7 +176,7 @@ create or replace type body ex_prod_info is
     V_CO_ID  DEMO_CO_INFO.CO_ID%TYPE;
     MAX_APPL_NUM CONSTANT NUMBER := 5;
   BEGIN
-
+  
     BEGIN
       SELECT EMP_ID, CO_ID, CNT
         INTO V_EMP_ID, V_CO_ID, V_COUNT
@@ -188,16 +189,16 @@ create or replace type body ex_prod_info is
       WHEN NO_DATA_FOUND THEN
         RETURN FALSE;
     END;
-
+  
     SELECT DECODE(V_EMP_ID,
                   'FFFFFFFFFF',
                   '企业：' || PKG_DEMO_COMMON.FUNC_GET_COFNAMEBYID(V_CO_ID),
                   '员工：' || V_EMP_ID) || '生成申请单超过' || MAX_APPL_NUM || '条'
       INTO V_MSG
       FROM DUAL;
-
+  
     RETURN V_COUNT > 0;
-
+  
   END;
 end;
 /
