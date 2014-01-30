@@ -6,10 +6,10 @@ create or replace type invest_appl as object
   amt         number(17, 2),
   red_amt     number(17, 2),
   member function FUNC_GET_REDABLE_APPL_AMT RETURN NUMBER,
-  member PROCEDURE PROC_DEAL_POP_EX_TERM_TO_APPL(I_EMP_ID                 IN VARCHAR2,
-                                                 I_SUBJECT_TYPE           IN VARCHAR2,
-                                                 I_DEAL_POP_DONE_APPL_AMT IN NUMBER),
-  member function FUNC_SPLIT_TERM_AMT_TO_APPL(I_INVEST_APPL      IN OUT invest_appl,
+  member procedure PROC_DEAL_POP_TERM_TO_APPL(I_EMP_ID                 in VARCHAR2,
+                                              I_SUBJECT_TYPE           in VARCHAR2,
+                                              I_DEAL_POP_DONE_APPL_AMT in NUMBER),
+  member function FUNC_SPLIT_TERM_AMT_TO_APPL(self               IN OUT invest_appl,
                                               I_REDABLE_TERM_AMT IN NUMBER,
                                               I_EMP_ID           IN VARCHAR2,
                                               I_SUBJECT_TYPE     IN VARCHAR2)
@@ -29,9 +29,9 @@ create or replace type body invest_appl is
        AND T3.YAPPL_NUM = self.APPL_NUM;
     RETURN V_REDABLE_APPL_AMT;
   END;
-  member PROCEDURE PROC_DEAL_POP_EX_TERM_TO_APPL(I_EMP_ID                 IN VARCHAR2,
-                                                 I_SUBJECT_TYPE           IN VARCHAR2,
-                                                 I_DEAL_POP_DONE_APPL_AMT IN NUMBER) IS
+  member procedure PROC_DEAL_POP_TERM_TO_APPL(I_EMP_ID                 IN VARCHAR2,
+                                              I_SUBJECT_TYPE           IN VARCHAR2,
+                                              I_DEAL_POP_DONE_APPL_AMT IN NUMBER) IS
   
   BEGIN
     INSERT INTO DEMO_INVEST_POP_RESULT_TMP
@@ -46,7 +46,7 @@ create or replace type body invest_appl is
        self.APPL_NUM);
   
   END;
-  member function FUNC_SPLIT_TERM_AMT_TO_APPL(I_INVEST_APPL      IN OUT invest_appl,
+  member function FUNC_SPLIT_TERM_AMT_TO_APPL(self               IN OUT invest_appl,
                                               I_REDABLE_TERM_AMT IN NUMBER,
                                               I_EMP_ID           IN VARCHAR2,
                                               I_SUBJECT_TYPE     IN VARCHAR2)
@@ -59,9 +59,9 @@ create or replace type body invest_appl is
     IF V_REDABLE_APPL_AMT > 0 THEN
       V_DEAL_POP_DONE_APPL_AMT := LEAST(V_REDABLE_TERM_AMT,
                                         V_REDABLE_APPL_AMT);
-      I_INVEST_APPL.PROC_DEAL_POP_EX_TERM_TO_APPL(I_EMP_ID,
-                                                  I_SUBJECT_TYPE,
-                                                  V_DEAL_POP_DONE_APPL_AMT);
+      self.PROC_DEAL_POP_TERM_TO_APPL(I_EMP_ID,
+                                      I_SUBJECT_TYPE,
+                                      V_DEAL_POP_DONE_APPL_AMT);
     
       V_REDABLE_TERM_AMT := V_REDABLE_TERM_AMT - V_DEAL_POP_DONE_APPL_AMT;
     END IF;
