@@ -3,7 +3,7 @@ create or replace type ex_prod_info under prod_info
   red_invest_time varchar2(10),
   constructor function ex_prod_info(I_INVEST_ID IN VARCHAR2)
     return self as result,
-  member procedure PROC_EX_INIT_OPDATE_REL,
+  member procedure PROC_INIT_OPDATE_REL,
   member FUNCTION FUNC_EXIST_QUOTIENT_REMAIN RETURN BOOLEAN,
   member function PROC_DEAL_POP_TO_TERM_SUCCESS return boolean,
   member PROCEDURE PROC_DEAL_POP_TO_APPL,
@@ -26,7 +26,7 @@ create or replace type body ex_prod_info is
     return;
   end;
 
-  member procedure PROC_EX_INIT_OPDATE_REL IS
+  member procedure PROC_INIT_OPDATE_REL IS
   begin
     DELETE FROM DEMO_OP_CO;
     INSERT INTO DEMO_OP_CO
@@ -56,30 +56,28 @@ create or replace type body ex_prod_info is
     FOR RS IN (SELECT T1.OP_DATE INVEST_TIME
                  FROM DEMO_OP_CO T1
                 ORDER BY PKG_DEMO.FUNC_GET_RED_PRIORITY(invest_id, T1.OP_DATE, red_invest_time) DESC) LOOP
-    
+
       v_invest_term := invest_term(self.invest_id, rs.invest_time);
       v_invest_term.PROC_DEAL_POP;
-    
+
       if NOT self.FUNC_EXIST_QUOTIENT_REMAIN then
         return TRUE;
       end if;
     END LOOP;
-  
+
     return FALSE;
   END;
 
   member PROCEDURE PROC_DEAL_POP_TO_APPL IS
     V_REDABLE_TERM_AMT       NUMBER(17, 2);
-    V_REDABLE_APPL_AMT       NUMBER(17, 2);
-    V_DEAL_POP_DONE_APPL_AMT NUMBER(17, 2);
     v_invest_appl            invest_appl;
   BEGIN
     FOR RS IN (SELECT *
                  FROM DEMO_INVEST_POP_RESULT_TMP T1
                 WHERE T1.YAPPL_NUM IS NULL) LOOP
-    
+
       V_REDABLE_TERM_AMT := RS.AMT;
-    
+
       FOR RS1 IN (SELECT *
                     FROM DEMO_APPL_NUM_REL T2
                    WHERE T2.CO_ID = RS.CO_ID
@@ -91,24 +89,16 @@ create or replace type body ex_prod_info is
         exit when V_REDABLE_TERM_AMT = 0;
         v_invest_appl      := invest_appl(rs1.co_Id,
                                           rs1.invest_time,
-                                          rs1.appl_num);
-        V_REDABLE_APPL_AMT := v_invest_appl.FUNC_GET_REDABLE_APPL_AMT(RS1.AMT,
-                                                                      RS1.RED_AMT);
-        IF V_REDABLE_APPL_AMT > 0 THEN
-          V_DEAL_POP_DONE_APPL_AMT := LEAST(V_REDABLE_TERM_AMT,
-                                            V_REDABLE_APPL_AMT);
-          v_invest_appl.PROC_DEAL_POP_EX_TERM_TO_APPL(RS.EMP_ID,
-                                                      RS.SUBJECT_TYPE,
-                                                      V_DEAL_POP_DONE_APPL_AMT);
+                                          rs1.appl_num,
+                                          rs1.amt,
+                                          rs1.red_amt);
+        V_REDABLE_TERM_AMT := v_invest_appl.FUNC_SPLIT_TERM_AMT_TO_APPL(v_invest_appl,V_REDABLE_TERM_AMT,RS.EMP_ID,RS.SUBJECT_TYPE);
         
-          V_REDABLE_TERM_AMT := V_REDABLE_TERM_AMT -
-                                V_DEAL_POP_DONE_APPL_AMT;
-        END IF;
       END LOOP;
     END LOOP;
-  
+
     DELETE FROM DEMO_INVEST_POP_RESULT_TMP WHERE YAPPL_NUM IS NULL;
-  
+
   END;
 
   overriding member PROCEDURE PROC_DEAL_POP(o_flag in out number,
@@ -117,34 +107,34 @@ create or replace type body ex_prod_info is
   begin
     if self.red_invest_time is null then
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
-                                     'æ— æ³•èŽ·å–ä¸‹ä¸€æ¬¡èµŽå›žé›†ä¸­ç¡®è®¤æ—¥',
+                                     'ÎÞ·¨»ñÈ¡ÏÂÒ»´ÎÊê»Ø¼¯ÖÐÈ·ÈÏÈÕ',
                                      O_FLAG,
                                      O_MSG);
       RETURN;
     end if;
-  
+
     self.PROC_INIT_AND_CLEANUP;
-  
-    self.PROC_EX_INIT_OPDATE_REL;
-  
+
+    self.PROC_INIT_OPDATE_REL;
+
     IF NOT self.PROC_DEAL_POP_TO_TERM_SUCCESS THEN
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
-                                     'è¿›è¡ŒåŽè¿›å…ˆå‡ºå¤„ç†æ—¶ï¼Œèµ„äº§ä¸è¶³',
+                                     '½øÐÐºó½øÏÈ³ö´¦ÀíÊ±£¬×Ê²ú²»×ã',
                                      O_FLAG,
                                      O_MSG);
       return;
     END IF;
-  
+
     self.PROC_DEAL_POP_TO_APPL;
-  
+
     IF self.FUNC_IS_RED_TOTAL_AMT_NOTEQ THEN
       self.PROC_SET_O_FLAG_AND_O_MSG(2,
-                                     'èµŽå›žä»½é¢åˆ†é…å‡ºé”™',
+                                     'Êê»Ø·Ý¶î·ÖÅä³ö´í',
                                      O_FLAG,
                                      O_MSG);
       return;
     END IF;
-  
+
     IF self.FUNC_IS_APPL_MORE_THEN_FIVE(V_MSG) THEN
       self.PROC_SET_O_FLAG_AND_O_MSG(3,
                                      V_MSG,
@@ -185,7 +175,7 @@ create or replace type body ex_prod_info is
     V_CO_ID  DEMO_CO_INFO.CO_ID%TYPE;
     MAX_APPL_NUM CONSTANT NUMBER := 5;
   BEGIN
-  
+
     BEGIN
       SELECT EMP_ID, CO_ID, CNT
         INTO V_EMP_ID, V_CO_ID, V_COUNT
@@ -198,29 +188,16 @@ create or replace type body ex_prod_info is
       WHEN NO_DATA_FOUND THEN
         RETURN FALSE;
     END;
-  
+
     SELECT DECODE(V_EMP_ID,
                   'FFFFFFFFFF',
-                  'ä¼ä¸šï¼š' || PKG_DEMO_COMMON.FUNC_GET_COFNAMEBYID(V_CO_ID),
-                  'å‘˜å·¥ï¼š' || V_EMP_ID) || 'ç”Ÿæˆç”³è¯·å•è¶…è¿‡' || MAX_APPL_NUM || 'æ¡'
+                  'ÆóÒµ£º' || PKG_DEMO_COMMON.FUNC_GET_COFNAMEBYID(V_CO_ID),
+                  'Ô±¹¤£º' || V_EMP_ID) || 'Éú³ÉÉêÇëµ¥³¬¹ý' || MAX_APPL_NUM || 'Ìõ'
       INTO V_MSG
       FROM DUAL;
-  
+
     RETURN V_COUNT > 0;
-  
+
   END;
 end;
 /
-
-set serveroutput on
-/
-
-BEGIN
-  utSuite.add ('UT_PKG_DEMO_PROC_POP_DEAL');
-  utPackage.add ('UT_PKG_DEMO_PROC_POP_DEAL', 'UT_PKG_DEMO_PROC_POP_DEAL_EX');
-  utPackage.add ('UT_PKG_DEMO_PROC_POP_DEAL', 'UT_PKG_DEMO_PROC_POP_DEAL_UNEX');
-  utPLSQL.runsuite ('UT_PKG_DEMO_PROC_POP_DEAL', per_method_setup_in => TRUE);
-END;
-/
-
-select last_status from ut_suite where name = 'UT_PKG_DEMO_PROC_POP_DEAL';
